@@ -10,8 +10,17 @@ export const execute = async (action, req, res) => {
 				message: entity.error,
 				success: false,
 			});
-		} else {
-			res.formatter.created(entity);
+		}
+
+		switch (req.method) {
+			case "POST":
+				res.formatter.created(entity);
+
+				break;
+
+			default:
+				res.formatter.ok(entity);
+				break;
 		}
 	} catch (error) {
 		res.formatter.serverError({ message: error, success: false });

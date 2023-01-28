@@ -21,11 +21,6 @@ import {
 } from "../../helpers/validation.js";
 import createDebugMessages from "debug";
 
-export const log = () =>
-	console.log("process.env log :>> ", process.env.DB_PORT);
-
-console.log("process.env direct :>> ", process.env.DB_PORT);
-
 const debug = createDebugMessages("backend:games:routes");
 
 const router = express.Router();
