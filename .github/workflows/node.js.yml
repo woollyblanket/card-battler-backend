@@ -11,6 +11,7 @@ on:
 env:
     CI: true
     NODE_ENV: test
+    MONGODB_URI_TEST: mongodb://localhost:27017/card-battler-test
 
 jobs:
     build:
