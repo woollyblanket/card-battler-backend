@@ -36,6 +36,21 @@ export const dbConnect = async () => {
 	}
 };
 
+export const dbWipe = async () => {
+	try {
+		const db = await mongoose.connection.db;
+		if (!db) throw "Couldn't get DB";
+		const collections = await db.listCollections().toArray();
+		collections
+			.map((collection) => collection.name)
+			.forEach(async (collectionName) => {
+				await db.dropCollection(collectionName);
+			});
+	} catch (error) {
+		console.log("error :>> ", error);
+	}
+};
+
 export const dbClose = async () => {
 	return await mongoose.disconnect();
 };

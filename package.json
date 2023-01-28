@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "test": "NODE_ENV=test DEBUG=backend:* mocha --recursive --exit --timeout 10000",
+    "test": "NODE_ENV=test DEBUG=backend:* nyc mocha --recursive --exit --timeout 10000",
     "start": "node ./bin/www.js",
     "dev": "nodemon ./bin/www.js"
   },
@@ -26,6 +26,7 @@
     "chai": "^4.3.7",
     "mocha": "^10.2.0",
     "nodemon": "^2.0.20",
+    "nyc": "^15.1.0",
     "supertest": "^6.3.3"
   }
 }

@@ -1,15 +1,5 @@
 import mongoose from "mongoose";
-import { dbConnect, dbClose } from "./db.js";
-
-const wipeDB = async () => {
-	const db = await mongoose.connection.db;
-	const collections = await db.listCollections().toArray();
-	collections
-		.map((collection) => collection.name)
-		.forEach(async (collectionName) => {
-			await db.dropCollection(collectionName);
-		});
-};
+import { dbConnect, dbClose, dbWipe } from "./db.js";
 
 export const dbSetupWipeDBBeforeEach = () => {
 	before(async () => {
@@ -17,8 +7,7 @@ export const dbSetupWipeDBBeforeEach = () => {
 	});
 
 	beforeEach(async () => {
-		await wipeDB();
-		return await "done";
+		return await dbWipe();
 	});
 
 	after(async () => {
@@ -29,8 +18,7 @@ export const dbSetupWipeDBBeforeEach = () => {
 export const dbSetupWipeAtStart = () => {
 	before(async () => {
 		await dbConnect();
-		await wipeDB();
-		return await "done";
+		return await dbWipe();
 	});
 
 	after(async () => {
