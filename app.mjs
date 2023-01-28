@@ -21,22 +21,13 @@ import players from "./components/players/routes.js";
 
 import routes from "./routes/index.js";
 import users from "./routes/users.js";
-
-import { test } from "./test.js";
-import { log } from "./components/games/routes.js";
+import { dbConnect } from "./helpers/db.js";
 
 var app = express();
 
-log();
-
-test();
-
-mongoose.set("strictQuery", false);
-const mongoDB = `mongodb://127.0.0.1:${process.env.DB_PORT}/card-battler`;
-
 main().catch((err) => console.log(err));
 async function main() {
-	await mongoose.connect(mongoDB);
+	await dbConnect();
 	await setCards();
 	await setCharacters();
 }
