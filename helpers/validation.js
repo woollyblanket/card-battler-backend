@@ -12,7 +12,11 @@ export const evaluateRules = (req, res, next) => {
 
 	if (result.isEmpty()) return next();
 
-	res.formatter.badRequest(result.errors);
+	res.formatter.badRequest({
+		message: "Validation error",
+		success: false,
+		errors: result.errors,
+	});
 };
 
 export const validStatuses = ["new", "active", "archived", "paused"];
