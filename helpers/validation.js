@@ -130,21 +130,18 @@ export const checkIfStatus = (checkName) => {
 	];
 };
 
-export const checkIfAllowedDataType = (checkName, dataTypes) => {
+export const checkIfAllowedDataTypeAndOperation = (checkName, dataTypes) => {
 	return [
 		check(checkName).custom((value, { req }) => {
 			let amount = parseInt(req.params.amount);
-			console.log("typeof amount :>> ", typeof amount);
-
-			console.log("amount :>> ", amount);
 			if (isNaN(amount)) amount = req.params.amount;
 
-			console.log("amount :>> ", amount);
-			console.log("typeof amount :>> ", typeof amount);
-			console.log("dataTypes[value].type :>> ", dataTypes[value].type);
-
+			console.log("dataTypes[value] :>> ", dataTypes[value]);
+			if (!dataTypes[value].array && req.params.operation === "remove")
+				throw `Invalid operation. Operation 'remove' only allowed for arrays. Attribute '${value}' is of type '${dataTypes[value].type}'`;
 			if (dataTypes[value].type !== typeof amount)
 				throw `Invalid data type. Attribute '${value}' expects value '${amount}' to be of type '${dataTypes[value].type}'`;
+
 			return true;
 		}),
 	];

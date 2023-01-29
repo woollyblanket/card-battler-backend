@@ -18,7 +18,7 @@ import {
 	validDataTypes,
 	existsAndIsAlphanumeric,
 	checkIfStatus,
-	checkIfAllowedDataType,
+	checkIfAllowedDataTypeAndOperation,
 } from "../../helpers/validation.js";
 import createDebugMessages from "debug";
 
@@ -53,7 +53,7 @@ router.patch(
 	existsAndIsOneOfList("attribute", validAttributes.game),
 	existsAndIsOneOfList("operation", validOperations),
 	existsAndIsAlphanumeric("amount"),
-	checkIfAllowedDataType("attribute", validDataTypes.game),
+	checkIfAllowedDataTypeAndOperation("attribute", validDataTypes.game),
 	checkIfStatus("attribute"),
 	evaluateRules,
 	async (req, res, next) => {

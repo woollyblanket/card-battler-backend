@@ -177,4 +177,14 @@ describe("PATCH: /games/:id/:attribute/:operation/:amount", async () => {
 			isError: true,
 		});
 	});
+
+	it("should warn that the request is bad", async () => {
+		const res = await request(app).patch(`/games/${gameID}/round/remove/1`);
+
+		expectToBeTrue(res, {
+			status: 400,
+			success: false,
+			isError: true,
+		});
+	});
 });
