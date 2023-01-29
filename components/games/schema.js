@@ -9,7 +9,7 @@ export const gameSchema = new Schema({
 	round: { type: Number, default: 1 },
 	level: { type: Number, default: 1 },
 	score: { type: Number, default: 0 },
-	deck: [{ type: "ObjectId", ref: "Card" }],
+	deck: { type: "ObjectId", ref: "Deck" },
 	status: { type: String, default: "new" },
 	goal: { type: Number, default: 30 },
 	created: { type: Date, default: Date.now },

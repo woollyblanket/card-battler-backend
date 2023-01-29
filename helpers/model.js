@@ -240,6 +240,23 @@ export const createByField = async (mongooseModel, field, value) => {
 	}
 };
 
+export const create = async (mongooseModel) => {
+	try {
+		const item = await mongooseModel.create({});
+		console.log("item :>> ", item);
+		if (!item)
+			throw `Couldn't create the ${mongooseModel.modelName.toLowerCase()}`;
+
+		return {
+			message: `Created a ${mongooseModel.modelName.toLowerCase()}`,
+			success: true,
+			entity: item,
+		};
+	} catch (error) {
+		return { error };
+	}
+};
+
 export const createForID = async (
 	mongooseModel1,
 	id,

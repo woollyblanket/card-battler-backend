@@ -70,6 +70,17 @@ export const existsAndIsMongoID = (checkName) => {
 	];
 };
 
+export const isMongoID = (checkName) => {
+	return [
+		check(checkName)
+			.optional()
+			.isMongoId()
+			.withMessage(`${checkName} must be a MongoDB ObjectId`)
+			.trim()
+			.escape(),
+	];
+};
+
 export const existsAndIsOneOfList = (checkName, list) => {
 	return [
 		check(checkName)
@@ -107,6 +118,19 @@ export const existsAndIsAlphanumeric = (checkName) => {
 			.withMessage(`${checkName} must be a number`)
 			.trim()
 			.escape(),
+	];
+};
+
+export const isArrayOfObjectIDs = (checkName) => {
+	return [
+		check(checkName)
+			.optional()
+			.isArray()
+			.withMessage(`${checkName} must be an array`),
+		check(`${checkName}.*`)
+			.optional()
+			.isMongoId()
+			.withMessage(`${checkName} must contain Mongo ObjectIds`),
 	];
 };
 

@@ -18,6 +18,7 @@ import { setCharacters } from "./components/characters/model.js";
 
 import games from "./components/games/routes.js";
 import players from "./components/players/routes.js";
+import decks from "./components/decks/routes.js";
 
 import routes from "./routes/index.js";
 import users from "./routes/users.js";
@@ -60,6 +61,7 @@ app.use(responseEnhancer());
 app.use("/", routes);
 app.use("/games", games);
 app.use("/players", players);
+app.use("/decks", decks);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
