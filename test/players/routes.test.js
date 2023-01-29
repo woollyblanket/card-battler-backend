@@ -1,6 +1,9 @@
-import { expect } from "chai";
 import request from "supertest";
-import { dbSetupWipeAtStart } from "../../helpers/testing.js";
+import {
+	dbSetupWipeAtStart,
+	expectToBeTrue,
+	addEntity,
+} from "../../helpers/tests.js";
 import { app } from "../../app.mjs";
 
 describe("POST: /players/", async () => {
@@ -11,9 +14,11 @@ describe("POST: /players/", async () => {
 			.post("/players")
 			.send({ username: "test" });
 
-		expect(res.statusCode).to.equal(201);
-		expect(res.body.data.success).to.equal(true);
-		expect(res.body.data.entity).to.include({ username: "test" });
+		expectToBeTrue(res, {
+			status: 201,
+			success: true,
+			entityIncludes: { username: "test" },
+		});
 	});
 
 	it("should warn that the player already exists", async () => {
@@ -21,16 +26,21 @@ describe("POST: /players/", async () => {
 			.post("/players")
 			.send({ username: "test" });
 
-		expect(res.statusCode).to.equal(200);
-		expect(res.body.data.success).to.equal(false);
-		expect(res.body.data.message).to.include("already exists");
+		expectToBeTrue(res, {
+			status: 200,
+			success: false,
+			messageIncludes: "already exists",
+		});
 	});
 
 	it("should warn that the request is bad", async () => {
 		const res = await request(app).post("/players");
 
-		expect(res.statusCode).to.equal(400);
-		expect(res.body).to.haveOwnProperty("error");
+		expectToBeTrue(res, {
+			status: 400,
+			success: false,
+			isError: true,
+		});
 	});
 });
 
@@ -38,11 +48,162 @@ describe("GET: /players", async () => {
 	dbSetupWipeAtStart();
 
 	it("should get all players", async () => {
-		await request(app).post("/players").send({ username: "test" });
 		const res = await request(app).get("/players");
 
-		expect(res.statusCode).to.equal(200);
-		expect(res.body.data.success).to.equal(true);
-		expect(res.body.data.entities).to.be.an("array");
+		expectToBeTrue(res, {
+			status: 200,
+			success: true,
+			entitiesExist: true,
+		});
+	});
+});
+
+describe("GET: /players/:id", async () => {
+	dbSetupWipeAtStart();
+
+	it("should get a single player", async () => {
+		const playerID = await addEntity("/players", { username: "test" });
+
+		const res = await request(app).get(`/players/${playerID}`);
+
+		expectToBeTrue(res, {
+			status: 200,
+			success: true,
+			entityIncludes: {
+				_id: playerID,
+			},
+		});
+	});
+
+	it("should warn that the request is bad", async () => {
+		const res = await request(app).get(`/players/1`);
+
+		expectToBeTrue(res, {
+			status: 400,
+			success: false,
+			isError: true,
+		});
+	});
+});
+
+describe("GET: /players/username/:username", async () => {
+	dbSetupWipeAtStart();
+
+	it("should get a single player", async () => {
+		const playerID = await addEntity("/players", { username: "test" });
+
+		const res = await request(app).get(`/players/username/test`);
+
+		expectToBeTrue(res, {
+			status: 200,
+			success: true,
+			entityIncludes: {
+				_id: playerID,
+			},
+		});
+	});
+
+	it("should warn that it can't find the player", async () => {
+		const res = await request(app).get(`/players/username/1`);
+
+		expectToBeTrue(res, {
+			status: 200,
+			success: false,
+			messageIncludes: "Couldn't find",
+		});
+	});
+});
+
+describe("POST: /players/:id/games", async () => {
+	dbSetupWipeAtStart();
+
+	it("should create a new game associated with the player", async () => {
+		const playerID = await addEntity("/players", { username: "test" });
+
+		const res = await request(app).post(`/players/${playerID}/games`);
+
+		expectToBeTrue(res, {
+			status: 201,
+			success: true,
+			entityIncludes: {
+				player: playerID,
+			},
+		});
+	});
+
+	it("should warn that the request is bad", async () => {
+		const res = await request(app).post(`/players/12345/games`);
+
+		expectToBeTrue(res, {
+			status: 400,
+			success: false,
+			isError: true,
+		});
+	});
+});
+
+describe("GET: /players/:id/games", async () => {
+	dbSetupWipeAtStart();
+
+	it("should list the games associated with the player", async () => {
+		const playerID = await addEntity("/players", { username: "test" });
+
+		const res = await request(app).get(`/players/${playerID}/games`);
+
+		expectToBeTrue(res, {
+			status: 200,
+			success: true,
+			entitiesExist: true,
+		});
+	});
+
+	it("should warn that the request is bad", async () => {
+		const res = await request(app).get(`/players/12345/games`);
+
+		expectToBeTrue(res, {
+			status: 400,
+			success: false,
+			isError: true,
+		});
+	});
+});
+
+describe("GET: /players/:id/games/:id", async () => {
+	dbSetupWipeAtStart();
+	let playerID;
+
+	it("should get a game associated with the player", async () => {
+		playerID = await addEntity("/players", { username: "test" });
+		const gameID = await addEntity(`/players/${playerID}/games`);
+
+		const res = await request(app).get(
+			`/players/${playerID}/games/${gameID}`
+		);
+
+		expectToBeTrue(res, {
+			status: 200,
+			success: true,
+			entityIncludes: { _id: gameID },
+		});
+	});
+
+	it("should warn that the request is bad", async () => {
+		const res = await request(app).get(`/players/12345/games`);
+
+		expectToBeTrue(res, {
+			status: 400,
+			success: false,
+			isError: true,
+		});
+	});
+
+	it("should warn that the request is bad", async () => {
+		const res = await request(app).get(`/players/${playerID}/games/12345`);
+
+		expectToBeTrue(res, {
+			status: 400,
+			success: false,
+			isError: true,
+		});
 	});
 });
