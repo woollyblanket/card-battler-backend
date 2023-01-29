@@ -1,9 +1,10 @@
-import mongoose from "mongoose";
-import { dbConnect, dbClose, dbWipe } from "./db.js";
+import { dbWipe, dbConnectTest, dbCloseTest } from "./db.js";
+
+let mongoServer;
 
 export const dbSetupWipeDBBeforeEach = () => {
 	before(async () => {
-		return await dbConnect();
+		mongoServer = await dbConnectTest();
 	});
 
 	beforeEach(async () => {
@@ -11,17 +12,18 @@ export const dbSetupWipeDBBeforeEach = () => {
 	});
 
 	after(async () => {
-		return await dbClose();
+		await dbCloseTest(mongoServer);
 	});
 };
 
 export const dbSetupWipeAtStart = () => {
 	before(async () => {
-		await dbConnect();
-		return await dbWipe();
+		mongoServer = await dbConnectTest();
+
+		await dbWipe();
 	});
 
 	after(async () => {
-		return await dbClose();
+		await dbCloseTest(mongoServer);
 	});
 };

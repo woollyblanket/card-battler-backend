@@ -31,7 +31,6 @@ router.get(
 	existsAndIsMongoID("gameID"),
 	evaluateRules,
 	async (req, res, next) => {
-		console.log("process.env get :>> ", process.env.DB_PORT);
 		execute(getGame, req, res);
 	}
 );
