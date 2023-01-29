@@ -1,7 +1,6 @@
 import express from "express";
 import {
 	getGame,
-	updateStatus,
 	deleteGame,
 	updateGameAttribute,
 	addCard,
@@ -10,14 +9,16 @@ import {
 import { execute } from "../../helpers/routes.js";
 import {
 	evaluateRules,
-	validStatuses,
 	existsAndIsString,
 	existsAndIsNumber,
 	existsAndIsMongoID,
 	existsAndIsOneOfList,
 	validAttributes,
 	validOperations,
+	validDataTypes,
 	existsAndIsAlphanumeric,
+	checkIfStatus,
+	checkIfAllowedDataType,
 } from "../../helpers/validation.js";
 import createDebugMessages from "debug";
 
@@ -35,17 +36,6 @@ router.get(
 	}
 );
 
-// [patch] /games/:id/status/:status - updates the status of the game.
-router.patch(
-	"/:gameID/status/:status",
-	existsAndIsMongoID("gameID"),
-	existsAndIsOneOfList("status", validStatuses),
-	evaluateRules,
-	async (req, res, next) => {
-		execute(updateStatus, req, res);
-	}
-);
-
 // [delete] /games/:id - deletes the game
 router.delete(
 	"/:gameID",
@@ -56,13 +46,15 @@ router.delete(
 	}
 );
 
-// [patch] /games/:id/:property/:operation/:amount - updates the property, using the operation and the amount
+// [patch] /games/:id/:attribute/:operation/:amount - updates the property, using the operation and the amount
 router.patch(
 	"/:gameID/:attribute/:operation/:amount",
 	existsAndIsMongoID("gameID"),
 	existsAndIsOneOfList("attribute", validAttributes.game),
 	existsAndIsOneOfList("operation", validOperations),
 	existsAndIsAlphanumeric("amount"),
+	checkIfAllowedDataType("attribute", validDataTypes.game),
+	checkIfStatus("attribute"),
 	evaluateRules,
 	async (req, res, next) => {
 		execute(updateGameAttribute, req, res);

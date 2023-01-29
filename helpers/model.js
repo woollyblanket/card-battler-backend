@@ -1,4 +1,5 @@
 import createDebugMessages from "debug";
+import _ from "underscore";
 
 const debug = createDebugMessages("backend:helper:model");
 
@@ -264,4 +265,36 @@ export const createForID = async (
 	} catch (error) {
 		return { error };
 	}
+};
+
+export const getModelDataTypes = (schemaObject) => {
+	let dataTypes = {};
+	Object.keys(schemaObject).forEach((key, index) => {
+		dataTypes[key] = {};
+
+		let check;
+		if (_.isArray(schemaObject[key])) {
+			dataTypes[key]["array"] = true;
+			check = schemaObject[key][0].type;
+		} else {
+			check = schemaObject[key].type;
+		}
+
+		if (_.isString(check)) {
+			// we've got the type straight away
+			dataTypes[key]["type"] = check.toLowerCase();
+		} else if (_.isFunction(check)) {
+			dataTypes[key]["type"] = check.name.toLowerCase();
+		} else if (_.isUndefined(check)) {
+			debug(
+				"Type is undefined. Key is %o. Assuming data type is object",
+				key
+			);
+			dataTypes[key]["object"] = true;
+			dataTypes[key]["type"] = "object";
+		} else {
+			debug("Can't figure out datatype of %o", check);
+		}
+	});
+	return dataTypes;
 };

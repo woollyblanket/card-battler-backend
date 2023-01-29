@@ -1,8 +1,10 @@
 import { cardSchema } from "./schema.js";
 import mongoose from "mongoose";
+import { getModelDataTypes } from "../../helpers/model.js";
 
 const Card = mongoose.model("Card", cardSchema);
 export const validAttributes = Object.getOwnPropertyNames(Card.schema.obj);
+export const validDataTypes = getModelDataTypes(Card.schema.obj);
 
 export const setCards = async () => {
 	await new Card({

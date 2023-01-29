@@ -41,6 +41,10 @@ export const expectToBeTrue = (res, details) => {
 		expect(res.body.data.message).to.include(details.messageIncludes);
 	if (details.isError) expect(res.body).to.haveOwnProperty("error");
 	if (details.entitiesExist) expect(res.body.data.entities).to.be.an("array");
+	if (details.attributeEquals)
+		expect(res.body.data.entity[details.attributeEquals.name]).to.be.equal(
+			details.attributeEquals.value
+		);
 };
 
 export const addEntity = async (path, data) => {

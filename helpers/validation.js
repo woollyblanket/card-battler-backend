@@ -1,8 +1,20 @@
 import { body, param, check, validationResult } from "express-validator";
-import { validAttributes as gameAttributes } from "../components/games/model.js";
-import { validAttributes as playerAttributes } from "../components/players/model.js";
-import { validAttributes as characterAttributes } from "../components/characters/model.js";
-import { validAttributes as cardAttributes } from "../components/cards/model.js";
+import {
+	validAttributes as gameAttributes,
+	validDataTypes as gameDataTypes,
+} from "../components/games/model.js";
+import {
+	validAttributes as playerAttributes,
+	validDataTypes as playerDataTypes,
+} from "../components/players/model.js";
+import {
+	validAttributes as characterAttributes,
+	validDataTypes as characterDataTypes,
+} from "../components/characters/model.js";
+import {
+	validAttributes as cardAttributes,
+	validDataTypes as cardDataTypes,
+} from "../components/cards/model.js";
 import createDebugMessages from "debug";
 
 const debug = createDebugMessages("backend:helper:validation");
@@ -25,6 +37,12 @@ export const validAttributes = {
 	player: playerAttributes,
 	card: cardAttributes,
 	character: characterAttributes,
+};
+export const validDataTypes = {
+	game: gameDataTypes,
+	player: playerDataTypes,
+	card: cardDataTypes,
+	characterDataTypes: characterDataTypes,
 };
 export const validOperations = ["add", "subtract", "assign", "remove"];
 
@@ -89,5 +107,45 @@ export const existsAndIsAlphanumeric = (checkName) => {
 			.withMessage(`${checkName} must be a number`)
 			.trim()
 			.escape(),
+	];
+};
+
+export const checkIfStatus = (checkName) => {
+	return [
+		check(checkName).custom((value, { req }) => {
+			if (value === "status") {
+				// the only operations allowed are: assign
+				if (req.params.operation !== "assign") {
+					throw `Invalid operation. When updating the status, the operation must be 'assign'`;
+				}
+				// the only values allowed are in the valid status list
+				if (validStatuses.includes(req.params.amount) === false) {
+					throw `Invalid value. When updating the status, the valid values are: ${validStatuses.join(
+						", "
+					)}`;
+				}
+			}
+			return true;
+		}),
+	];
+};
+
+export const checkIfAllowedDataType = (checkName, dataTypes) => {
+	return [
+		check(checkName).custom((value, { req }) => {
+			let amount = parseInt(req.params.amount);
+			console.log("typeof amount :>> ", typeof amount);
+
+			console.log("amount :>> ", amount);
+			if (isNaN(amount)) amount = req.params.amount;
+
+			console.log("amount :>> ", amount);
+			console.log("typeof amount :>> ", typeof amount);
+			console.log("dataTypes[value].type :>> ", dataTypes[value].type);
+
+			if (dataTypes[value].type !== typeof amount)
+				throw `Invalid data type. Attribute '${value}' expects value '${amount}' to be of type '${dataTypes[value].type}'`;
+			return true;
+		}),
 	];
 };
