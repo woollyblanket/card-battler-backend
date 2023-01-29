@@ -4,7 +4,7 @@
 	"private": true,
 	"type": "module",
 	"scripts": {
-		"test": "NODE_ENV=test DEBUG=backend:* nyc mocha --recursive --exit --timeout 10000",
+		"test": "NODE_ENV=test DEBUG=backend:* c8 --reporter=html --reporter=text mocha --recursive --exit --timeout 10000",
 		"start": "node ./bin/www.js",
 		"dev": "nodemon ./bin/www.js"
 	},
