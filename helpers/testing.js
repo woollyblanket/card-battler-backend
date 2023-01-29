@@ -1,39 +1,29 @@
-import mongoose from "mongoose";
-import { dbConnect, dbClose } from "./db.js";
+import { dbWipe, dbConnectTest, dbCloseTest } from "./db.js";
 
-const wipeDB = async () => {
-	const db = await mongoose.connection.db;
-	const collections = await db.listCollections().toArray();
-	collections
-		.map((collection) => collection.name)
-		.forEach(async (collectionName) => {
-			await db.dropCollection(collectionName);
-		});
-};
+let mongoServer;
 
 export const dbSetupWipeDBBeforeEach = () => {
 	before(async () => {
-		return await dbConnect();
+		mongoServer = await dbConnectTest();
 	});
 
 	beforeEach(async () => {
-		await wipeDB();
-		return await "done";
+		return await dbWipe();
 	});
 
 	after(async () => {
-		return await dbClose();
+		await dbCloseTest(mongoServer);
 	});
 };
 
 export const dbSetupWipeAtStart = () => {
 	before(async () => {
-		await dbConnect();
-		await wipeDB();
-		return await "done";
+		mongoServer = await dbConnectTest();
+
+		await dbWipe();
 	});
 
 	after(async () => {
-		return await dbClose();
+		await dbCloseTest(mongoServer);
 	});
 };

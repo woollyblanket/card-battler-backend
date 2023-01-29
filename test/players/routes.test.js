@@ -3,7 +3,7 @@ import request from "supertest";
 import { dbSetupWipeAtStart } from "../../helpers/testing.js";
 import { app } from "../../app.mjs";
 
-describe("POST: /players/", () => {
+describe("POST: /players/", async () => {
 	dbSetupWipeAtStart();
 
 	it("should create a new player", async () => {
@@ -34,8 +34,9 @@ describe("POST: /players/", () => {
 	});
 });
 
-describe("GET: /players", () => {
+describe("GET: /players", async () => {
 	dbSetupWipeAtStart();
+
 	it("should get all players", async () => {
 		await request(app).post("/players").send({ username: "test" });
 		const res = await request(app).get("/players");

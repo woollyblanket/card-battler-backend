@@ -1,9 +1,24 @@
 import mongoose from "mongoose";
 import Debug from "debug";
 import * as dotenv from "dotenv";
+import { MongoMemoryServer } from "mongodb-memory-server";
 dotenv.config();
 
 const debug = Debug("backend:helpers:db");
+
+export const dbConnectTest = async () => {
+	const mongoServer = await MongoMemoryServer.create();
+	const mongoUri = mongoServer.getUri();
+	mongoose.set("strictQuery", false);
+	await mongoose.connect(mongoUri);
+
+	return mongoServer;
+};
+
+export const dbCloseTest = async (mongoServer) => {
+	await mongoose.disconnect();
+	await mongoServer.stop();
+};
 
 export const dbConnect = async () => {
 	try {
@@ -25,12 +40,24 @@ export const dbConnect = async () => {
 		}
 
 		mongoose.set("strictQuery", false);
-		await mongoose.connect(dbURI, {
-			useNewUrlParser: true,
-			useUnifiedTopology: true,
-		});
+		await mongoose.connect(dbURI);
 
 		return mongoose.connection;
+	} catch (error) {
+		console.log("error :>> ", error);
+	}
+};
+
+export const dbWipe = async () => {
+	try {
+		const db = await mongoose.connection.db;
+		if (!db) throw "Couldn't get DB";
+		const collections = await db.listCollections().toArray();
+		collections
+			.map((collection) => collection.name)
+			.forEach(async (collectionName) => {
+				await db.dropCollection(collectionName);
+			});
 	} catch (error) {
 		console.log("error :>> ", error);
 	}

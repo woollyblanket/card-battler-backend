@@ -27,9 +27,11 @@ var app = express();
 
 main().catch((err) => console.log(err));
 async function main() {
-	await dbConnect();
-	await setCards();
-	await setCharacters();
+	if (process.env.NODE_ENV !== "test") {
+		await dbConnect();
+		await setCards();
+		await setCharacters();
+	}
 }
 
 // view engine setup
