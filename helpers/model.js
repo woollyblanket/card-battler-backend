@@ -115,9 +115,42 @@ export const getByIDAndUpdate = async (
 		// 	updateValue,
 		// 	updateOperation,
 		// });
-		const item = await mongooseModel.findById(id).exec();
+
+		let item = await mongooseModel.findById(id).exec();
 		if (!item)
 			throw `Couldn't find the ${mongooseModel.modelName.toLowerCase()}`;
+
+		// what if the updateField doesn't exist but is an allowed field in the db?
+		// should create it first and then update it?
+		// yes, I think.
+
+		let wasBlank = false;
+
+		if (!item[updateField]) {
+			debug(`${updateField} isn't set. Creating first, then updating`);
+
+			wasBlank = true;
+			const dataType = getModelDataTypes(mongooseModel.schema.obj)[
+				updateField
+			].type;
+			if (dataType === "objectid") {
+				item[updateField] = updateValue;
+			}
+			if (dataType === "number") {
+				item[updateField] = 0;
+			}
+			if (dataType === "string") {
+				item[updateField] = "";
+			}
+			if (dataType === "array") {
+				item[updateField] = [];
+			}
+			if (dataType === "object") {
+				item[updateField] = {};
+			}
+
+			item = await item.save();
+		}
 
 		let oldVal, oldValSize;
 
@@ -178,11 +211,13 @@ export const getByIDAndUpdate = async (
 		if (validOperation) {
 			let diff = "";
 
+			if (wasBlank) oldVal = "<blank>";
+
 			if (Array.isArray(item[updateField])) {
 				const text = { add: "Added", remove: "Removed" };
-				diff = `Size: ${oldValSize} -> ${newValSize}. ${text[updateOperation]}: ${updateValue}`;
+				diff += `Size: ${oldValSize} -> ${newValSize}. ${text[updateOperation]}: ${updateValue}`;
 			} else {
-				diff = `${oldVal} -> ${newVal}`;
+				diff += `${oldVal} -> ${newVal}`;
 			}
 
 			message = `Updated the ${updateField} (${diff}) on ${mongooseModel.modelName.toLowerCase()}: ${

@@ -15,7 +15,13 @@ import {
 	validAttributes as cardAttributes,
 	validDataTypes as cardDataTypes,
 } from "../components/cards/model.js";
+import {
+	validAttributes as deckAttributes,
+	validDataTypes as deckDataTypes,
+} from "../components/decks/model.js";
 import createDebugMessages from "debug";
+import mongoose from "mongoose";
+import { config } from "dotenv";
 
 const debug = createDebugMessages("backend:helper:validation");
 
@@ -23,6 +29,8 @@ export const evaluateRules = (req, res, next) => {
 	const result = validationResult(req);
 
 	if (result.isEmpty()) return next();
+
+	debug("%j", result.errors);
 
 	res.formatter.badRequest({
 		message: "Validation error",
@@ -37,12 +45,14 @@ export const validAttributes = {
 	player: playerAttributes,
 	card: cardAttributes,
 	character: characterAttributes,
+	deck: deckAttributes,
 };
 export const validDataTypes = {
 	game: gameDataTypes,
 	player: playerDataTypes,
 	card: cardDataTypes,
 	characterDataTypes: characterDataTypes,
+	deck: deckDataTypes,
 };
 export const validOperations = ["add", "subtract", "assign", "remove"];
 
@@ -157,13 +167,29 @@ export const checkIfStatus = (checkName) => {
 export const checkIfAllowedDataTypeAndOperation = (checkName, dataTypes) => {
 	return [
 		check(checkName).custom((name, { req }) => {
-			let val = parseInt(req.params.value);
-			if (isNaN(val)) val = req.params.value;
+			let val;
+			let isObjectID = false;
+			if (mongoose.isObjectIdOrHexString(req.params.value)) {
+				val = req.params.value;
+				isObjectID = true;
+			} else {
+				val = parseInt(req.params.value);
+				if (isNaN(val)) val = req.params.value;
+			}
 
 			if (!dataTypes[name].array && req.params.operation === "remove")
 				throw `Invalid operation. Operation 'remove' only allowed for arrays. Attribute '${name}' is of type '${dataTypes[name].type}'`;
-			if (dataTypes[name].type !== typeof val)
-				throw `Invalid data type. Attribute '${name}' expects value '${val}' to be of type '${dataTypes[name].type}'`;
+
+			// objectids are typeof string, so need to handle them separately
+			if (isObjectID) {
+				if (dataTypes[name].type !== "objectid")
+					throw `Invalid data type. Attribute '${name}' expects value '${val}' to be of type '${dataTypes[name].type}'`;
+			} else {
+				if (dataTypes[name].type === "objectid")
+					throw `Invalid data type. Attribute '${name}' expects value '${val}' to be of type 'objectid'`;
+				if (dataTypes[name].type !== typeof val)
+					throw `Invalid data type. Attribute '${name}' expects value '${val}' to be of type '${dataTypes[name].type}'`;
+			}
 
 			return true;
 		}),
