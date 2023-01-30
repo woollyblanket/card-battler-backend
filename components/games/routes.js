@@ -48,38 +48,16 @@ router.delete(
 
 // [patch] /games/:id/:attribute/:operation/:amount - updates the property, using the operation and the amount
 router.patch(
-	"/:gameID/:attribute/:operation/:amount",
+	"/:gameID/:attribute/:operation/:value",
 	existsAndIsMongoID("gameID"),
 	existsAndIsOneOfList("attribute", validAttributes.game),
 	existsAndIsOneOfList("operation", validOperations),
-	existsAndIsAlphanumeric("amount"),
+	existsAndIsAlphanumeric("value"),
 	checkIfAllowedDataTypeAndOperation("attribute", validDataTypes.game),
 	checkIfStatus("attribute"),
 	evaluateRules,
 	async (req, res, next) => {
 		execute(updateGameAttribute, req, res);
-	}
-);
-
-// [patch] /games/:id/deck/add/:cardID - adds a card to the deck
-router.patch(
-	"/:gameID/deck/add/:cardID",
-	existsAndIsMongoID("gameID"),
-	existsAndIsMongoID("cardID"),
-	evaluateRules,
-	async (req, res, next) => {
-		execute(addCard, req, res);
-	}
-);
-
-// [patch] /games/:id/deck/remove/:cardID - removes a card from the deck
-router.patch(
-	"/:gameID/deck/remove/:cardID",
-	existsAndIsMongoID("gameID"),
-	existsAndIsMongoID("cardID"),
-	evaluateRules,
-	async (req, res, next) => {
-		execute(removeCard, req, res);
 	}
 );
 

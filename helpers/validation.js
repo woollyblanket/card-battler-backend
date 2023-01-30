@@ -143,7 +143,7 @@ export const checkIfStatus = (checkName) => {
 					throw `Invalid operation. When updating the status, the operation must be 'assign'`;
 				}
 				// the only values allowed are in the valid status list
-				if (validStatuses.includes(req.params.amount) === false) {
+				if (validStatuses.includes(req.params.value) === false) {
 					throw `Invalid value. When updating the status, the valid values are: ${validStatuses.join(
 						", "
 					)}`;
@@ -156,15 +156,14 @@ export const checkIfStatus = (checkName) => {
 
 export const checkIfAllowedDataTypeAndOperation = (checkName, dataTypes) => {
 	return [
-		check(checkName).custom((value, { req }) => {
-			let amount = parseInt(req.params.amount);
-			if (isNaN(amount)) amount = req.params.amount;
+		check(checkName).custom((name, { req }) => {
+			let val = parseInt(req.params.value);
+			if (isNaN(val)) val = req.params.value;
 
-			console.log("dataTypes[value] :>> ", dataTypes[value]);
-			if (!dataTypes[value].array && req.params.operation === "remove")
-				throw `Invalid operation. Operation 'remove' only allowed for arrays. Attribute '${value}' is of type '${dataTypes[value].type}'`;
-			if (dataTypes[value].type !== typeof amount)
-				throw `Invalid data type. Attribute '${value}' expects value '${amount}' to be of type '${dataTypes[value].type}'`;
+			if (!dataTypes[name].array && req.params.operation === "remove")
+				throw `Invalid operation. Operation 'remove' only allowed for arrays. Attribute '${name}' is of type '${dataTypes[name].type}'`;
+			if (dataTypes[name].type !== typeof val)
+				throw `Invalid data type. Attribute '${name}' expects value '${val}' to be of type '${dataTypes[name].type}'`;
 
 			return true;
 		}),
