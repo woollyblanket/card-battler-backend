@@ -9,7 +9,7 @@ export const validDataTypes = getModelDataTypes(Character.schema.obj);
 export const setCharacters = async () => {
 	await new Character({
 		name: "The Hero",
-		architype: "hero",
+		archetype: "hero",
 		description: "The Hero is strong",
 		hp: 70,
 		ap: 3,
@@ -19,17 +19,17 @@ export const setCharacters = async () => {
 	}).save();
 	await new Character({
 		name: "The Protector",
-		architype: "tank",
+		archetype: "tank",
 		description: "The Protector is durable",
 		hp: 100,
 		ap: 3,
 		abilities: {
-			sheild: 2,
+			shield: 2,
 		},
 	}).save();
 	await new Character({
 		name: "The Survivor",
-		architype: "nimble",
+		archetype: "nimble",
 		description: "The Survivor is digs deep",
 		hp: 70,
 		ap: 5,

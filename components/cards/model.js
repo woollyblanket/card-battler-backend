@@ -34,9 +34,9 @@ export const setCards = async () => {
 		actions: { heal: 2 },
 	}).save();
 	await new Card({
-		name: "Sheild",
-		type: "sheild",
-		description: "Sheilds 7 damage",
-		actions: { sheild: 7 },
+		name: "Shield",
+		type: "shield",
+		description: "Shields 7 damage",
+		actions: { shield: 7 },
 	}).save();
 };

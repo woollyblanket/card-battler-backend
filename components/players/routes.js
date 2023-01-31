@@ -77,7 +77,7 @@ router.post(
 	}
 );
 
-// [get] /players/:playerID/games/:playerID - get specific game belonging to that player
+// [get] /players/:playerID/games/:gameID - get specific game belonging to that player
 router.get(
 	"/:playerID/games/:gameID",
 	existsAndIsMongoID("playerID"),

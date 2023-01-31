@@ -9,6 +9,6 @@ export const cardSchema = new Schema({
 	actions: {
 		damage: { type: Number },
 		heal: { type: Number },
-		sheild: { type: Number },
+		shield: { type: Number },
 	},
 });

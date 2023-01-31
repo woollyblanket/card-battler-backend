@@ -15,7 +15,13 @@ import {
 	validAttributes as cardAttributes,
 	validDataTypes as cardDataTypes,
 } from "../components/cards/model.js";
+import {
+	validAttributes as deckAttributes,
+	validDataTypes as deckDataTypes,
+} from "../components/decks/model.js";
 import createDebugMessages from "debug";
+import mongoose from "mongoose";
+import { config } from "dotenv";
 
 const debug = createDebugMessages("backend:helper:validation");
 
@@ -23,6 +29,8 @@ export const evaluateRules = (req, res, next) => {
 	const result = validationResult(req);
 
 	if (result.isEmpty()) return next();
+
+	debug("%j", result.errors);
 
 	res.formatter.badRequest({
 		message: "Validation error",
@@ -37,12 +45,14 @@ export const validAttributes = {
 	player: playerAttributes,
 	card: cardAttributes,
 	character: characterAttributes,
+	deck: deckAttributes,
 };
 export const validDataTypes = {
 	game: gameDataTypes,
 	player: playerDataTypes,
 	card: cardDataTypes,
 	characterDataTypes: characterDataTypes,
+	deck: deckDataTypes,
 };
 export const validOperations = ["add", "subtract", "assign", "remove"];
 
@@ -63,6 +73,17 @@ export const existsAndIsMongoID = (checkName) => {
 		check(checkName)
 			.exists()
 			.withMessage(`${checkName} must be supplied`)
+			.isMongoId()
+			.withMessage(`${checkName} must be a MongoDB ObjectId`)
+			.trim()
+			.escape(),
+	];
+};
+
+export const isMongoID = (checkName) => {
+	return [
+		check(checkName)
+			.optional()
 			.isMongoId()
 			.withMessage(`${checkName} must be a MongoDB ObjectId`)
 			.trim()
@@ -110,6 +131,19 @@ export const existsAndIsAlphanumeric = (checkName) => {
 	];
 };
 
+export const isArrayOfObjectIDs = (checkName) => {
+	return [
+		check(checkName)
+			.optional()
+			.isArray()
+			.withMessage(`${checkName} must be an array`),
+		check(`${checkName}.*`)
+			.optional()
+			.isMongoId()
+			.withMessage(`${checkName} must contain Mongo ObjectIds`),
+	];
+};
+
 export const checkIfStatus = (checkName) => {
 	return [
 		check(checkName).custom((value, { req }) => {
@@ -119,7 +153,7 @@ export const checkIfStatus = (checkName) => {
 					throw `Invalid operation. When updating the status, the operation must be 'assign'`;
 				}
 				// the only values allowed are in the valid status list
-				if (validStatuses.includes(req.params.amount) === false) {
+				if (validStatuses.includes(req.params.value) === false) {
 					throw `Invalid value. When updating the status, the valid values are: ${validStatuses.join(
 						", "
 					)}`;
@@ -132,15 +166,30 @@ export const checkIfStatus = (checkName) => {
 
 export const checkIfAllowedDataTypeAndOperation = (checkName, dataTypes) => {
 	return [
-		check(checkName).custom((value, { req }) => {
-			let amount = parseInt(req.params.amount);
-			if (isNaN(amount)) amount = req.params.amount;
+		check(checkName).custom((name, { req }) => {
+			let val;
+			let isObjectID = false;
+			if (mongoose.isObjectIdOrHexString(req.params.value)) {
+				val = req.params.value;
+				isObjectID = true;
+			} else {
+				val = parseInt(req.params.value);
+				if (isNaN(val)) val = req.params.value;
+			}
 
-			console.log("dataTypes[value] :>> ", dataTypes[value]);
-			if (!dataTypes[value].array && req.params.operation === "remove")
-				throw `Invalid operation. Operation 'remove' only allowed for arrays. Attribute '${value}' is of type '${dataTypes[value].type}'`;
-			if (dataTypes[value].type !== typeof amount)
-				throw `Invalid data type. Attribute '${value}' expects value '${amount}' to be of type '${dataTypes[value].type}'`;
+			if (!dataTypes[name].array && req.params.operation === "remove")
+				throw `Invalid operation. Operation 'remove' only allowed for arrays. Attribute '${name}' is of type '${dataTypes[name].type}'`;
+
+			// object ids are typeof string, so need to handle them separately
+			if (isObjectID) {
+				if (dataTypes[name].type !== "objectid")
+					throw `Invalid data type. Attribute '${name}' expects value '${val}' to be of type '${dataTypes[name].type}'`;
+			} else {
+				if (dataTypes[name].type === "objectid")
+					throw `Invalid data type. Attribute '${name}' expects value '${val}' to be of type 'objectid'`;
+				if (dataTypes[name].type !== typeof val)
+					throw `Invalid data type. Attribute '${name}' expects value '${val}' to be of type '${dataTypes[name].type}'`;
+			}
 
 			return true;
 		}),

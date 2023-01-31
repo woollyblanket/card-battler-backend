@@ -30,7 +30,7 @@ export const updateGameAttribute = async (body, params) => {
 		Game,
 		params.gameID,
 		params.attribute,
-		params.amount,
+		params.value,
 		params.operation
 	);
 };
