@@ -180,7 +180,7 @@ export const checkIfAllowedDataTypeAndOperation = (checkName, dataTypes) => {
 			if (!dataTypes[name].array && req.params.operation === "remove")
 				throw `Invalid operation. Operation 'remove' only allowed for arrays. Attribute '${name}' is of type '${dataTypes[name].type}'`;
 
-			// objectids are typeof string, so need to handle them separately
+			// object ids are typeof string, so need to handle them separately
 			if (isObjectID) {
 				if (dataTypes[name].type !== "objectid")
 					throw `Invalid data type. Attribute '${name}' expects value '${val}' to be of type '${dataTypes[name].type}'`;

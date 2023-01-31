@@ -345,7 +345,7 @@ export const getModelDataTypes = (schemaObject) => {
 			dataTypes[key]["object"] = true;
 			dataTypes[key]["type"] = "object";
 		} else {
-			debug("Can't figure out datatype of %o", check);
+			debug("Can't figure out data type of %o", check);
 		}
 	});
 	return dataTypes;

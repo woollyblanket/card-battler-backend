@@ -151,7 +151,7 @@ describe("PATCH: /games/:id/:attribute/:operation/:amount", async () => {
 		});
 	});
 
-	it("should subract 2 from the round", async () => {
+	it("should subtract 2 from the round", async () => {
 		const res = await request(app).patch(
 			`/games/${gameID}/round/subtract/2`
 		);
