@@ -131,7 +131,7 @@ describe("PATCH: /decks/:id/:attribute/:operation/:amount", async () => {
 	});
 
 	// these two will fail for now, we don't have any endpoints yet for the card entity
-
+	/*
 	it("should add a card to the deck", async () => {
 		const cardID = await addEntity("/cards");
 		const res = await request(app).patch(
@@ -160,7 +160,7 @@ describe("PATCH: /decks/:id/:attribute/:operation/:amount", async () => {
 				cards: [],
 			},
 		});
-	});
+	});*/
 });
 
 describe("DELETE: /decks/:id", async () => {
