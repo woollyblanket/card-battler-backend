@@ -108,17 +108,21 @@ export const getByIDAndUpdate = async (
 	updateOperation
 ) => {
 	try {
-		// debug("params %O", {
-		// 	mongooseModel,
-		// 	id,
-		// 	updateField,
-		// 	updateValue,
-		// 	updateOperation,
-		// });
+		debug("params %O", {
+			mongooseModel,
+			id,
+			updateField,
+			updateValue,
+			updateOperation,
+		});
 
 		let item = await mongooseModel.findById(id).exec();
 		if (!item)
 			throw `Couldn't find the ${mongooseModel.modelName.toLowerCase()}`;
+
+		// casting to bool if appropriate
+		if (updateValue === "true") updateValue = true;
+		if (updateValue === "false") updateValue = false;
 
 		// what if the updateField doesn't exist but is an allowed field in the db?
 		// should create it first and then update it?
@@ -267,6 +271,24 @@ export const createByField = async (mongooseModel, field, value) => {
 
 		return {
 			message: `Created a ${mongooseModel.modelName.toLowerCase()} (${value})`,
+			success: true,
+			entity: item,
+		};
+	} catch (error) {
+		return { error };
+	}
+};
+
+export const createWithData = async (mongooseModel, data) => {
+	try {
+		const item = await mongooseModel.create(data);
+		if (!item)
+			throw `Couldn't create the ${mongooseModel.modelName.toLowerCase()}`;
+
+		return {
+			message: `Created a ${mongooseModel.modelName.toLowerCase()} with data: ${JSON.stringify(
+				data
+			)}`,
 			success: true,
 			entity: item,
 		};

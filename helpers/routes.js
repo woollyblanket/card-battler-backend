@@ -6,6 +6,8 @@ export const execute = async (action, req, res) => {
 	try {
 		const entity = await action(req.body, req.params);
 
+		debug("%O", entity);
+
 		if (entity.error) {
 			res.formatter.ok({
 				message: entity.error,

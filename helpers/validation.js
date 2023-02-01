@@ -175,6 +175,8 @@ export const checkIfAllowedDataTypeAndOperation = (checkName, dataTypes) => {
 			} else {
 				val = parseInt(req.params.value);
 				if (isNaN(val)) val = req.params.value;
+				if (val === "true") val = true;
+				if (val === "false") val = false;
 			}
 
 			if (!dataTypes[name].array && req.params.operation === "remove")
