@@ -1,5 +1,10 @@
 import express from "express";
-import { createDeck, getDeck } from "./model.js";
+import {
+	createDeck,
+	getDeck,
+	updateDeckAttribute,
+	deleteDeck,
+} from "./model.js";
 import { execute } from "../../helpers/routes.js";
 import {
 	evaluateRules,
@@ -16,7 +21,6 @@ import {
 	validDataTypes,
 	existsAndIsAlphanumeric,
 } from "../../helpers/validation.js";
-import { updateDeckAttribute } from "./model.js";
 import createDebugMessages from "debug";
 
 const debug = createDebugMessages("backend:decks:routes");
@@ -44,11 +48,7 @@ router.get(
 	}
 );
 
-// [patch] /decks/:id/add/:id - add a card to a deck
-// [patch] /decks/:id/remove/:id - remove a card from a deck
-// [patch] /decks/:id/assign-to-player/:id - assign a deck to a player
-
-// [patch] /games/:id/:attribute/:operation/:amount - updates the property, using the operation and the amount
+// [patch] /decks/:id/:attribute/:operation/:amount - updates the property, using the operation and the amount
 router.patch(
 	"/:deckID/:attribute/:operation/:value",
 	existsAndIsMongoID("deckID"),
@@ -60,6 +60,16 @@ router.patch(
 	evaluateRules,
 	async (req, res, next) => {
 		execute(updateDeckAttribute, req, res);
+	}
+);
+
+// [delete] /decks/:id - deletes the deck
+router.delete(
+	"/:deckID",
+	existsAndIsMongoID("deckID"),
+	evaluateRules,
+	async (req, res, next) => {
+		execute(deleteDeck, req, res);
 	}
 );
 

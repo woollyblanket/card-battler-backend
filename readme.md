@@ -39,7 +39,13 @@ Note: this game is in active development, so the endpoints are likely to change
 
 ### Decks
 
-Coming soon!
+-   \[POST\] `/decks` - create a new deck. Body can contain optional data such as game, character, etc.
+-   \[GET\] `/decks/:id` - get the deck matching the id. id is a Mongo ObjectId
+-   \[PATCH\] `/decks/:id/:attribute/:operation/:value` - update the attribute on the deck using the operation and the value. Example:
+    -   `/decks/:id/game/assign/<gameID>`
+    -   `/decks/:id/starter/assign/true`
+    -   Coming soon: being able to update the cards in the deck using this endpoint
+-   \[DELETE\] `/decks/:id` - delete the deck. Note: this is a hard delete. The deck is removed from the database
 
 ### Characters
 

@@ -10,6 +10,8 @@ import {
 	getAllEntitiesForID,
 	createForID,
 	getEntityForID,
+	deleteByID,
+	createWithData,
 	getModelDataTypes,
 	getByIDAndUpdate,
 } from "../../helpers/model.js";
@@ -23,7 +25,7 @@ export const validAttributes = Object.getOwnPropertyNames(Deck.schema.obj);
 export const validDataTypes = getModelDataTypes(Deck.schema.obj);
 
 export const createDeck = async (body, params) => {
-	return create(Deck);
+	return createWithData(Deck, body);
 };
 
 export const getDeck = async (body, params) => {
@@ -38,4 +40,8 @@ export const updateDeckAttribute = async (body, params) => {
 		params.value,
 		params.operation
 	);
+};
+
+export const deleteDeck = async (body, params) => {
+	return deleteByID(Deck, params.deckID);
 };
