@@ -28,13 +28,13 @@ router.post(
 	existsAndIsString("username"),
 	evaluateRules,
 	async (req, res, next) => {
-		execute(createPlayer, req, res);
+		execute(createPlayer, req, res, next);
 	}
 );
 
 // [get] /players - get all players (restricted to admin users)
 router.get("/", async (req, res, next) => {
-	execute(getAllPlayers, req, res);
+	execute(getAllPlayers, req, res, next);
 });
 
 // [get] /players/:playerID - get player of id (not username)
@@ -43,7 +43,7 @@ router.get(
 	existsAndIsMongoID("playerID"),
 	evaluateRules,
 	async (req, res, next) => {
-		execute(getPlayer, req, res);
+		execute(getPlayer, req, res, next);
 	}
 );
 
@@ -53,7 +53,7 @@ router.get(
 	existsAndIsString("username"),
 	evaluateRules,
 	async (req, res, next) => {
-		execute(getPlayerByUsername, req, res);
+		execute(getPlayerByUsername, req, res, next);
 	}
 );
 
@@ -63,7 +63,7 @@ router.get(
 	existsAndIsMongoID("playerID"),
 	evaluateRules,
 	async (req, res, next) => {
-		execute(getAllGamesForPlayer, req, res);
+		execute(getAllGamesForPlayer, req, res, next);
 	}
 );
 
@@ -73,7 +73,7 @@ router.post(
 	existsAndIsMongoID("playerID"),
 	evaluateRules,
 	async (req, res, next) => {
-		execute(createNewGameForPlayer, req, res);
+		execute(createNewGameForPlayer, req, res, next);
 	}
 );
 
@@ -84,7 +84,7 @@ router.get(
 	existsAndIsMongoID("gameID"),
 	evaluateRules,
 	async (req, res, next) => {
-		execute(getGameForPlayer, req, res);
+		execute(getGameForPlayer, req, res, next);
 	}
 );
 
