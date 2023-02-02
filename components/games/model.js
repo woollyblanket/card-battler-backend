@@ -18,15 +18,15 @@ export const validDataTypes = getModelDataTypes(Game.schema.obj);
 const startingDeck = [];
 
 export const getGame = async (body, params) => {
-	return getByID(Game, params.gameID);
+	return await getByID(Game, params.gameID);
 };
 
 export const deleteGame = async (body, params) => {
-	return deleteByID(Game, params.gameID);
+	return await deleteByID(Game, params.gameID);
 };
 
 export const updateGameAttribute = async (body, params) => {
-	return getByIDAndUpdate(
+	return await getByIDAndUpdate(
 		Game,
 		params.gameID,
 		params.attribute,
@@ -36,7 +36,7 @@ export const updateGameAttribute = async (body, params) => {
 };
 
 export const addCard = async (body, params) => {
-	return getByIDAndUpdate(
+	return await getByIDAndUpdate(
 		Game,
 		params.gameID,
 		"deck",
@@ -46,7 +46,7 @@ export const addCard = async (body, params) => {
 };
 
 export const removeCard = async (body, params) => {
-	return getByIDAndUpdate(
+	return await getByIDAndUpdate(
 		Game,
 		params.gameID,
 		"deck",

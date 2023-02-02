@@ -22,31 +22,31 @@ export const validAttributes = Object.getOwnPropertyNames(Player.schema.obj);
 export const validDataTypes = getModelDataTypes(Player.schema.obj);
 
 export const createPlayer = async (body, params) => {
-	return createByField(Player, "username", body.username);
+	return await createByField(Player, "username", body.username);
 };
 
 export const getAllPlayers = async (body, params) => {
-	return getAll(Player);
+	return await getAll(Player);
 };
 
 export const getPlayer = async (body, params) => {
-	return getByID(Player, params.playerID);
+	return await getByID(Player, params.playerID);
 };
 
 export const getPlayerByUsername = async (body, params) => {
-	return getByField(Player, "username", params.username);
+	return await getByField(Player, "username", params.username);
 };
 
 export const getAllGamesForPlayer = async (body, params) => {
-	return getAllEntitiesForID(Player, params.playerID, Game, "player");
+	return await getAllEntitiesForID(Player, params.playerID, Game, "player");
 };
 
 export const createNewGameForPlayer = async (body, params) => {
-	return createForID(Player, params.playerID, Game, "player");
+	return await createForID(Player, params.playerID, Game, "player");
 };
 
 export const getGameForPlayer = async (body, params) => {
-	return getEntityForID(
+	return await getEntityForID(
 		Player,
 		params.playerID,
 		Game,
