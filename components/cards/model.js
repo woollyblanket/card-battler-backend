@@ -1,6 +1,12 @@
 import { cardSchema } from "./schema.js";
 import mongoose from "mongoose";
-import { getModelDataTypes } from "../../helpers/model.js";
+import {
+	getModelDataTypes,
+	createWithData,
+	getByID,
+	getByIDAndUpdate,
+	deleteByID,
+} from "../../helpers/model.js";
 
 const Card = mongoose.model("Card", cardSchema);
 export const validAttributes = Object.getOwnPropertyNames(Card.schema.obj);
@@ -39,4 +45,26 @@ export const setCards = async () => {
 		description: "Shields 7 damage",
 		actions: { shield: 7 },
 	}).save();
+};
+
+export const createCard = async (body, params) => {
+	return createWithData(Card, body);
+};
+
+export const getCard = async (body, params) => {
+	return getByID(Card, params.cardID);
+};
+
+export const updateCardAttribute = async (body, params) => {
+	return getByIDAndUpdate(
+		Card,
+		params.cardID,
+		params.attribute,
+		params.value,
+		params.operation
+	);
+};
+
+export const deleteCard = async (body, params) => {
+	return deleteByID(Card, params.cardID);
 };

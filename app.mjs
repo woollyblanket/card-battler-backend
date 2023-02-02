@@ -18,6 +18,7 @@ import { setCharacters } from "./components/characters/model.js";
 import games from "./components/games/routes.js";
 import players from "./components/players/routes.js";
 import decks from "./components/decks/routes.js";
+import cards from "./components/cards/routes.js";
 
 import { dbConnect } from "./helpers/db.js";
 
@@ -51,6 +52,8 @@ app.use(responseEnhancer());
 app.use("/games", games);
 app.use("/players", players);
 app.use("/decks", decks);
+app.use("/cards", cards);
+
 // error logging
 app.use((err, req, res, next) => {
 	const debug = createDebugMessages("backend:error");
