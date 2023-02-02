@@ -45,6 +45,14 @@ export const expectToBeTrue = (res, details) => {
 		expect(res.body.data.entity[details.attributeEquals.name]).to.be.equal(
 			details.attributeEquals.value
 		);
+	if (details.attributeArrayContains)
+		expect(
+			res.body.data.entity[details.attributeArrayContains.name]
+		).to.include.members(details.attributeArrayContains.value);
+	if (details.attributeArrayLength)
+		expect(
+			res.body.data.entity[details.attributeArrayLength.name].length
+		).to.be.equal(details.attributeArrayLength.value);
 };
 
 export const addEntity = async (path, data) => {

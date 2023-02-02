@@ -73,7 +73,7 @@ describe("GET: /decks/:id", async () => {
 describe("PATCH: /decks/:id/:attribute/:operation/:amount", async () => {
 	dbSetupWipeAtStart();
 
-	let deckID;
+	let deckID, cardID;
 
 	it("should warn that the request is bad", async () => {
 		deckID = await addEntity(`/decks`);
@@ -111,7 +111,8 @@ describe("PATCH: /decks/:id/:attribute/:operation/:amount", async () => {
 			status: 200,
 			success: true,
 			attributeEquals: {
-				game: gameID,
+				name: "game",
+				value: gameID,
 			},
 		});
 	});
@@ -125,15 +126,18 @@ describe("PATCH: /decks/:id/:attribute/:operation/:amount", async () => {
 			status: 200,
 			success: true,
 			attributeEquals: {
-				starter: true,
+				name: "starter",
+				value: true,
 			},
 		});
 	});
 
-	// these two will fail for now, we don't have any endpoints yet for the card entity
-	/*
 	it("should add a card to the deck", async () => {
-		const cardID = await addEntity("/cards");
+		cardID = await addEntity("/cards", {
+			name: "test",
+			type: "healer",
+			description: "test",
+		});
 		const res = await request(app).patch(
 			`/decks/${deckID}/cards/add/${cardID}`
 		);
@@ -141,14 +145,14 @@ describe("PATCH: /decks/:id/:attribute/:operation/:amount", async () => {
 		expectToBeTrue(res, {
 			status: 200,
 			success: true,
-			attributeEquals: {
-				cards: [cardID],
+			attributeArrayContains: {
+				name: "cards",
+				value: [cardID],
 			},
 		});
 	});
 
 	it("should remove a card from the deck", async () => {
-		const cardID = await addEntity("/cards");
 		const res = await request(app).patch(
 			`/decks/${deckID}/cards/remove/${cardID}`
 		);
@@ -156,11 +160,12 @@ describe("PATCH: /decks/:id/:attribute/:operation/:amount", async () => {
 		expectToBeTrue(res, {
 			status: 200,
 			success: true,
-			attributeEquals: {
-				cards: [],
+			attributeArrayLength: {
+				name: "cards",
+				value: 0,
 			},
 		});
-	});*/
+	});
 });
 
 describe("DELETE: /decks/:id", async () => {

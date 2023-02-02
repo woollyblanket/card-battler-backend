@@ -4,6 +4,7 @@ import {
 	getDeck,
 	updateDeckAttribute,
 	deleteDeck,
+	getCardsInDeck,
 } from "./model.js";
 import { execute } from "../../helpers/routes.js";
 import {
@@ -70,6 +71,16 @@ router.delete(
 	evaluateRules,
 	async (req, res, next) => {
 		execute(deleteDeck, req, res, next);
+	}
+);
+
+// [get] /decks/:id/cards - get all the cards in the deck
+router.get(
+	"/:deckID/cards",
+	existsAndIsMongoID("deckID"),
+	evaluateRules,
+	async (req, res, next) => {
+		execute(getCardsInDeck, req, res, next);
 	}
 );
 

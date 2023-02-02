@@ -75,6 +75,30 @@ export const getAllEntitiesForID = async (
 	}
 };
 
+export const resolveIDsToEntities = async (
+	mongooseModel1,
+	id,
+	field,
+	mongooseModel2
+) => {
+	try {
+		const item = await mongooseModel1.findById(id).exec();
+		if (!item)
+			throw `Couldn't find the ${mongooseModel1.modelName.toLowerCase()}`;
+
+		const items = await mongooseModel2.find({ _id: item[field] });
+		if (!items)
+			throw `Couldn't find the ${mongooseModel2.modelName.toLowerCase()}`;
+		return {
+			message: `Fetched all ${mongooseModel2.modelName.toLowerCase()}s associated with the ${mongooseModel1.modelName.toLowerCase()} (${id})`,
+			success: true,
+			entities: items,
+		};
+	} catch (error) {
+		return { error };
+	}
+};
+
 export const getEntityForID = async (
 	mongooseModel1,
 	id1,
@@ -130,7 +154,7 @@ export const getByIDAndUpdate = async (
 
 		let wasBlank = false;
 
-		if (!item[updateField]) {
+		if (item[updateField] === undefined) {
 			debug(`${updateField} isn't set. Creating first, then updating`);
 
 			wasBlank = true;
