@@ -32,7 +32,7 @@ router.get(
 	existsAndIsMongoID("gameID"),
 	evaluateRules,
 	async (req, res, next) => {
-		execute(getGame, req, res, next);
+		await execute(getGame, req, res, next);
 	}
 );
 
@@ -42,7 +42,7 @@ router.delete(
 	existsAndIsMongoID("gameID"),
 	evaluateRules,
 	async (req, res, next) => {
-		execute(deleteGame, req, res, next);
+		await execute(deleteGame, req, res, next);
 	}
 );
 
@@ -57,7 +57,7 @@ router.patch(
 	checkIfStatus("attribute"),
 	evaluateRules,
 	async (req, res, next) => {
-		execute(updateGameAttribute, req, res, next);
+		await execute(updateGameAttribute, req, res, next);
 	}
 );
 

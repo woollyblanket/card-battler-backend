@@ -35,7 +35,7 @@ router.post(
 	isArrayOfObjectIDs("cards"),
 	evaluateRules,
 	async (req, res, next) => {
-		execute(createDeck, req, res, next);
+		await execute(createDeck, req, res, next);
 	}
 );
 
@@ -45,7 +45,7 @@ router.get(
 	existsAndIsMongoID("deckID"),
 	evaluateRules,
 	async (req, res, next) => {
-		execute(getDeck, req, res, next);
+		await execute(getDeck, req, res, next);
 	}
 );
 
@@ -60,7 +60,7 @@ router.patch(
 	checkIfStatus("attribute"),
 	evaluateRules,
 	async (req, res, next) => {
-		execute(updateDeckAttribute, req, res, next);
+		await execute(updateDeckAttribute, req, res, next);
 	}
 );
 
@@ -70,7 +70,7 @@ router.delete(
 	existsAndIsMongoID("deckID"),
 	evaluateRules,
 	async (req, res, next) => {
-		execute(deleteDeck, req, res, next);
+		await execute(deleteDeck, req, res, next);
 	}
 );
 
@@ -80,7 +80,7 @@ router.get(
 	existsAndIsMongoID("deckID"),
 	evaluateRules,
 	async (req, res, next) => {
-		execute(getCardsInDeck, req, res, next);
+		await execute(getCardsInDeck, req, res, next);
 	}
 );
 

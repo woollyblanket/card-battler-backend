@@ -36,7 +36,7 @@ router.post(
 	existsAndIsString("description"),
 	evaluateRules,
 	async (req, res, next) => {
-		execute(createCard, req, res, next);
+		await execute(createCard, req, res, next);
 	}
 );
 
@@ -46,7 +46,7 @@ router.get(
 	existsAndIsMongoID("cardID"),
 	evaluateRules,
 	async (req, res, next) => {
-		execute(getCard, req, res, next);
+		await execute(getCard, req, res, next);
 	}
 );
 
@@ -61,7 +61,7 @@ router.patch(
 	checkIfStatus("attribute"),
 	evaluateRules,
 	async (req, res, next) => {
-		execute(updateCardAttribute, req, res, next);
+		await execute(updateCardAttribute, req, res, next);
 	}
 );
 
@@ -71,7 +71,7 @@ router.delete(
 	existsAndIsMongoID("cardID"),
 	evaluateRules,
 	async (req, res, next) => {
-		execute(deleteCard, req, res, next);
+		await execute(deleteCard, req, res, next);
 	}
 );
 
