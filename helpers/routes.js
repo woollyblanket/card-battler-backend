@@ -2,7 +2,7 @@ import createDebugMessages from "debug";
 
 const debug = createDebugMessages("backend:helper:routes");
 
-export const execute = async (action, req, res) => {
+export const execute = async (action, req, res, next) => {
 	try {
 		const entity = await action(req.body, req.params);
 
@@ -25,6 +25,6 @@ export const execute = async (action, req, res) => {
 			}
 		}
 	} catch (error) {
-		res.formatter.serverError({ message: error, success: false });
+		next(error);
 	}
 };

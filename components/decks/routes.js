@@ -4,6 +4,7 @@ import {
 	getDeck,
 	updateDeckAttribute,
 	deleteDeck,
+	getCardsInDeck,
 } from "./model.js";
 import { execute } from "../../helpers/routes.js";
 import {
@@ -34,7 +35,7 @@ router.post(
 	isArrayOfObjectIDs("cards"),
 	evaluateRules,
 	async (req, res, next) => {
-		execute(createDeck, req, res);
+		execute(createDeck, req, res, next);
 	}
 );
 
@@ -44,7 +45,7 @@ router.get(
 	existsAndIsMongoID("deckID"),
 	evaluateRules,
 	async (req, res, next) => {
-		execute(getDeck, req, res);
+		execute(getDeck, req, res, next);
 	}
 );
 
@@ -59,7 +60,7 @@ router.patch(
 	checkIfStatus("attribute"),
 	evaluateRules,
 	async (req, res, next) => {
-		execute(updateDeckAttribute, req, res);
+		execute(updateDeckAttribute, req, res, next);
 	}
 );
 
@@ -69,7 +70,17 @@ router.delete(
 	existsAndIsMongoID("deckID"),
 	evaluateRules,
 	async (req, res, next) => {
-		execute(deleteDeck, req, res);
+		execute(deleteDeck, req, res, next);
+	}
+);
+
+// [get] /decks/:id/cards - get all the cards in the deck
+router.get(
+	"/:deckID/cards",
+	existsAndIsMongoID("deckID"),
+	evaluateRules,
+	async (req, res, next) => {
+		execute(getCardsInDeck, req, res, next);
 	}
 );
 

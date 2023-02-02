@@ -1,13 +1,12 @@
-- [Card Battler API](#card-battler-api)
-  - [Introduction](#introduction)
-  - [Endpoints](#endpoints)
-    - [Players](#players)
-    - [Games](#games)
-    - [Decks](#decks)
-    - [Characters](#characters)
-    - [Cards](#cards)
+# Card Battler API <!-- omit from toc -->
 
-# Card Battler API
+- [Introduction](#introduction)
+- [Endpoints](#endpoints)
+  - [Players](#players)
+  - [Games](#games)
+  - [Decks](#decks)
+  - [Cards](#cards)
+  - [Characters](#characters)
 
 ## Introduction
 
@@ -21,6 +20,8 @@ Note: this game is in active development, so the endpoints are likely to change
 
 ### Players
 
+The database schema for this entity is [here](https://github.com/woollyblanket/card-battler-backend/blob/b63a5931dd6ec0b300f321b6836d73ff722fce3c/components/players/schema.js#L7-L10)
+
 -   \[POST\] `/players` - create a new player. Body should be `{"username": "whatever"}`
 -   \[GET\] `/players/:id` - get the player matching the id. id is a Mongo ObjectId
 -   \[GET\] `/players/username/:username` - get a player matching the username
@@ -29,6 +30,8 @@ Note: this game is in active development, so the endpoints are likely to change
 -   \[GET\] `/players/:id/games/:id` - get a specific game associated with a player
 
 ### Games
+
+The database schema for this entity is [here](https://github.com/woollyblanket/card-battler-backend/blob/b63a5931dd6ec0b300f321b6836d73ff722fce3c/components/games/schema.js#L7-L17)
 
 -   \[GET\] `/games/:id` - get the game matching the id. id is a Mongo ObjectId
 -   \[DELETE\] `/games/:id` - delete the game. Note: this is a hard delete. The game is removed from the database
@@ -39,18 +42,30 @@ Note: this game is in active development, so the endpoints are likely to change
 
 ### Decks
 
+The database schema for this entity is [here](https://github.com/woollyblanket/card-battler-backend/blob/b63a5931dd6ec0b300f321b6836d73ff722fce3c/components/decks/schema.js#L7-L12)
+
 -   \[POST\] `/decks` - create a new deck. Body can contain optional data such as game, character, etc.
 -   \[GET\] `/decks/:id` - get the deck matching the id. id is a Mongo ObjectId
 -   \[PATCH\] `/decks/:id/:attribute/:operation/:value` - update the attribute on the deck using the operation and the value. Example:
     -   `/decks/:id/game/assign/<gameID>`
     -   `/decks/:id/starter/assign/true`
-    -   Coming soon: being able to update the cards in the deck using this endpoint
+    -   `/decks/:id/cards/add/<cardID>`
+    -   `/decks/:id/cards/remove/<cardID>`
 -   \[DELETE\] `/decks/:id` - delete the deck. Note: this is a hard delete. The deck is removed from the database
+
+### Cards
+
+The database schema for this entity is [here](https://github.com/woollyblanket/card-battler-backend/blob/b63a5931dd6ec0b300f321b6836d73ff722fce3c/components/cards/schema.js#L4-L14)
+
+-   \[POST\] `/cards` - create a new card. Body should be `{"name": "test","type": "healer","description": "this is a test card"}` Type can be a number of options, such as "attacker", "healer", "shield", "buff", "debuff"
+-   \[GET\] `/cards/:id` - get the card matching the id. id is a Mongo ObjectId
+-   \[PATCH\] `/cards/:id/:attribute/:operation/:value` - update the attribute on the card using the operation and the value. Example:
+    -   `/cards/:id/name/assign/test2`
+    -   `/cards/:id/type/assign/debuff`
+-   \[DELETE\] `/cards/:id` - delete the card. Note: this is a hard delete. The card is removed from the database
 
 ### Characters
 
-Coming soon!
-
-### Cards
+The database schema for this entity is [here](https://github.com/woollyblanket/card-battler-backend/blob/b63a5931dd6ec0b300f321b6836d73ff722fce3c/components/characters/schema.js#L4-L15)
 
 Coming soon!

@@ -5,6 +5,7 @@ import express from "express";
 import path from "path";
 import logger from "morgan";
 import cookieParser from "cookie-parser";
+import createDebugMessages from "debug";
 
 import bodyParser from "body-parser";
 import { fileURLToPath } from "url";
@@ -17,6 +18,7 @@ import { setCharacters } from "./components/characters/model.js";
 import games from "./components/games/routes.js";
 import players from "./components/players/routes.js";
 import decks from "./components/decks/routes.js";
+import cards from "./components/cards/routes.js";
 
 import { dbConnect } from "./helpers/db.js";
 
@@ -50,6 +52,18 @@ app.use(responseEnhancer());
 app.use("/games", games);
 app.use("/players", players);
 app.use("/decks", decks);
+app.use("/cards", cards);
+
+// error logging
+app.use((err, req, res, next) => {
+	const debug = createDebugMessages("backend:error");
+	debug(err.stack);
+	next(err);
+});
+
+app.use((err, req, res, next) => {
+	res.formatter.serverError({ message: err, success: false });
+});
 
 // 404
 app.use((req, res, next) => {
