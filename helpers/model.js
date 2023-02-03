@@ -6,6 +6,7 @@ const debug = createDebugMessages("backend:helper:model");
 export const getByID = async (mongooseModel, id) => {
 	try {
 		const item = await mongooseModel.findById(id).exec();
+
 		if (!item)
 			throw `Couldn't find the ${mongooseModel.modelName.toLowerCase()}`;
 		return {
@@ -62,7 +63,9 @@ export const getAllEntitiesForID = async (
 		const item1 = await mongooseModel1.findById(id).exec();
 		if (!item1)
 			throw `Couldn't find the ${mongooseModel1.modelName.toLowerCase()}`;
-		const items = await mongooseModel2.find({ [field]: id });
+		const items = await mongooseModel2.find({
+			[field]: id,
+		});
 		if (!items)
 			throw `Couldn't find the ${mongooseModel2.modelName.toLowerCase()}`;
 		return {
@@ -285,11 +288,8 @@ export const deleteByID = async (mongooseModel, id) => {
 
 export const createByField = async (mongooseModel, field, value) => {
 	try {
-		const exists = await mongooseModel.exists({ [field]: value });
-		if (exists)
-			throw `${mongooseModel.modelName} (${value}) already exists`;
-
 		const item = await mongooseModel.create({ [field]: value });
+
 		if (!item)
 			throw `Couldn't create the ${mongooseModel.modelName.toLowerCase()}`;
 
@@ -306,6 +306,7 @@ export const createByField = async (mongooseModel, field, value) => {
 export const createWithData = async (mongooseModel, data) => {
 	try {
 		const item = await mongooseModel.create(data);
+
 		if (!item)
 			throw `Couldn't create the ${mongooseModel.modelName.toLowerCase()}`;
 
@@ -313,23 +314,6 @@ export const createWithData = async (mongooseModel, data) => {
 			message: `Created a ${mongooseModel.modelName.toLowerCase()} with data: ${JSON.stringify(
 				data
 			)}`,
-			success: true,
-			entity: item,
-		};
-	} catch (error) {
-		return { error };
-	}
-};
-
-export const create = async (mongooseModel) => {
-	try {
-		const item = await mongooseModel.create({});
-		console.log("item :>> ", item);
-		if (!item)
-			throw `Couldn't create the ${mongooseModel.modelName.toLowerCase()}`;
-
-		return {
-			message: `Created a ${mongooseModel.modelName.toLowerCase()}`,
 			success: true,
 			entity: item,
 		};
@@ -349,7 +333,9 @@ export const createForID = async (
 		if (!item1)
 			throw `Couldn't find the ${mongooseModel1.modelName.toLowerCase()}`;
 
-		const item2 = await mongooseModel2.create({ [field]: id });
+		const item2 = await mongooseModel2.create({
+			[field]: id,
+		});
 		if (!item2)
 			throw `Couldn't create the ${mongooseModel2.modelName.toLowerCase()}`;
 

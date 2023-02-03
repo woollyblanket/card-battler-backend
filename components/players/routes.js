@@ -1,4 +1,5 @@
 import express from "express";
+import mongoose from "mongoose";
 import {
 	createPlayer,
 	getAllPlayers,
@@ -13,12 +14,15 @@ import { execute } from "../../helpers/routes.js";
 import {
 	evaluateRules,
 	existsAndIsString,
+	isUniqueByField,
 	existsAndIsMongoID,
 } from "../../helpers/validation.js";
 import { check } from "express-validator";
 import createDebugMessages from "debug";
+import { playerSchema } from "./schema.js";
 
 const debug = createDebugMessages("backend:players:routes");
+const Player = mongoose.model("Player", playerSchema);
 
 const router = express.Router();
 
@@ -26,15 +30,16 @@ const router = express.Router();
 router.post(
 	"/",
 	existsAndIsString("username"),
+	isUniqueByField("username", Player),
 	evaluateRules,
 	async (req, res, next) => {
-		execute(createPlayer, req, res, next);
+		await execute(createPlayer, req, res, next);
 	}
 );
 
 // [get] /players - get all players (restricted to admin users)
 router.get("/", async (req, res, next) => {
-	execute(getAllPlayers, req, res, next);
+	await execute(getAllPlayers, req, res, next);
 });
 
 // [get] /players/:playerID - get player of id (not username)
@@ -43,7 +48,7 @@ router.get(
 	existsAndIsMongoID("playerID"),
 	evaluateRules,
 	async (req, res, next) => {
-		execute(getPlayer, req, res, next);
+		await execute(getPlayer, req, res, next);
 	}
 );
 
@@ -53,7 +58,7 @@ router.get(
 	existsAndIsString("username"),
 	evaluateRules,
 	async (req, res, next) => {
-		execute(getPlayerByUsername, req, res, next);
+		await execute(getPlayerByUsername, req, res, next);
 	}
 );
 
@@ -63,7 +68,7 @@ router.get(
 	existsAndIsMongoID("playerID"),
 	evaluateRules,
 	async (req, res, next) => {
-		execute(getAllGamesForPlayer, req, res, next);
+		await execute(getAllGamesForPlayer, req, res, next);
 	}
 );
 
@@ -73,7 +78,7 @@ router.post(
 	existsAndIsMongoID("playerID"),
 	evaluateRules,
 	async (req, res, next) => {
-		execute(createNewGameForPlayer, req, res, next);
+		await execute(createNewGameForPlayer, req, res, next);
 	}
 );
 
@@ -84,7 +89,7 @@ router.get(
 	existsAndIsMongoID("gameID"),
 	evaluateRules,
 	async (req, res, next) => {
-		execute(getGameForPlayer, req, res, next);
+		await execute(getGameForPlayer, req, res, next);
 	}
 );
 

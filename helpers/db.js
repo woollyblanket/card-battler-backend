@@ -7,17 +7,26 @@ dotenv.config();
 const debug = Debug("backend:helpers:db");
 
 export const dbConnectTest = async () => {
-	const mongoServer = await MongoMemoryServer.create();
-	const mongoUri = mongoServer.getUri();
-	mongoose.set("strictQuery", false);
-	await mongoose.connect(mongoUri);
+	try {
+		const mongoServer = await MongoMemoryServer.create();
+		const mongoUri = mongoServer.getUri();
+		mongoose.set("strictQuery", false);
+		// mongoose.set("debug", true);
+		await mongoose.connect(mongoUri);
 
-	return mongoServer;
+		return mongoServer;
+	} catch (error) {
+		return { error };
+	}
 };
 
 export const dbCloseTest = async (mongoServer) => {
-	await mongoose.disconnect();
-	await mongoServer.stop();
+	try {
+		await mongoose.disconnect();
+		await mongoServer.stop();
+	} catch (error) {
+		return { error };
+	}
 };
 
 export const dbConnect = async () => {
@@ -44,22 +53,15 @@ export const dbConnect = async () => {
 
 		return mongoose.connection;
 	} catch (error) {
-		console.log("error :>> ", error);
+		return { error };
 	}
 };
 
 export const dbWipe = async () => {
 	try {
-		const db = await mongoose.connection.db;
-		if (!db) throw "Couldn't get DB";
-		const collections = await db.listCollections().toArray();
-		collections
-			.map((collection) => collection.name)
-			.forEach(async (collectionName) => {
-				await db.dropCollection(collectionName);
-			});
+		await mongoose.connection.db.dropDatabase();
 	} catch (error) {
-		console.log("error :>> ", error);
+		return { error };
 	}
 };
 

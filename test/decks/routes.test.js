@@ -1,13 +1,13 @@
 import request from "supertest";
 import {
-	dbSetupWipeAtStart,
+	dbSetupWipeDBBeforeEach,
 	expectToBeTrue,
 	addEntity,
 } from "../../helpers/tests.js";
 import { app } from "../../app.mjs";
 
 describe("POST: /decks", async () => {
-	dbSetupWipeAtStart();
+	dbSetupWipeDBBeforeEach();
 
 	it("should create a new deck", async () => {
 		const res = await request(app).post("/decks").send();
@@ -43,7 +43,7 @@ describe("POST: /decks", async () => {
 });
 
 describe("GET: /decks/:id", async () => {
-	dbSetupWipeAtStart();
+	dbSetupWipeDBBeforeEach();
 
 	it("should get a single deck", async () => {
 		const deckID = await addEntity(`/decks`);
@@ -71,12 +71,10 @@ describe("GET: /decks/:id", async () => {
 });
 
 describe("PATCH: /decks/:id/:attribute/:operation/:amount", async () => {
-	dbSetupWipeAtStart();
-
-	let deckID, cardID;
+	dbSetupWipeDBBeforeEach();
 
 	it("should warn that the request is bad", async () => {
-		deckID = await addEntity(`/decks`);
+		const deckID = await addEntity(`/decks`);
 
 		const res = await request(app).patch(
 			`/decks/${deckID}/game/add/paused`
@@ -90,6 +88,7 @@ describe("PATCH: /decks/:id/:attribute/:operation/:amount", async () => {
 	});
 
 	it("should warn that the request is bad", async () => {
+		const deckID = await addEntity(`/decks`);
 		const res = await request(app).patch(`/decks/${deckID}/game/assign/1`);
 
 		expectToBeTrue(res, {
@@ -100,6 +99,7 @@ describe("PATCH: /decks/:id/:attribute/:operation/:amount", async () => {
 	});
 
 	it("should attach the deck to a game", async () => {
+		const deckID = await addEntity(`/decks`);
 		const playerID = await addEntity("/players", { username: "test" });
 		const gameID = await addEntity(`/players/${playerID}/games`);
 
@@ -118,6 +118,7 @@ describe("PATCH: /decks/:id/:attribute/:operation/:amount", async () => {
 	});
 
 	it("should change the deck to a starter deck", async () => {
+		const deckID = await addEntity(`/decks`);
 		const res = await request(app).patch(
 			`/decks/${deckID}/starter/assign/true`
 		);
@@ -133,7 +134,8 @@ describe("PATCH: /decks/:id/:attribute/:operation/:amount", async () => {
 	});
 
 	it("should add a card to the deck", async () => {
-		cardID = await addEntity("/cards", {
+		const deckID = await addEntity(`/decks`);
+		const cardID = await addEntity("/cards", {
 			name: "test",
 			type: "healer",
 			description: "test",
@@ -153,6 +155,13 @@ describe("PATCH: /decks/:id/:attribute/:operation/:amount", async () => {
 	});
 
 	it("should remove a card from the deck", async () => {
+		const deckID = await addEntity(`/decks`);
+		const cardID = await addEntity("/cards", {
+			name: "test",
+			type: "healer",
+			description: "test",
+		});
+		await request(app).patch(`/decks/${deckID}/cards/add/${cardID}`);
 		const res = await request(app).patch(
 			`/decks/${deckID}/cards/remove/${cardID}`
 		);
@@ -169,7 +178,7 @@ describe("PATCH: /decks/:id/:attribute/:operation/:amount", async () => {
 });
 
 describe("DELETE: /decks/:id", async () => {
-	dbSetupWipeAtStart();
+	dbSetupWipeDBBeforeEach();
 
 	it("should delete a single deck", async () => {
 		const deckID = await addEntity("/decks");

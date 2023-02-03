@@ -4,7 +4,6 @@ import mongoose from "mongoose";
 import {
 	getByID,
 	createByField,
-	create,
 	getAll,
 	getByField,
 	getAllEntitiesForID,
@@ -28,15 +27,15 @@ export const validAttributes = Object.getOwnPropertyNames(Deck.schema.obj);
 export const validDataTypes = getModelDataTypes(Deck.schema.obj);
 
 export const createDeck = async (body, params) => {
-	return createWithData(Deck, body);
+	return await createWithData(Deck, body);
 };
 
 export const getDeck = async (body, params) => {
-	return getByID(Deck, params.deckID);
+	return await getByID(Deck, params.deckID);
 };
 
 export const updateDeckAttribute = async (body, params) => {
-	return getByIDAndUpdate(
+	return await getByIDAndUpdate(
 		Deck,
 		params.deckID,
 		params.attribute,
@@ -46,9 +45,9 @@ export const updateDeckAttribute = async (body, params) => {
 };
 
 export const deleteDeck = async (body, params) => {
-	return deleteByID(Deck, params.deckID);
+	return await deleteByID(Deck, params.deckID);
 };
 
 export const getCardsInDeck = async (body, params) => {
-	return resolveIDsToEntities(Deck, params.deckID, "cards", Card);
+	return await resolveIDsToEntities(Deck, params.deckID, "cards", Card);
 };

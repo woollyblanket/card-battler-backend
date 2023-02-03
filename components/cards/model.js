@@ -48,15 +48,15 @@ export const setCards = async () => {
 };
 
 export const createCard = async (body, params) => {
-	return createWithData(Card, body);
+	return await createWithData(Card, body);
 };
 
 export const getCard = async (body, params) => {
-	return getByID(Card, params.cardID);
+	return await getByID(Card, params.cardID);
 };
 
 export const updateCardAttribute = async (body, params) => {
-	return getByIDAndUpdate(
+	return await getByIDAndUpdate(
 		Card,
 		params.cardID,
 		params.attribute,
@@ -66,5 +66,5 @@ export const updateCardAttribute = async (body, params) => {
 };
 
 export const deleteCard = async (body, params) => {
-	return deleteByID(Card, params.cardID);
+	return await deleteByID(Card, params.cardID);
 };
