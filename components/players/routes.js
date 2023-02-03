@@ -1,4 +1,5 @@
 import express from "express";
+import mongoose from "mongoose";
 import {
 	createPlayer,
 	getAllPlayers,
@@ -13,12 +14,15 @@ import { execute } from "../../helpers/routes.js";
 import {
 	evaluateRules,
 	existsAndIsString,
+	isUniqueByField,
 	existsAndIsMongoID,
 } from "../../helpers/validation.js";
 import { check } from "express-validator";
 import createDebugMessages from "debug";
+import { playerSchema } from "./schema.js";
 
 const debug = createDebugMessages("backend:players:routes");
+const Player = mongoose.model("Player", playerSchema);
 
 const router = express.Router();
 
@@ -26,6 +30,7 @@ const router = express.Router();
 router.post(
 	"/",
 	existsAndIsString("username"),
+	isUniqueByField("username", Player),
 	evaluateRules,
 	async (req, res, next) => {
 		await execute(createPlayer, req, res, next);

@@ -144,6 +144,19 @@ export const isArrayOfObjectIDs = (checkName) => {
 	];
 };
 
+export const isUniqueByField = (checkName, mongooseModel) => {
+	return [
+		check(checkName).custom(async (value) => {
+			const item = await mongooseModel
+				.findOne({ [checkName]: value })
+				.exec();
+
+			if (item) throw `${value} already exists`;
+			return true;
+		}),
+	];
+};
+
 export const checkIfStatus = (checkName) => {
 	return [
 		check(checkName).custom((value, { req }) => {

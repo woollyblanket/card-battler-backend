@@ -3,9 +3,8 @@ import { expect } from "chai";
 import request from "supertest";
 import { app } from "../app.mjs";
 
-let mongoServer;
-
 export const dbSetupWipeDBBeforeEach = () => {
+	let mongoServer;
 	before(async () => {
 		mongoServer = await dbConnectTest();
 	});
@@ -20,6 +19,7 @@ export const dbSetupWipeDBBeforeEach = () => {
 };
 
 export const dbSetupWipeAtStart = () => {
+	let mongoServer;
 	before(async () => {
 		mongoServer = await dbConnectTest();
 
@@ -40,6 +40,8 @@ export const expectToBeTrue = (res, details) => {
 	if (details.messageIncludes)
 		expect(res.body.data.message).to.include(details.messageIncludes);
 	if (details.isError) expect(res.body).to.haveOwnProperty("error");
+	if (details.errorMessage)
+		expect(res.body.error.message).to.include(details.errorMessage);
 	if (details.entitiesExist) expect(res.body.data.entities).to.be.an("array");
 	if (details.attributeEquals)
 		expect(res.body.data.entity[details.attributeEquals.name]).to.be.equal(
@@ -56,7 +58,11 @@ export const expectToBeTrue = (res, details) => {
 };
 
 export const addEntity = async (path, data) => {
-	const res = await request(app).post(path).send(data);
+	try {
+		const res = await request(app).post(path).send(data);
 
-	return res.body.data.entity._id;
+		return res.body.data.entity._id;
+	} catch (error) {
+		return { error };
+	}
 };
