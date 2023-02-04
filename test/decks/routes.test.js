@@ -30,7 +30,9 @@ describe("POST: /decks", async () => {
 
 	it("should create a new deck attached to a game", async () => {
 		const playerID = await addEntity("/players", { username: "test" });
+		if (playerID.error) throw playerID.error;
 		const gameID = await addEntity(`/players/${playerID}/games`);
+		if (gameID.error) throw gameID.error;
 
 		const res = await request(app).post("/decks").send({ game: gameID });
 
@@ -47,6 +49,7 @@ describe("GET: /decks/:id", async () => {
 
 	it("should get a single deck", async () => {
 		const deckID = await addEntity(`/decks`);
+		if (deckID.error) throw deckID.error;
 
 		const res = await request(app).get(`/decks/${deckID}`);
 
@@ -75,6 +78,7 @@ describe("PATCH: /decks/:id/:attribute/:operation/:amount", async () => {
 
 	it("should warn that the request is bad", async () => {
 		const deckID = await addEntity(`/decks`);
+		if (deckID.error) throw deckID.error;
 
 		const res = await request(app).patch(
 			`/decks/${deckID}/game/add/paused`
@@ -89,6 +93,7 @@ describe("PATCH: /decks/:id/:attribute/:operation/:amount", async () => {
 
 	it("should warn that the request is bad", async () => {
 		const deckID = await addEntity(`/decks`);
+		if (deckID.error) throw deckID.error;
 		const res = await request(app).patch(`/decks/${deckID}/game/assign/1`);
 
 		expectToBeTrue(res, {
@@ -100,8 +105,11 @@ describe("PATCH: /decks/:id/:attribute/:operation/:amount", async () => {
 
 	it("should attach the deck to a game", async () => {
 		const deckID = await addEntity(`/decks`);
+		if (deckID.error) throw deckID.error;
 		const playerID = await addEntity("/players", { username: "test" });
+		if (playerID.error) throw playerID.error;
 		const gameID = await addEntity(`/players/${playerID}/games`);
+		if (gameID.error) throw gameID.error;
 
 		const res = await request(app).patch(
 			`/decks/${deckID}/game/assign/${gameID}`
@@ -119,6 +127,7 @@ describe("PATCH: /decks/:id/:attribute/:operation/:amount", async () => {
 
 	it("should change the deck to a starter deck", async () => {
 		const deckID = await addEntity(`/decks`);
+		if (deckID.error) throw deckID.error;
 		const res = await request(app).patch(
 			`/decks/${deckID}/starter/assign/true`
 		);
@@ -135,11 +144,13 @@ describe("PATCH: /decks/:id/:attribute/:operation/:amount", async () => {
 
 	it("should add a card to the deck", async () => {
 		const deckID = await addEntity(`/decks`);
+		if (deckID.error) throw deckID.error;
 		const cardID = await addEntity("/cards", {
 			name: "test",
 			type: "healer",
 			description: "test",
 		});
+		if (cardID.error) throw cardID.error;
 		const res = await request(app).patch(
 			`/decks/${deckID}/cards/add/${cardID}`
 		);
@@ -156,11 +167,13 @@ describe("PATCH: /decks/:id/:attribute/:operation/:amount", async () => {
 
 	it("should remove a card from the deck", async () => {
 		const deckID = await addEntity(`/decks`);
+		if (deckID.error) throw deckID.error;
 		const cardID = await addEntity("/cards", {
 			name: "test",
 			type: "healer",
 			description: "test",
 		});
+		if (cardID.error) throw cardID.error;
 		await request(app).patch(`/decks/${deckID}/cards/add/${cardID}`);
 		const res = await request(app).patch(
 			`/decks/${deckID}/cards/remove/${cardID}`
@@ -182,7 +195,7 @@ describe("DELETE: /decks/:id", async () => {
 
 	it("should delete a single deck", async () => {
 		const deckID = await addEntity("/decks");
-
+		if (deckID.error) throw deckID.error;
 		const res = await request(app).delete(`/decks/${deckID}`);
 
 		expectToBeTrue(res, {

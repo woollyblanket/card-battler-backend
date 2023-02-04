@@ -64,6 +64,7 @@ describe("GET: /players/:id", async () => {
 
 	it("should get a single player", async () => {
 		const playerID = await addEntity("/players", { username: "test" });
+		if (playerID.error) throw playerID.error;
 
 		const res = await request(app).get(`/players/${playerID}`);
 
@@ -92,6 +93,7 @@ describe("GET: /players/username/:username", async () => {
 
 	it("should get a single player", async () => {
 		const playerID = await addEntity("/players", { username: "test" });
+		if (playerID.error) throw playerID.error;
 
 		const res = await request(app).get(`/players/username/test`);
 
@@ -120,6 +122,7 @@ describe("POST: /players/:id/games", async () => {
 
 	it("should create a new game associated with the player", async () => {
 		const playerID = await addEntity("/players", { username: "test" });
+		if (playerID.error) throw playerID.error;
 
 		const res = await request(app).post(`/players/${playerID}/games`);
 
@@ -148,6 +151,7 @@ describe("GET: /players/:id/games", async () => {
 
 	it("should list the games associated with the player", async () => {
 		const playerID = await addEntity("/players", { username: "test" });
+		if (playerID.error) throw playerID.error;
 
 		const res = await request(app).get(`/players/${playerID}/games`);
 
@@ -174,7 +178,9 @@ describe("GET: /players/:id/games/:id", async () => {
 
 	it("should get a game associated with the player", async () => {
 		const playerID = await addEntity("/players", { username: "test" });
+		if (playerID.error) throw playerID.error;
 		const gameID = await addEntity(`/players/${playerID}/games`);
+		if (gameID.error) throw gameID.error;
 
 		const res = await request(app).get(
 			`/players/${playerID}/games/${gameID}`
@@ -199,6 +205,7 @@ describe("GET: /players/:id/games/:id", async () => {
 
 	it("should warn that the request is bad", async () => {
 		const playerID = await addEntity("/players", { username: "test" });
+		if (playerID.error) throw playerID.error;
 		const res = await request(app).get(`/players/${playerID}/games/12345`);
 
 		expectToBeTrue(res, {

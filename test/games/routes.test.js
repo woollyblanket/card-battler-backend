@@ -11,7 +11,9 @@ describe("GET: /games/:id", async () => {
 
 	it("should get a single game", async () => {
 		const playerID = await addEntity("/players", { username: "test" });
+		if (playerID.error) throw playerID.error;
 		const gameID = await addEntity(`/players/${playerID}/games`);
+		if (gameID.error) throw gameID.error;
 
 		const res = await request(app).get(`/games/${gameID}`);
 
@@ -40,7 +42,9 @@ describe("DELETE: /games/:id", async () => {
 
 	it("should delete a single game", async () => {
 		const playerID = await addEntity("/players", { username: "test" });
+		if (playerID.error) throw playerID.error;
 		const gameID = await addEntity(`/players/${playerID}/games`);
+		if (gameID.error) throw gameID.error;
 
 		const res = await request(app).delete(`/games/${gameID}`);
 
@@ -71,7 +75,9 @@ describe("PATCH: /games/:id/:attribute/:operation/:amount", async () => {
 
 	it("should update the status of the game", async () => {
 		const playerID = await addEntity("/players", { username: "test" });
+		if (playerID.error) throw playerID.error;
 		const gameID = await addEntity(`/players/${playerID}/games`);
+		if (gameID.error) throw gameID.error;
 
 		const res = await request(app).patch(
 			`/games/${gameID}/status/assign/paused`
@@ -89,7 +95,9 @@ describe("PATCH: /games/:id/:attribute/:operation/:amount", async () => {
 
 	it("should warn that the request is bad", async () => {
 		const playerID = await addEntity("/players", { username: "test" });
+		if (playerID.error) throw playerID.error;
 		const gameID = await addEntity(`/players/${playerID}/games`);
+		if (gameID.error) throw gameID.error;
 		const res = await request(app).patch(
 			`/games/${gameID}/status/add/paused`
 		);
@@ -103,7 +111,9 @@ describe("PATCH: /games/:id/:attribute/:operation/:amount", async () => {
 
 	it("should warn that the request is bad", async () => {
 		const playerID = await addEntity("/players", { username: "test" });
+		if (playerID.error) throw playerID.error;
 		const gameID = await addEntity(`/players/${playerID}/games`);
+		if (gameID.error) throw gameID.error;
 		const res = await request(app).patch(
 			`/games/${gameID}/status/assign/asdf`
 		);
@@ -117,7 +127,9 @@ describe("PATCH: /games/:id/:attribute/:operation/:amount", async () => {
 
 	it("should increment the level by 1", async () => {
 		const playerID = await addEntity("/players", { username: "test" });
+		if (playerID.error) throw playerID.error;
 		const gameID = await addEntity(`/players/${playerID}/games`);
+		if (gameID.error) throw gameID.error;
 		const res = await request(app).patch(`/games/${gameID}/level/add/1`);
 
 		expectToBeTrue(res, {
@@ -132,7 +144,9 @@ describe("PATCH: /games/:id/:attribute/:operation/:amount", async () => {
 
 	it("should make the round equal 5", async () => {
 		const playerID = await addEntity("/players", { username: "test" });
+		if (playerID.error) throw playerID.error;
 		const gameID = await addEntity(`/players/${playerID}/games`);
+		if (gameID.error) throw gameID.error;
 		const res = await request(app).patch(`/games/${gameID}/round/assign/5`);
 
 		expectToBeTrue(res, {
@@ -147,7 +161,9 @@ describe("PATCH: /games/:id/:attribute/:operation/:amount", async () => {
 
 	it("should warn that the request is bad", async () => {
 		const playerID = await addEntity("/players", { username: "test" });
+		if (playerID.error) throw playerID.error;
 		const gameID = await addEntity(`/players/${playerID}/games`);
+		if (gameID.error) throw gameID.error;
 		const res = await request(app).patch(
 			`/games/${gameID}/round/assign/asdf`
 		);
@@ -161,7 +177,9 @@ describe("PATCH: /games/:id/:attribute/:operation/:amount", async () => {
 
 	it("should subtract 1 from the round", async () => {
 		const playerID = await addEntity("/players", { username: "test" });
+		if (playerID.error) throw playerID.error;
 		const gameID = await addEntity(`/players/${playerID}/games`);
+		if (gameID.error) throw gameID.error;
 		const res = await request(app).patch(
 			`/games/${gameID}/round/subtract/1`
 		);
@@ -178,7 +196,9 @@ describe("PATCH: /games/:id/:attribute/:operation/:amount", async () => {
 
 	it("should warn that the request is bad", async () => {
 		const playerID = await addEntity("/players", { username: "test" });
+		if (playerID.error) throw playerID.error;
 		const gameID = await addEntity(`/players/${playerID}/games`);
+		if (gameID.error) throw gameID.error;
 		const res = await request(app).patch(
 			`/games/${gameID}/round/remove/asdf`
 		);
@@ -192,7 +212,9 @@ describe("PATCH: /games/:id/:attribute/:operation/:amount", async () => {
 
 	it("should warn that the request is bad", async () => {
 		const playerID = await addEntity("/players", { username: "test" });
+		if (playerID.error) throw playerID.error;
 		const gameID = await addEntity(`/players/${playerID}/games`);
+		if (gameID.error) throw gameID.error;
 		const res = await request(app).patch(`/games/${gameID}/round/remove/1`);
 
 		expectToBeTrue(res, {
