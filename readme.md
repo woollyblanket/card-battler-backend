@@ -6,6 +6,7 @@
   - [Games](#games)
   - [Decks](#decks)
   - [Cards](#cards)
+  - [Abilities](#abilities)
   - [Characters](#characters)
 
 ## Introduction
@@ -57,12 +58,23 @@ The database schema for this entity is [here](https://github.com/woollyblanket/c
 
 The database schema for this entity is [here](https://github.com/woollyblanket/card-battler-backend/blob/b63a5931dd6ec0b300f321b6836d73ff722fce3c/components/cards/schema.js#L4-L14)
 
--   \[POST\] `/cards` - create a new card. Body should be `{"name": "test","type": "healer","description": "this is a test card"}` Type can be a number of options, such as "attacker", "healer", "shield", "buff", "debuff"
+-   \[POST\] `/cards` - create a new card. Body should be (at minimum) `{"name": "test","type": "healer","description": "this is a test card"}` Type can be a number of options, such as "attacker", "healer", "shield", "buff", "debuff"
 -   \[GET\] `/cards/:id` - get the card matching the id. id is a Mongo ObjectId
 -   \[PATCH\] `/cards/:id/:attribute/:operation/:value` - update the attribute on the card using the operation and the value. Example:
     -   `/cards/:id/name/assign/test2`
     -   `/cards/:id/type/assign/debuff`
 -   \[DELETE\] `/cards/:id` - delete the card. Note: this is a hard delete. The card is removed from the database
+
+### Abilities
+
+The database schema for this entity is [here](https://github.com/woollyblanket/card-battler-backend/blob/b63a5931dd6ec0b300f321b6836d73ff722fce3c/components/abilities/schema.js#L4-L13)
+
+-   \[POST\] `/abilities` - create a new ability. Body should be (at minimum) `{"name": "test","type": "buff","description": "this is a test ability"}` Type can be a number of options, such as "buff", "debuff" and "buff-debuff"
+-   \[GET\] `/abilities/:id` - get the ability matching the id. id is a Mongo ObjectId
+-   \[PATCH\] `/abilities/:id/:attribute/:operation/:value` - update the attribute on the ability using the operation and the value. Example:
+    -   `/abilities/:id/energy/assign/+4`
+    -   `/abilities/:id/type/assign/debuff`
+-   \[DELETE\] `/abilities/:id` - delete the ability. Note: this is a hard delete. The ability is removed from the database
 
 ### Characters
 
