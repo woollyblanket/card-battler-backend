@@ -1,7 +1,7 @@
 import createDebugMessages from "debug";
 import _ from "underscore";
 
-const debug = createDebugMessages("backend:helper:model");
+const debug = createDebugMessages("backend:helpers:model");
 
 export const getByID = async (mongooseModel, id) => {
 	try {
@@ -54,22 +54,22 @@ export const getAll = async (mongooseModel) => {
 };
 
 export const getAllEntitiesForID = async (
-	mongooseModel1,
-	id,
-	mongooseModel2,
-	field
+	parentModel,
+	parentID,
+	childModel,
+	childField
 ) => {
 	try {
-		const item1 = await mongooseModel1.findById(id).exec();
+		const item1 = await parentModel.findById(parentID).exec();
 		if (!item1)
-			throw `Couldn't find the ${mongooseModel1.modelName.toLowerCase()}`;
-		const items = await mongooseModel2.find({
-			[field]: id,
+			throw `Couldn't find the ${parentModel.modelName.toLowerCase()}`;
+		const items = await childModel.find({
+			[childField]: parentID,
 		});
 		if (!items)
-			throw `Couldn't find the ${mongooseModel2.modelName.toLowerCase()}`;
+			throw `Couldn't find the ${childModel.modelName.toLowerCase()}`;
 		return {
-			message: `Fetched all ${mongooseModel2.modelName.toLowerCase()}s associated with the ${mongooseModel1.modelName.toLowerCase()} (${id})`,
+			message: `Fetched all ${childModel.modelName.toLowerCase()}s associated with the ${parentModel.modelName.toLowerCase()} (${parentID})`,
 			success: true,
 			entities: items,
 		};
@@ -79,21 +79,21 @@ export const getAllEntitiesForID = async (
 };
 
 export const resolveIDsToEntities = async (
-	mongooseModel1,
-	id,
-	field,
-	mongooseModel2
+	parentModel,
+	parentID,
+	parentField,
+	childModel
 ) => {
 	try {
-		const item = await mongooseModel1.findById(id).exec();
+		const item = await parentModel.findById(parentID).exec();
 		if (!item)
-			throw `Couldn't find the ${mongooseModel1.modelName.toLowerCase()}`;
+			throw `Couldn't find the ${parentModel.modelName.toLowerCase()}`;
 
-		const items = await mongooseModel2.find({ _id: item[field] });
+		const items = await childModel.find({ _id: item[parentField] });
 		if (!items)
-			throw `Couldn't find the ${mongooseModel2.modelName.toLowerCase()}`;
+			throw `Couldn't find the ${childModel.modelName.toLowerCase()}`;
 		return {
-			message: `Fetched all ${mongooseModel2.modelName.toLowerCase()}s associated with the ${mongooseModel1.modelName.toLowerCase()} (${id})`,
+			message: `Fetched all ${childModel.modelName.toLowerCase()}s associated with the ${parentModel.modelName.toLowerCase()} (${parentID})`,
 			success: true,
 			entities: items,
 		};
@@ -103,28 +103,144 @@ export const resolveIDsToEntities = async (
 };
 
 export const getEntityForID = async (
-	mongooseModel1,
-	id1,
-	mongooseModel2,
-	id2,
-	field
+	referenceModel,
+	referenceID,
+	lookupModel,
+	lookupID,
+	fieldInLookup
 ) => {
+	// finds the lookupID, and checks if it has the referenceID in its fieldInLookup
+	// as in, is the referenceID allowed to know about the lookupID?
 	try {
-		const item = await mongooseModel2.findById(id2).exec();
+		const item = await lookupModel.findById(lookupID).exec();
 		if (!item)
-			throw `Couldn't find the ${mongooseModel2.modelName.toLowerCase()}`;
+			throw `Couldn't find the ${lookupModel.modelName.toLowerCase()}`;
 
-		if (item[field].toString() !== id1)
-			throw `That ${mongooseModel2.modelName.toLowerCase()} is not associated with that ${mongooseModel1.modelName.toLowerCase()}`;
+		if (item[fieldInLookup].toString() !== referenceID.toString())
+			throw `That ${lookupModel.modelName.toLowerCase()} is not associated with that ${referenceModel.modelName.toLowerCase()}`;
 
 		return {
-			message: `Fetched the ${mongooseModel2.modelName.toLowerCase()} (${id2}) associated with the ${mongooseModel1.modelName.toLowerCase()} (${id1})`,
+			message: `Fetched the ${lookupModel.modelName.toLowerCase()} (${lookupID}) associated with the ${referenceModel.modelName.toLowerCase()} (${referenceID})`,
 			success: true,
 			entity: item,
 		};
 	} catch (error) {
 		return { error };
 	}
+};
+
+const setFieldIfUndefined = async (item, updateField, updateValue, model) => {
+	const defaultValues = {
+		objectid: updateValue,
+		number: 0,
+		string: "",
+		array: [],
+		object: {},
+	};
+
+	if (item[updateField] === undefined) {
+		debug(`${updateField} isn't set. Creating first, then updating`);
+
+		const dataType = getModelDataTypes(model.schema.obj)[updateField].type;
+
+		item[updateField] = defaultValues[dataType];
+
+		item = await item.save();
+	}
+	return item[updateField] === undefined;
+};
+
+const buildMessage = (
+	item,
+	updateField,
+	updateOperation,
+	updateValue,
+	wasUndefined,
+	validOperation,
+	oldVal,
+	oldValSize,
+	newVal,
+	newValSize,
+	model
+) => {
+	let message = "";
+
+	if (validOperation) {
+		let diff = "";
+
+		if (wasUndefined) oldVal = "<blank>";
+
+		if (Array.isArray(item[updateField])) {
+			const text = { add: "Added", remove: "Removed" };
+			diff += `Size: ${oldValSize} -> ${newValSize}. ${text[updateOperation]}: ${updateValue}`;
+		} else {
+			diff += `${oldVal} -> ${newVal}`;
+		}
+
+		message = `Updated the ${updateField} (${diff}) on ${model.modelName.toLowerCase()}: ${
+			item._id
+		}`;
+	} else {
+		message = `Invalid operation type: ${updateOperation}`;
+	}
+	return message;
+};
+
+const doOperation = (item, updateField, updateOperation, updateValue) => {
+	let validOperation = true;
+	let error = "";
+
+	switch (updateOperation) {
+		case "add":
+			// can add integers together or add an item to an array
+			if (Number.isInteger(item[updateField])) {
+				if (isNaN(parseInt(updateValue))) {
+					error = `${updateValue} isn't a number`;
+					break;
+				}
+				item[updateField] += parseInt(updateValue);
+			} else if (Array.isArray(item[updateField])) {
+				item[updateField].push(updateValue);
+			} else {
+				error = `${item[updateField]} isn't an integer or array`;
+			}
+
+			break;
+
+		case "subtract":
+			if (!Number.isInteger(item[updateField])) {
+				error = `${item[updateField]} isn't an integer`;
+				break;
+			}
+			if (isNaN(parseInt(updateValue))) {
+				error = `${updateValue} isn't a number`;
+				break;
+			}
+			item[updateField] -= parseInt(updateValue);
+			break;
+
+		case "assign":
+			item[updateField] = updateValue;
+			break;
+
+		case "remove":
+			if (!Array.isArray(item[updateField])) {
+				error = `${item[updateField]} isn't an array`;
+				break;
+			}
+			const index = item[updateField].indexOf(updateValue);
+			if (index > -1) {
+				item[updateField].splice(index, 1);
+			}
+			break;
+
+		default:
+			// do nothing
+			validOperation = false;
+			break;
+	}
+
+	return { validOperation, error };
 };
 
 export const getByIDAndUpdate = async (
@@ -135,14 +251,6 @@ export const getByIDAndUpdate = async (
 	updateOperation
 ) => {
 	try {
-		debug("params %O", {
-			mongooseModel,
-			id,
-			updateField,
-			updateValue,
-			updateOperation,
-		});
-
 		let item = await mongooseModel.findById(id).exec();
 		if (!item)
 			throw `Couldn't find the ${mongooseModel.modelName.toLowerCase()}`;
@@ -151,37 +259,12 @@ export const getByIDAndUpdate = async (
 		if (updateValue === "true") updateValue = true;
 		if (updateValue === "false") updateValue = false;
 
-		// what if the updateField doesn't exist but is an allowed field in the db?
-		// should create it first and then update it?
-		// yes, I think.
-
-		let wasBlank = false;
-
-		if (item[updateField] === undefined) {
-			debug(`${updateField} isn't set. Creating first, then updating`);
-
-			wasBlank = true;
-			const dataType = getModelDataTypes(mongooseModel.schema.obj)[
-				updateField
-			].type;
-			if (dataType === "objectid") {
-				item[updateField] = updateValue;
-			}
-			if (dataType === "number") {
-				item[updateField] = 0;
-			}
-			if (dataType === "string") {
-				item[updateField] = "";
-			}
-			if (dataType === "array") {
-				item[updateField] = [];
-			}
-			if (dataType === "object") {
-				item[updateField] = {};
-			}
-
-			item = await item.save();
-		}
+		const wasUndefined = await setFieldIfUndefined(
+			item,
+			updateField,
+			updateValue,
+			mongooseModel
+		);
 
 		let oldVal, oldValSize;
 
@@ -194,71 +277,30 @@ export const getByIDAndUpdate = async (
 			oldValSize = oldVal.length.toString();
 		}
 
-		let validOperation = true;
+		const result = doOperation(
+			item,
+			updateField,
+			updateOperation,
+			updateValue
+		);
+		if (result.error) throw result.error;
 
-		switch (updateOperation) {
-			case "add":
-				// can add integers together or add an item to an array
-				if (Number.isInteger(item[updateField])) {
-					item[updateField] += parseInt(updateValue);
-				} else if (Array.isArray(item[updateField])) {
-					item[updateField].push(updateValue);
-				} else {
-					throw `${item[updateField]} isn't an integer or array`;
-				}
-
-				break;
-
-			case "subtract":
-				if (!Number.isInteger(item[updateField]))
-					throw `${item[updateField]} isn't an integer`;
-				item[updateField] -= parseInt(updateValue);
-				break;
-
-			case "assign":
-				item[updateField] = updateValue;
-				break;
-
-			case "remove":
-				if (!Array.isArray(item[updateField]))
-					throw `${item[updateField]} isn't an array`;
-				const index = item[updateField].indexOf(updateValue);
-				if (index > -1) {
-					item[updateField].splice(index, 1);
-				}
-				break;
-
-			default:
-				// do nothing
-				validOperation = false;
-				break;
-		}
-
-		const newVal = item[updateField];
-		const newValSize = item[updateField].length;
-
-		let message = "";
-
-		if (validOperation) {
-			let diff = "";
-
-			if (wasBlank) oldVal = "<blank>";
-
-			if (Array.isArray(item[updateField])) {
-				const text = { add: "Added", remove: "Removed" };
-				diff += `Size: ${oldValSize} -> ${newValSize}. ${text[updateOperation]}: ${updateValue}`;
-			} else {
-				diff += `${oldVal} -> ${newVal}`;
-			}
-
-			message = `Updated the ${updateField} (${diff}) on ${mongooseModel.modelName.toLowerCase()}: ${
-				item._id
-			}`;
-		} else {
-			message = `Invalid operation type: ${updateOperation}`;
-		}
+		const message = buildMessage(
+			item,
+			updateField,
+			updateOperation,
+			updateValue,
+			wasUndefined,
+			result.validOperation,
+			oldVal,
+			oldValSize,
+			item[updateField],
+			item[updateField].length,
+			mongooseModel
+		);
 
 		await item.save();
+
 		return {
 			message,
 			success: true,
@@ -323,26 +365,26 @@ export const createWithData = async (mongooseModel, data) => {
 };
 
 export const createForID = async (
-	mongooseModel1,
-	id,
-	mongooseModel2,
-	field
+	lookupModel,
+	lookupID,
+	ownerModel,
+	referenceField
 ) => {
 	try {
-		const item1 = await mongooseModel1.findById(id).exec();
+		const item1 = await lookupModel.findById(lookupID).exec();
 		if (!item1)
-			throw `Couldn't find the ${mongooseModel1.modelName.toLowerCase()}`;
+			throw `Couldn't find the ${lookupModel.modelName.toLowerCase()}`;
 
-		const item2 = await mongooseModel2.create({
-			[field]: id,
+		const item2 = await ownerModel.create({
+			[referenceField]: lookupID,
 		});
 		if (!item2)
-			throw `Couldn't create the ${mongooseModel2.modelName.toLowerCase()}`;
+			throw `Couldn't create the ${ownerModel.modelName.toLowerCase()}`;
 
 		return {
-			message: `Created a ${mongooseModel2.modelName.toLowerCase()} (${
+			message: `Created a ${ownerModel.modelName.toLowerCase()} (${
 				item2._id
-			}) for ${mongooseModel1.modelName.toLowerCase()}: ${id}`,
+			}) for ${lookupModel.modelName.toLowerCase()}: ${lookupID}`,
 			success: true,
 			entity: item2,
 		};

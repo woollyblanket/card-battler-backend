@@ -1,5 +1,7 @@
 # Card Battler API <!-- omit from toc -->
 
+![nycrc config on GitHub](https://img.shields.io/nycrc/woollyblanket/card-battler-backend)
+
 - [Introduction](#introduction)
 - [Endpoints](#endpoints)
   - [Players](#players)

@@ -29,7 +29,7 @@ import createDebugMessages from "debug";
 import mongoose from "mongoose";
 import { config } from "dotenv";
 
-const debug = createDebugMessages("backend:helper:validation");
+const debug = createDebugMessages("backend:helpers:validation");
 
 export const evaluateRules = (req, res, next) => {
 	const result = validationResult(req);

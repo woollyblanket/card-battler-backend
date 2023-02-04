@@ -34,23 +34,3 @@ export const updateGameAttribute = async (body, params) => {
 		params.operation
 	);
 };
-
-export const addCard = async (body, params) => {
-	return await getByIDAndUpdate(
-		Game,
-		params.gameID,
-		"deck",
-		params.cardID,
-		"arrayAdd"
-	);
-};
-
-export const removeCard = async (body, params) => {
-	return await getByIDAndUpdate(
-		Game,
-		params.gameID,
-		"deck",
-		params.cardID,
-		"arrayRemove"
-	);
-};

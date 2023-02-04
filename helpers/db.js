@@ -45,6 +45,7 @@ export const dbConnect = async () => {
 
 			default:
 				debug("Couldn't get appropriate DB URI");
+				throw "Couldn't get appropriate DB URI";
 				break;
 		}
 
