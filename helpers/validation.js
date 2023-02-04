@@ -4,6 +4,10 @@ import {
 	validDataTypes as gameDataTypes,
 } from "../components/games/model.js";
 import {
+	validAttributes as abilityAttributes,
+	validDataTypes as abilityDataTypes,
+} from "../components/abilities/model.js";
+import {
 	validAttributes as playerAttributes,
 	validDataTypes as playerDataTypes,
 } from "../components/players/model.js";
@@ -46,6 +50,7 @@ export const validAttributes = {
 	card: cardAttributes,
 	character: characterAttributes,
 	deck: deckAttributes,
+	ability: abilityAttributes,
 };
 export const validDataTypes = {
 	game: gameDataTypes,
@@ -53,6 +58,7 @@ export const validDataTypes = {
 	card: cardDataTypes,
 	characterDataTypes: characterDataTypes,
 	deck: deckDataTypes,
+	ability: abilityDataTypes,
 };
 export const validOperations = ["add", "subtract", "assign", "remove"];
 
@@ -61,6 +67,17 @@ export const existsAndIsString = (checkName) => {
 		check(checkName)
 			.exists()
 			.withMessage(`${checkName} must be supplied`)
+			.isString()
+			.withMessage(`${checkName} must be a string`)
+			.trim()
+			.escape(),
+	];
+};
+
+export const isString = (checkName) => {
+	return [
+		check(checkName)
+			.optional()
 			.isString()
 			.withMessage(`${checkName} must be a string`)
 			.trim()
@@ -112,6 +129,17 @@ export const existsAndIsNumber = (checkName) => {
 		check(checkName)
 			.exists()
 			.withMessage(`${checkName} must be supplied`)
+			.isNumeric()
+			.withMessage(`${checkName} must be a number`)
+			.trim()
+			.escape(),
+	];
+};
+
+export const isNumber = (checkName) => {
+	return [
+		check(checkName)
+			.optional()
 			.isNumeric()
 			.withMessage(`${checkName} must be a number`)
 			.trim()

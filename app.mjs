@@ -19,6 +19,7 @@ import games from "./components/games/routes.js";
 import players from "./components/players/routes.js";
 import decks from "./components/decks/routes.js";
 import cards from "./components/cards/routes.js";
+import abilities from "./components/abilities/routes.js";
 
 import { dbConnect } from "./helpers/db.js";
 
@@ -53,6 +54,7 @@ app.use("/games", games);
 app.use("/players", players);
 app.use("/decks", decks);
 app.use("/cards", cards);
+app.use("/abilities", abilities);
 
 // error logging
 app.use((err, req, res, next) => {
