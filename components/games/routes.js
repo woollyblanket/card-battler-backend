@@ -1,11 +1,5 @@
 import express from "express";
-import {
-	getGame,
-	deleteGame,
-	updateGameAttribute,
-	addCard,
-	removeCard,
-} from "./model.js";
+import { getGame, deleteGame, updateGameAttribute } from "./model.js";
 import { execute } from "../../helpers/routes.js";
 import {
 	evaluateRules,

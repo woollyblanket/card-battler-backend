@@ -1,6 +1,6 @@
 import createDebugMessages from "debug";
 
-const debug = createDebugMessages("backend:helper:routes");
+const debug = createDebugMessages("backend:helpers:routes");
 
 export const execute = async (action, req, res, next) => {
 	try {

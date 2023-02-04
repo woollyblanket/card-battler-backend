@@ -6,9 +6,7 @@ export const cardSchema = new Schema({
 	type: { type: String, required: true },
 	description: { type: String, required: true },
 	duration: { type: Number },
-	actions: {
-		damage: { type: Number },
-		heal: { type: Number },
-		shield: { type: Number },
-	},
+	damage: { type: Number },
+	heal: { type: Number },
+	shield: { type: Number },
 });
