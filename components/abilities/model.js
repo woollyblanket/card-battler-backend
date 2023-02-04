@@ -11,6 +11,7 @@ import {
 const Ability = mongoose.model("Ability", abilitySchema);
 export const validAttributes = Object.getOwnPropertyNames(Ability.schema.obj);
 export const validDataTypes = getModelDataTypes(Ability.schema.obj);
+export const validAbilityTypes = ["buff", "debuff", "buff-debuff"];
 
 export const createAbility = async (body, params) => {
 	return await createWithData(Ability, body);

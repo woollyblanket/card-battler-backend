@@ -4,6 +4,7 @@ import {
 	getAbility,
 	updateAbilityAttribute,
 	deleteAbility,
+	validAbilityTypes,
 } from "./model.js";
 import { execute } from "../../helpers/routes.js";
 import {
@@ -22,19 +23,18 @@ import {
 	isString,
 	validDataTypes,
 	existsAndIsAlphanumeric,
+	checkIfAbilityType,
 } from "../../helpers/validation.js";
 import createDebugMessages from "debug";
 
 const debug = createDebugMessages("backend:abilities:routes");
 const router = express.Router();
 
-const allowedAbilityTypes = ["buff", "debuff", "buff/debuff"];
-
 // [post] /abilities - create a new ability
 router.post(
 	"/",
 	existsAndIsString("name"),
-	existsAndIsOneOfList("type", allowedAbilityTypes),
+	existsAndIsOneOfList("type", validAbilityTypes),
 	existsAndIsString("description"),
 	isNumber("duration"),
 	isString("strength"),
@@ -63,9 +63,10 @@ router.patch(
 	existsAndIsMongoID("abilityID"),
 	existsAndIsOneOfList("attribute", validAttributes.ability),
 	existsAndIsOneOfList("operation", validOperations),
-	existsAndIsAlphanumeric("value"),
+	existsAndIsString("value"), // usually use alphanumeric here, but for abilities we can have symbols like + or -
 	checkIfAllowedDataTypeAndOperation("attribute", validDataTypes.ability),
 	checkIfStatus("attribute"),
+	checkIfAbilityType("attribute"),
 	evaluateRules,
 	async (req, res, next) => {
 		await execute(updateAbilityAttribute, req, res, next);

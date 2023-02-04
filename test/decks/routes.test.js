@@ -73,7 +73,7 @@ describe("GET: /decks/:id", async () => {
 	});
 });
 
-describe("PATCH: /decks/:id/:attribute/:operation/:amount", async () => {
+describe("PATCH: /decks/:id/:attribute/:operation/:value", async () => {
 	dbSetupWipeDBBeforeEach();
 
 	it("should warn that the request is bad", async () => {

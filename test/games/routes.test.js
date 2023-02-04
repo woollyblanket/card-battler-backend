@@ -68,7 +68,7 @@ describe("DELETE: /games/:id", async () => {
 	});
 });
 
-describe("PATCH: /games/:id/:attribute/:operation/:amount", async () => {
+describe("PATCH: /games/:id/:attribute/:operation/:value", async () => {
 	dbSetupWipeDBBeforeEach();
 
 	// status is a special case, want to test it explicity

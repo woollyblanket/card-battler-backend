@@ -11,6 +11,13 @@ import {
 const Card = mongoose.model("Card", cardSchema);
 export const validAttributes = Object.getOwnPropertyNames(Card.schema.obj);
 export const validDataTypes = getModelDataTypes(Card.schema.obj);
+export const validCardTypes = [
+	"attacker",
+	"healer",
+	"shield",
+	"buff",
+	"debuff",
+];
 
 export const setCards = async () => {
 	await new Card({
