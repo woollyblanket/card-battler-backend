@@ -61,6 +61,8 @@ export const addEntity = async (path, data) => {
 	try {
 		const res = await request(app).post(path).send(data);
 
+		if (res.body.error) throw res.body.error;
+
 		return res.body.data.entity._id;
 	} catch (error) {
 		return { error };

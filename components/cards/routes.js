@@ -4,6 +4,7 @@ import {
 	getCard,
 	updateCardAttribute,
 	deleteCard,
+	validCardTypes,
 } from "./model.js";
 import { execute } from "../../helpers/routes.js";
 import {
@@ -20,19 +21,18 @@ import {
 	validOperations,
 	validDataTypes,
 	existsAndIsAlphanumeric,
+	checkIfCardType,
 } from "../../helpers/validation.js";
 import createDebugMessages from "debug";
 
 const debug = createDebugMessages("backend:cards:routes");
 const router = express.Router();
 
-const allowedCardTypes = ["attacker", "healer", "shield", "buff", "debuff"];
-
 // [post] /cards - create a new card
 router.post(
 	"/",
 	existsAndIsString("name"),
-	existsAndIsOneOfList("type", allowedCardTypes),
+	existsAndIsOneOfList("type", validCardTypes),
 	existsAndIsString("description"),
 	evaluateRules,
 	async (req, res, next) => {
@@ -59,6 +59,7 @@ router.patch(
 	existsAndIsAlphanumeric("value"),
 	checkIfAllowedDataTypeAndOperation("attribute", validDataTypes.card),
 	checkIfStatus("attribute"),
+	checkIfCardType("attribute"),
 	evaluateRules,
 	async (req, res, next) => {
 		await execute(updateCardAttribute, req, res, next);
