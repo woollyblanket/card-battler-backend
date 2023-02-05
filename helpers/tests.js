@@ -1,4 +1,4 @@
-import { dbWipe, dbConnectTest, dbCloseTest } from "./db.js";
+import { dbCloseTest, dbConnectTest, dbWipe } from "./db.js";
 import { expect } from "chai";
 import request from "supertest";
 import { app } from "../app.mjs";
@@ -11,19 +11,6 @@ export const dbSetupWipeDBBeforeEach = () => {
 
 	beforeEach(async () => {
 		return await dbWipe();
-	});
-
-	after(async () => {
-		await dbCloseTest(mongoServer);
-	});
-};
-
-export const dbSetupWipeAtStart = () => {
-	let mongoServer;
-	before(async () => {
-		mongoServer = await dbConnectTest();
-
-		await dbWipe();
 	});
 
 	after(async () => {

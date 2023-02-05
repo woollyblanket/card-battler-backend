@@ -2,12 +2,12 @@ import { playerSchema } from "./schema.js";
 import { gameSchema } from "../games/schema.js";
 import mongoose from "mongoose";
 import {
-	getByID,
 	createByField,
-	getAll,
-	getByField,
-	getAllEntitiesForID,
 	createForID,
+	getAll,
+	getAllEntitiesForID,
+	getByField,
+	getByID,
 	getEntityForID,
 } from "../../helpers/model.js";
 import createDebugMessages from "debug";
@@ -21,11 +21,11 @@ const Game = mongoose.model("Game", gameSchema);
 export const validAttributes = Object.getOwnPropertyNames(Player.schema.obj);
 export const validDataTypes = getModelDataTypes(Player.schema.obj);
 
-export const createPlayer = async (body, params) => {
+export const createPlayer = async (body) => {
 	return await createByField(Player, "username", body.username);
 };
 
-export const getAllPlayers = async (body, params) => {
+export const getAllPlayers = async () => {
 	return await getAll(Player);
 };
 

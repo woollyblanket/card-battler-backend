@@ -1,4 +1,4 @@
-import { body, param, check, validationResult } from "express-validator";
+import { check, validationResult } from "express-validator";
 import {
 	validAttributes as gameAttributes,
 	validDataTypes as gameDataTypes,
@@ -27,7 +27,6 @@ import {
 } from "../components/decks/model.js";
 import createDebugMessages from "debug";
 import mongoose from "mongoose";
-import { config } from "dotenv";
 
 const debug = createDebugMessages("backend:helpers:validation");
 

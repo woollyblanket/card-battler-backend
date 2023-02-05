@@ -1,8 +1,8 @@
 import {
-	dbConnectTest,
+	dbClose,
 	dbCloseTest,
 	dbConnect,
-	dbClose,
+	dbConnectTest,
 } from "../../helpers/db.js";
 import { MongoMemoryServer } from "mongodb-memory-server";
 import { expect } from "chai";

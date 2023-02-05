@@ -1,11 +1,11 @@
 import { cardSchema } from "./schema.js";
 import mongoose from "mongoose";
 import {
-	getModelDataTypes,
 	createWithData,
+	deleteByID,
 	getByID,
 	getByIDAndUpdate,
-	deleteByID,
+	getModelDataTypes,
 } from "../../helpers/model.js";
 
 const Card = mongoose.model("Card", cardSchema);
@@ -54,7 +54,7 @@ export const setCards = async () => {
 	}).save();
 };
 
-export const createCard = async (body, params) => {
+export const createCard = async (body) => {
 	return await createWithData(Card, body);
 };
 

@@ -2,21 +2,14 @@ import { deckSchema } from "./schema.js";
 import { cardSchema } from "../cards/schema.js";
 import mongoose from "mongoose";
 import {
-	getByID,
-	createByField,
-	getAll,
-	getByField,
-	getAllEntitiesForID,
-	createForID,
-	getEntityForID,
-	deleteByID,
 	createWithData,
-	resolveIDsToEntities,
-	getModelDataTypes,
+	deleteByID,
+	getByID,
 	getByIDAndUpdate,
+	getModelDataTypes,
+	resolveIDsToEntities,
 } from "../../helpers/model.js";
 import createDebugMessages from "debug";
-import { body } from "express-validator";
 
 const debug = createDebugMessages("backend:decks:model");
 
@@ -26,7 +19,7 @@ const Card = mongoose.model("Card", cardSchema);
 export const validAttributes = Object.getOwnPropertyNames(Deck.schema.obj);
 export const validDataTypes = getModelDataTypes(Deck.schema.obj);
 
-export const createDeck = async (body, params) => {
+export const createDeck = async (body) => {
 	return await createWithData(Deck, body);
 };
 

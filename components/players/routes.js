@@ -1,23 +1,22 @@
 import express from "express";
 import mongoose from "mongoose";
 import {
+	createNewGameForPlayer,
 	createPlayer,
+	getAllGamesForPlayer,
 	getAllPlayers,
+	getGameForPlayer,
 	getPlayer,
 	getPlayerByUsername,
-	getAllGamesForPlayer,
-	createNewGameForPlayer,
-	getGameForPlayer,
 } from "./model.js";
 import { execute } from "../../helpers/routes.js";
 
 import {
 	evaluateRules,
+	existsAndIsMongoID,
 	existsAndIsString,
 	isUniqueByField,
-	existsAndIsMongoID,
 } from "../../helpers/validation.js";
-import { check } from "express-validator";
 import createDebugMessages from "debug";
 import { playerSchema } from "./schema.js";
 

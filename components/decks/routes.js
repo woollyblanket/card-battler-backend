@@ -1,26 +1,24 @@
 import express from "express";
 import {
 	createDeck,
-	getDeck,
-	updateDeckAttribute,
 	deleteDeck,
 	getCardsInDeck,
+	getDeck,
+	updateDeckAttribute,
 } from "./model.js";
 import { execute } from "../../helpers/routes.js";
 import {
-	evaluateRules,
-	isMongoID,
-	isArrayOfObjectIDs,
-	existsAndIsString,
-	existsAndIsNumber,
 	checkIfAllowedDataTypeAndOperation,
+	checkIfStatus,
+	evaluateRules,
+	existsAndIsAlphanumeric,
 	existsAndIsMongoID,
 	existsAndIsOneOfList,
+	isArrayOfObjectIDs,
+	isMongoID,
 	validAttributes,
-	checkIfStatus,
-	validOperations,
 	validDataTypes,
-	existsAndIsAlphanumeric,
+	validOperations,
 } from "../../helpers/validation.js";
 import createDebugMessages from "debug";
 

@@ -36,7 +36,7 @@ describe("helpers:model getByID", async () => {
 describe("helpers:model getByField", async () => {
 	dbSetupWipeDBBeforeEach();
 	it("should find an entity in the db by field", async () => {
-		const test = await Test1.create({ name: "test" });
+		await Test1.create({ name: "test" });
 
 		const result = await model.getByField(Test1, "name", "test");
 		expect(result.success).to.be.true;
@@ -51,7 +51,7 @@ describe("helpers:model getByField", async () => {
 describe("helpers:model getAll", async () => {
 	dbSetupWipeDBBeforeEach();
 	it("should find all entities in the db", async () => {
-		const test = await Test1.create({ name: "test" });
+		await Test1.create({ name: "test" });
 
 		const result = await model.getAll(Test1);
 		expect(result.success).to.be.true;
