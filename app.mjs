@@ -12,9 +12,6 @@ import { fileURLToPath } from "url";
 import cors from "cors";
 import { responseEnhancer } from "express-response-formatter";
 
-import { setCards } from "./components/cards/model.js";
-import { setCharacters } from "./components/characters/model.js";
-
 import games from "./components/games/routes.js";
 import players from "./components/players/routes.js";
 import decks from "./components/decks/routes.js";
@@ -29,8 +26,6 @@ main().catch((err) => console.log(err));
 async function main() {
 	if (process.env.NODE_ENV !== "test") {
 		await dbConnect();
-		await setCards();
-		await setCharacters();
 	}
 }
 
@@ -55,6 +50,10 @@ app.use("/players", players);
 app.use("/decks", decks);
 app.use("/cards", cards);
 app.use("/abilities", abilities);
+app.use("/500", () => {
+	// using in tests to make sure 500 errors are being handled
+	throw new Error("BROKEN");
+});
 
 // error logging
 app.use((err, req, res, next) => {
@@ -64,7 +63,7 @@ app.use((err, req, res, next) => {
 });
 
 app.use((err, req, res, next) => {
-	res.formatter.serverError({ message: err, success: false });
+	res.formatter.serverError({ message: err.message, success: false });
 });
 
 // 404

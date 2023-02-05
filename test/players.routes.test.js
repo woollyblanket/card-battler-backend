@@ -1,10 +1,10 @@
 import request from "supertest";
 import {
+	addEntity,
 	dbSetupWipeDBBeforeEach,
 	expectToBeTrue,
-	addEntity,
-} from "../../helpers/tests.js";
-import { app } from "../../app.mjs";
+} from "../helpers/tests.js";
+import { app } from "../app.mjs";
 
 describe("POST: /players/", async () => {
 	dbSetupWipeDBBeforeEach();

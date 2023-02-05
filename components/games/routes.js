@@ -1,18 +1,16 @@
 import express from "express";
-import { getGame, deleteGame, updateGameAttribute } from "./model.js";
+import { deleteGame, getGame, updateGameAttribute } from "./model.js";
 import { execute } from "../../helpers/routes.js";
 import {
+	checkIfAllowedDataTypeAndOperation,
+	checkIfStatus,
 	evaluateRules,
-	existsAndIsString,
-	existsAndIsNumber,
+	existsAndIsAlphanumeric,
 	existsAndIsMongoID,
 	existsAndIsOneOfList,
 	validAttributes,
-	validOperations,
 	validDataTypes,
-	existsAndIsAlphanumeric,
-	checkIfStatus,
-	checkIfAllowedDataTypeAndOperation,
+	validOperations,
 } from "../../helpers/validation.js";
 import createDebugMessages from "debug";
 

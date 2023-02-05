@@ -1,11 +1,11 @@
 import { abilitySchema } from "./schema.js";
 import mongoose from "mongoose";
 import {
-	getModelDataTypes,
 	createWithData,
+	deleteByID,
 	getByID,
 	getByIDAndUpdate,
-	deleteByID,
+	getModelDataTypes,
 } from "../../helpers/model.js";
 
 const Ability = mongoose.model("Ability", abilitySchema);
@@ -13,7 +13,7 @@ export const validAttributes = Object.getOwnPropertyNames(Ability.schema.obj);
 export const validDataTypes = getModelDataTypes(Ability.schema.obj);
 export const validAbilityTypes = ["buff", "debuff", "buff-debuff"];
 
-export const createAbility = async (body, params) => {
+export const createAbility = async (body) => {
 	return await createWithData(Ability, body);
 };
 

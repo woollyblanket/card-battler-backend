@@ -191,7 +191,7 @@ const doOperation = (item, updateField, updateOperation, updateValue) => {
 	let error = "";
 
 	switch (updateOperation) {
-		case "add":
+		case "add": {
 			// can add integers together or add an item to an array
 			if (Number.isInteger(item[updateField])) {
 				if (isNaN(parseInt(updateValue))) {
@@ -206,8 +206,8 @@ const doOperation = (item, updateField, updateOperation, updateValue) => {
 			}
 
 			break;
-
-		case "subtract":
+		}
+		case "subtract": {
 			if (!Number.isInteger(item[updateField])) {
 				error = `${item[updateField]} isn't an integer`;
 				break;
@@ -218,12 +218,12 @@ const doOperation = (item, updateField, updateOperation, updateValue) => {
 			}
 			item[updateField] -= parseInt(updateValue);
 			break;
-
-		case "assign":
+		}
+		case "assign": {
 			item[updateField] = updateValue;
 			break;
-
-		case "remove":
+		}
+		case "remove": {
 			if (!Array.isArray(item[updateField])) {
 				error = `${item[updateField]} isn't an array`;
 				break;
@@ -233,11 +233,12 @@ const doOperation = (item, updateField, updateOperation, updateValue) => {
 				item[updateField].splice(index, 1);
 			}
 			break;
-
-		default:
+		}
+		default: {
 			// do nothing
 			validOperation = false;
 			break;
+		}
 	}
 
 	return { validOperation, error };
@@ -395,7 +396,7 @@ export const createForID = async (
 
 export const getModelDataTypes = (schemaObject) => {
 	let dataTypes = {};
-	Object.keys(schemaObject).forEach((key, index) => {
+	Object.keys(schemaObject).forEach((key) => {
 		dataTypes[key] = {};
 
 		let check;
