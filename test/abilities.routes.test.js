@@ -3,8 +3,8 @@ import {
 	addEntity,
 	dbSetupWipeDBBeforeEach,
 	expectToBeTrue,
-} from "../../helpers/tests.js";
-import { app } from "../../app.mjs";
+} from "../helpers/tests.js";
+import { app } from "../app.mjs";
 
 describe("POST: /abilities", async () => {
 	dbSetupWipeDBBeforeEach();
@@ -149,6 +149,25 @@ describe("PATCH: /abilities/:id/:attribute/:operation/:value", async () => {
 				name: "type",
 				value: "buff-debuff",
 			},
+		});
+	});
+
+	it("should warn that the request is bad", async () => {
+		const abilityID = await addEntity(`/abilities`, {
+			name: "test",
+			description: "test",
+			type: "buff",
+		});
+		if (abilityID.error) throw abilityID.error;
+
+		const res = await request(app).patch(
+			`/abilities/${abilityID}/type/add/buff-debuff`
+		);
+
+		expectToBeTrue(res, {
+			status: 400,
+			success: false,
+			isError: true,
 		});
 	});
 

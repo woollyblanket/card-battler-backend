@@ -1,6 +1,6 @@
 import { expect } from "chai";
-import * as model from "../../helpers/model.js";
-import { dbSetupWipeDBBeforeEach } from "../../helpers/tests.js";
+import * as model from "../helpers/model.js";
+import { dbSetupWipeDBBeforeEach } from "../helpers/tests.js";
 import mongoose from "mongoose";
 
 const schema = new mongoose.Schema({

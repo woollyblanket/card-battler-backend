@@ -3,8 +3,8 @@ import {
 	addEntity,
 	dbSetupWipeDBBeforeEach,
 	expectToBeTrue,
-} from "../../helpers/tests.js";
-import { app } from "../../app.mjs";
+} from "../helpers/tests.js";
+import { app } from "../app.mjs";
 
 describe("POST: /cards", async () => {
 	dbSetupWipeDBBeforeEach();
@@ -151,6 +151,25 @@ describe("PATCH: /cards/:id/:attribute/:operation/:value", async () => {
 				name: "type",
 				value: "shield",
 			},
+		});
+	});
+
+	it("should warn that the request is bad", async () => {
+		const cardID = await addEntity(`/cards`, {
+			name: "test",
+			description: "test",
+			type: "healer",
+		});
+		if (cardID.error) throw cardID.error;
+
+		const res = await request(app).patch(
+			`/cards/${cardID}/type/remove/shield`
+		);
+
+		expectToBeTrue(res, {
+			status: 400,
+			success: false,
+			isError: true,
 		});
 	});
 

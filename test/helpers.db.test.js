@@ -3,7 +3,7 @@ import {
 	dbCloseTest,
 	dbConnect,
 	dbConnectTest,
-} from "../../helpers/db.js";
+} from "../helpers/db.js";
 import { MongoMemoryServer } from "mongodb-memory-server";
 import { expect } from "chai";
 

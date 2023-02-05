@@ -3,8 +3,8 @@ import {
 	addEntity,
 	dbSetupWipeDBBeforeEach,
 	expectToBeTrue,
-} from "../../helpers/tests.js";
-import { app } from "../../app.mjs";
+} from "../helpers/tests.js";
+import { app } from "../app.mjs";
 
 describe("GET: /games/:id", async () => {
 	dbSetupWipeDBBeforeEach();

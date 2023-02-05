@@ -126,18 +126,6 @@ export const existsAndIsOneOfList = (checkName, list) => {
 	];
 };
 
-export const existsAndIsNumber = (checkName) => {
-	return [
-		check(checkName)
-			.exists()
-			.withMessage(`${checkName} must be supplied`)
-			.isNumeric()
-			.withMessage(`${checkName} must be a number`)
-			.trim()
-			.escape(),
-	];
-};
-
 export const isNumber = (checkName) => {
 	return [
 		check(checkName)

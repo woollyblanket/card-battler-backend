@@ -3,8 +3,8 @@ import {
 	addEntity,
 	dbSetupWipeDBBeforeEach,
 	expectToBeTrue,
-} from "../../helpers/tests.js";
-import { app } from "../../app.mjs";
+} from "../helpers/tests.js";
+import { app } from "../app.mjs";
 
 describe("POST: /decks", async () => {
 	dbSetupWipeDBBeforeEach();
@@ -64,6 +64,42 @@ describe("GET: /decks/:id", async () => {
 
 	it("should warn that the request is bad", async () => {
 		const res = await request(app).get(`/decks/1`);
+
+		expectToBeTrue(res, {
+			status: 400,
+			success: false,
+			isError: true,
+		});
+	});
+});
+
+describe("GET: /decks/:id/cards", async () => {
+	dbSetupWipeDBBeforeEach();
+
+	it("should get all the cards belonging to a deck", async () => {
+		const deckID = await addEntity(`/decks`);
+		if (deckID.error) throw deckID.error;
+
+		const cardID = await addEntity(`/cards`, {
+			name: "test",
+			type: "buff",
+			description: "test",
+		});
+		if (cardID.error) throw cardID.error;
+
+		await request(app).patch(`/decks/${deckID}/cards/add/${cardID}`);
+
+		const res = await request(app).get(`/decks/${deckID}/cards`);
+
+		expectToBeTrue(res, {
+			status: 200,
+			success: true,
+			entitiesExist: true,
+		});
+	});
+
+	it("should warn that the request is bad", async () => {
+		const res = await request(app).get(`/decks/1/cards`);
 
 		expectToBeTrue(res, {
 			status: 400,
