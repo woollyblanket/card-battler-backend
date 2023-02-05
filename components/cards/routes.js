@@ -10,6 +10,7 @@ import { execute } from "../../helpers/routes.js";
 import {
 	checkIfAllowedDataTypeAndOperation,
 	checkIfCardType,
+	checkIfRarity,
 	checkIfStatus,
 	evaluateRules,
 	existsAndIsAlphanumeric,
@@ -57,6 +58,7 @@ router.patch(
 	checkIfAllowedDataTypeAndOperation("attribute", validDataTypes.card),
 	checkIfStatus("attribute"),
 	checkIfCardType("attribute"),
+	checkIfRarity("attribute"),
 	evaluateRules,
 	async (req, res, next) => {
 		await execute(updateCardAttribute, req, res, next);

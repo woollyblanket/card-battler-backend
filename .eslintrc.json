@@ -18,9 +18,9 @@
 			"warn",
 			{
 				"vars": "all",
-				"varsIgnorePattern": "^_",
+				"varsIgnorePattern": "^_|debug",
 				"args": "after-used",
-				"argsIgnorePattern": "^_"
+				"argsIgnorePattern": "^_|next"
 			}
 		],
 		"sort-imports": [
