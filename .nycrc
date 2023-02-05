@@ -1,6 +1,6 @@
 {
 	"check-coverage": true,
-	"reporter": ["html", "text"],
+	"reporter": ["html", "text", "lcovonly"],
 	"branches": 80,
 	"lines": 80,
 	"functions": 80,
