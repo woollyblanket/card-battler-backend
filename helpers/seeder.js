@@ -57,7 +57,7 @@ export const seed = async () => {
 			}
 			// add
 			await model.create(data);
-			debug(`Added ${data.length} items to %O`, model);
+			debug(`Added ${data.length} items to %O from %O`, model, file);
 		}
 	} catch (error) {
 		return { error };
@@ -81,6 +81,9 @@ export function CardBuilder(obj) {
 		"point",
 		obj.actionValue
 	)}`;
+	const descriptionDuration = obj.duration
+		? ` for ${obj.duration} ${pluralize("round", obj.duration)}`
+		: "";
 	let descriptionMiddle = obj.aoe ? obj.pluralSubject : obj.singularSubject;
 	descriptionMiddle.length !== 0
 		? (descriptionMiddle = ` ${descriptionMiddle} `)
@@ -88,5 +91,5 @@ export function CardBuilder(obj) {
 
 	this.description =
 		obj.description ||
-		`${descriptionStart}${descriptionMiddle}${descriptionEnd}`;
+		`${descriptionStart}${descriptionMiddle}${descriptionEnd}${descriptionDuration}`;
 }

@@ -19,6 +19,7 @@ export const cardSchema = new Schema({
 	damage: { type: Number },
 	heal: { type: Number },
 	shield: { type: Number },
+	energy: { type: Number },
 	aoe: { type: Boolean, default: false }, // area of effect, hits all enemies
 	rarity: { type: String, default: "common", enum: allowedRarities },
 	cost: { type: Number }, // how much energy does it cost to play this card
