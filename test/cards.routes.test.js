@@ -12,7 +12,7 @@ describe("POST: /cards", async () => {
 	it("should create a new card", async () => {
 		const res = await request(app)
 			.post("/cards")
-			.send({ name: "test", description: "test", type: "healer" });
+			.send({ name: "test", description: "test", type: "heal" });
 
 		expectToBeTrue(res, {
 			status: 201,
@@ -20,7 +20,7 @@ describe("POST: /cards", async () => {
 			entityIncludes: {
 				name: "test",
 				description: "test",
-				type: "healer",
+				type: "heal",
 			},
 		});
 	});
@@ -42,7 +42,7 @@ describe("GET: /cards/:id", async () => {
 		const cardID = await addEntity(`/cards`, {
 			name: "test",
 			description: "test",
-			type: "healer",
+			type: "heal",
 		});
 
 		if (cardID.error) throw cardID.error;
@@ -76,7 +76,7 @@ describe("PATCH: /cards/:id/:attribute/:operation/:value", async () => {
 		const cardID = await addEntity(`/cards`, {
 			name: "test",
 			description: "test",
-			type: "healer",
+			type: "heal",
 		});
 		if (cardID.error) throw cardID.error;
 
@@ -95,7 +95,7 @@ describe("PATCH: /cards/:id/:attribute/:operation/:value", async () => {
 		const cardID = await addEntity(`/cards`, {
 			name: "test",
 			description: "test",
-			type: "healer",
+			type: "heal",
 		});
 		if (cardID.error) throw cardID.error;
 
@@ -117,7 +117,7 @@ describe("PATCH: /cards/:id/:attribute/:operation/:value", async () => {
 		const cardID = await addEntity(`/cards`, {
 			name: "test",
 			description: "test",
-			type: "healer",
+			type: "heal",
 		});
 		if (cardID.error) throw cardID.error;
 		const res = await request(app).patch(`/cards/${cardID}/duration/add/3`);
@@ -136,7 +136,7 @@ describe("PATCH: /cards/:id/:attribute/:operation/:value", async () => {
 		const cardID = await addEntity(`/cards`, {
 			name: "test",
 			description: "test",
-			type: "healer",
+			type: "heal",
 		});
 		if (cardID.error) throw cardID.error;
 
@@ -158,7 +158,7 @@ describe("PATCH: /cards/:id/:attribute/:operation/:value", async () => {
 		const cardID = await addEntity(`/cards`, {
 			name: "test",
 			description: "test",
-			type: "healer",
+			type: "heal",
 		});
 		if (cardID.error) throw cardID.error;
 
@@ -177,7 +177,7 @@ describe("PATCH: /cards/:id/:attribute/:operation/:value", async () => {
 		const cardID = await addEntity(`/cards`, {
 			name: "test",
 			description: "test",
-			type: "healer",
+			type: "heal",
 		});
 		if (cardID.error) throw cardID.error;
 
@@ -200,7 +200,7 @@ describe("DELETE: /cards/:id", async () => {
 		const cardID = await addEntity("/cards", {
 			name: "test",
 			description: "test",
-			type: "healer",
+			type: "heal",
 		});
 		if (cardID.error) throw cardID.error;
 		const res = await request(app).delete(`/cards/${cardID}`);

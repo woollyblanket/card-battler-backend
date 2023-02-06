@@ -1,6 +1,6 @@
 import path from "path";
 import glob from "glob";
-import { dbConnect } from "./db.js";
+import { dbConnect, dbConnectTest } from "./db.js";
 import pluralize from "pluralize";
 import mongoose from "mongoose";
 import createDebugMessages from "debug";
@@ -12,7 +12,7 @@ const debug = createDebugMessages("backend:helpers:seeder");
 
 export const getObjectId = (name) => {
 	try {
-		if (name === "") throw "Name cannot be empty";
+		if (!name) throw "Name cannot be empty";
 
 		const hash = createHash("sha1").update(name, "utf8").digest("hex");
 
@@ -23,43 +23,99 @@ export const getObjectId = (name) => {
 };
 
 export const getObjectIds = (names) => {
-	return names.map((name) => getObjectId(name));
+	try {
+		if (!names) throw "Names cannot be empty";
+		if (!Array.isArray(names)) throw "Names must be an array";
+		return names.map((name) => getObjectId(name));
+	} catch (error) {
+		return { error };
+	}
 };
 
-export const seed = async () => {
+const parseConfig = (config) => {
+	// normalise everything to lower case
+	config = config.toLowerCase();
+
+	const skipValues = ["skip", "false", undefined];
+
+	// default is to skip
+	const data = {
+		command: "skip",
+	};
+
+	if (skipValues.includes(config)) {
+		return data;
+	}
+	data.command = config.split(":")[0];
+	const options = config.split(":")[1];
+
+	if (data.command === "drop") {
+		// make collections singular as the model name is singular
+		const collections = options.split(",");
+
+		data.collections = collections.map((item) => pluralize.singular(item));
+	}
+
+	return data;
+};
+
+export const seed = async (configuration) => {
 	try {
+		const config = parseConfig(configuration);
+
+		if (config.command === "skip") {
+			debug("Skipping seeding");
+			return;
+		}
+
 		// make sure we're connected to the db
 		if (mongoose.connection.readyState === 0) {
-			// 0: disconnected
-			// 1: connected
-			// 2: connecting
-			// 3: disconnecting
-
-			await dbConnect();
+			if (process.env.NODE_ENV === "test") {
+				await dbConnectTest();
+			} else {
+				await dbConnect();
+			}
 		}
 
 		if (mongoose.connection.readyState !== 1)
 			throw "Couldn't connect to DB";
 
-		let alreadyDropped = new Map();
-		const files = glob.sync("./seed-data/**/*.js");
+		if (config.command === "drop") {
+			let alreadyDropped = new Map();
+			const files = glob.sync("./seed-data/**/*.js");
 
-		for (const file of files) {
-			const obj = await import(path.resolve(file));
-			const { modelName, data } = obj.default;
+			for (const file of files) {
+				// when running tests, only use the test folder
+				// otherwise, ignore the test folder
 
-			const model = mongoose.connection.model(modelName);
+				if (process.env.NODE_ENV === "test") {
+					if (!path.dirname(file).includes("test")) continue;
+				} else {
+					if (path.dirname(file).includes("test")) continue;
+				}
 
-			if (!alreadyDropped.get(modelName)) {
-				// drop first
-				await model.deleteMany();
-				debug("Deleted everything from %O", model);
-				alreadyDropped.set(modelName, true);
+				const obj = await import(path.resolve(file));
+				const { modelName, data } = obj.default;
+				const lowerCaseModelName = modelName.toLowerCase();
+
+				const model = mongoose.connection.model(modelName);
+
+				if (
+					!alreadyDropped.get(modelName) &&
+					(config.collections[0] === "all" ||
+						config.collections.includes(lowerCaseModelName))
+				) {
+					// drop first
+					await model.deleteMany();
+					debug("Deleted everything from %O", model);
+					alreadyDropped.set(modelName, true);
+				}
+				// add
+				await model.create(data);
+				debug(`Added ${data.length} items to %O from %O`, model, file);
 			}
-			// add
-			await model.create(data);
-			debug(`Added ${data.length} items to %O from %O`, model, file);
 		}
+		return;
 	} catch (error) {
 		return { error };
 	}

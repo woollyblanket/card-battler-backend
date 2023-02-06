@@ -183,7 +183,7 @@ describe("PATCH: /decks/:id/:attribute/:operation/:value", async () => {
 		if (deckID.error) throw deckID.error;
 		const cardID = await addEntity("/cards", {
 			name: "test",
-			type: "healer",
+			type: "heal",
 			description: "test",
 		});
 		if (cardID.error) throw cardID.error;
@@ -206,7 +206,7 @@ describe("PATCH: /decks/:id/:attribute/:operation/:value", async () => {
 		if (deckID.error) throw deckID.error;
 		const cardID = await addEntity("/cards", {
 			name: "test",
-			type: "healer",
+			type: "heal",
 			description: "test",
 		});
 		if (cardID.error) throw cardID.error;
