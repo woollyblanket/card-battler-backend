@@ -8,7 +8,7 @@ export const abilitySchema = new Schema({
 	type: { type: String, required: true, enum: allowedTypes },
 	description: { type: String, required: true },
 	duration: { type: Number },
-	strength: { type: String },
+	damage: { type: String },
 	health: { type: String },
 	energy: { type: String },
 	shield: { type: String },

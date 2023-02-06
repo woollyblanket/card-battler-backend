@@ -6,6 +6,7 @@ import mongoose from "mongoose";
 import createDebugMessages from "debug";
 import { ObjectId } from "mongodb";
 import { createHash } from "crypto";
+import { sentenceCase } from "change-case";
 
 const debug = createDebugMessages("backend:helpers:seeder");
 
@@ -64,7 +65,7 @@ export const seed = async () => {
 	}
 };
 
-// can't use arrow function for a constructor
+// can't use arrow functions for the constructors
 export function CardBuilder(obj) {
 	this._id = getObjectId(`${obj.type}:${obj.name.toLowerCase()}`);
 
@@ -102,4 +103,26 @@ export function DeckBuilder(obj) {
 		const cardID = obj.cards[i];
 		this.cards.push(getObjectId(cardID));
 	}
+}
+
+export function AbilityBuilder(obj) {
+	this._id = getObjectId(`${obj.type}:${obj.name.toLowerCase()}`);
+
+	this.name = obj.name;
+	this.type = obj.type;
+	this[obj.actionName] = obj.actionValue;
+	this.duration = obj.duration;
+
+	const descriptionStart = `${sentenceCase(obj.actionName)}`;
+	const descriptionMiddle = ` is ${obj.actionValue} points ${
+		obj.type === "buff" ? "higher" : "lower"
+	} `;
+	const descriptionEnd = `than standard`;
+	const descriptionDuration = obj.duration
+		? ` for ${obj.duration} ${pluralize("round", obj.duration)}`
+		: "";
+
+	this.description =
+		obj.description ||
+		`${descriptionStart}${descriptionMiddle}${descriptionEnd}${descriptionDuration}`;
 }

@@ -36,7 +36,7 @@ export default {
 		new CardBuilder({
 			...data,
 			name: "Health Boost",
-			actionName: "heal",
+			actionName: "health",
 			actionValue: 2,
 			cost: 2,
 			duration: 3,
@@ -70,7 +70,7 @@ export default {
 		new CardBuilder({
 			...data,
 			name: "Health Surge",
-			actionName: "heal",
+			actionName: "health",
 			actionValue: 7,
 			cost: 2,
 			duration: 3,

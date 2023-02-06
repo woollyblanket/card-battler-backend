@@ -4,7 +4,7 @@ const data = {
 	name: "",
 	type: "heal",
 	description: "",
-	actionName: "heal",
+	actionName: "health",
 	actionValue: 0,
 	duration: 0,
 	cost: 0,

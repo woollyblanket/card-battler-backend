@@ -17,7 +17,7 @@ export const cardSchema = new Schema({
 	description: { type: String, required: true },
 	duration: { type: Number },
 	damage: { type: Number },
-	heal: { type: Number },
+	health: { type: Number },
 	shield: { type: Number },
 	energy: { type: Number },
 	aoe: { type: Boolean, default: false }, // area of effect, hits all enemies
