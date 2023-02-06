@@ -1,4 +1,4 @@
-import { abilitySchema } from "./schema.js";
+import { abilitySchema, allowedTypes } from "./schema.js";
 import mongoose from "mongoose";
 import {
 	createWithData,
@@ -11,7 +11,7 @@ import {
 const Ability = mongoose.model("Ability", abilitySchema);
 export const validAttributes = Object.getOwnPropertyNames(Ability.schema.obj);
 export const validDataTypes = getModelDataTypes(Ability.schema.obj);
-export const validAbilityTypes = ["buff", "debuff", "buff-debuff"];
+export const validAbilityTypes = allowedTypes;
 
 export const createAbility = async (body) => {
 	return await createWithData(Ability, body);

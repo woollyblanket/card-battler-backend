@@ -20,14 +20,18 @@ import abilities from "./components/abilities/routes.js";
 
 import { dbConnect } from "./helpers/db.js";
 
+import { seed } from "./helpers/seeder.js";
+
 var app = express();
 
-main().catch((err) => console.log(err));
-async function main() {
+const main = async () => {
 	if (process.env.NODE_ENV !== "test") {
 		await dbConnect();
+		await seed(process.env.DATA_SEED);
 	}
-}
+};
+
+main().catch((err) => console.log(err));
 
 app.use(cors());
 app.use(logger("dev"));

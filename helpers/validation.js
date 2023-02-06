@@ -20,6 +20,7 @@ import {
 	validAttributes as cardAttributes,
 	validDataTypes as cardDataTypes,
 	validCardTypes,
+	validRarities,
 } from "../components/cards/model.js";
 import {
 	validAttributes as deckAttributes,
@@ -226,6 +227,26 @@ export const checkIfCardType = (checkName) => {
 				// the only values allowed are in the valid status list
 				if (validCardTypes.includes(req.params.value) === false) {
 					throw `Invalid value. When updating the card type, the valid values are: ${validCardTypes.join(
+						", "
+					)}`;
+				}
+			}
+			return true;
+		}),
+	];
+};
+
+export const checkIfRarity = (checkName) => {
+	return [
+		check(checkName).custom((value, { req }) => {
+			if (value === "rarity") {
+				// the only operations allowed are: assign
+				if (req.params.operation !== "assign") {
+					throw `Invalid operation. When updating the rarity, the operation must be 'assign'`;
+				}
+				// the only values allowed are in the valid status list
+				if (validRarities.includes(req.params.value) === false) {
+					throw `Invalid value. When updating the rarity, the valid values are: ${validRarities.join(
 						", "
 					)}`;
 				}

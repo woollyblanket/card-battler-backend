@@ -28,8 +28,10 @@ describe("helpers:db dbConnect dbClose", async () => {
 	});
 
 	it("should throw that it can't find the DB URI", async () => {
+		const saved = process.env.NODE_ENV;
 		process.env.NODE_ENV = "something-not-covered";
 		const db = await dbConnect();
 		expect(db.error).to.exist;
+		process.env.NODE_ENV = saved;
 	});
 });

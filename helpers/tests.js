@@ -10,7 +10,7 @@ export const dbSetupWipeDBBeforeEach = () => {
 	});
 
 	beforeEach(async () => {
-		return await dbWipe();
+		await dbWipe();
 	});
 
 	after(async () => {
