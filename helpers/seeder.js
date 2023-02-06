@@ -93,3 +93,13 @@ export function CardBuilder(obj) {
 		obj.description ||
 		`${descriptionStart}${descriptionMiddle}${descriptionEnd}${descriptionDuration}`;
 }
+
+export function DeckBuilder(obj) {
+	this.starter = obj.starter;
+	this.cards = [];
+
+	for (let i = 0; i < obj.cards.length; i++) {
+		const cardID = obj.cards[i];
+		this.cards.push(getObjectId(cardID));
+	}
+}
