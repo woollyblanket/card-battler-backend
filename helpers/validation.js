@@ -1,33 +1,12 @@
-import { check, validationResult } from "express-validator";
-import {
-	validAttributes as gameAttributes,
-	validDataTypes as gameDataTypes,
-} from "../components/games/model.js";
-import {
-	validAttributes as abilityAttributes,
-	validDataTypes as abilityDataTypes,
-	validAbilityTypes,
-} from "../components/abilities/model.js";
-import {
-	validAttributes as playerAttributes,
-	validDataTypes as playerDataTypes,
-} from "../components/players/model.js";
-import {
-	validAttributes as characterAttributes,
-	validDataTypes as characterDataTypes,
-} from "../components/characters/model.js";
-import {
-	validAttributes as cardAttributes,
-	validDataTypes as cardDataTypes,
-	validCardTypes,
-	validRarities,
-} from "../components/cards/model.js";
-import {
-	validAttributes as deckAttributes,
-	validDataTypes as deckDataTypes,
-} from "../components/decks/model.js";
+import { check, param, validationResult } from "express-validator";
+import * as constants from "./constants.js";
 import createDebugMessages from "debug";
 import mongoose from "mongoose";
+import { constantCase, sentenceCase } from "change-case";
+import pluralize from "pluralize";
+import _ from "underscore";
+import { SCHEMA_DATA_TYPES } from "./schema.js";
+import { OPERATIONS_PER_DATA_TYPE } from "./constants.js";
 
 const debug = createDebugMessages("backend:helpers:validation");
 
@@ -44,26 +23,6 @@ export const evaluateRules = (req, res, next) => {
 		errors: result.errors,
 	});
 };
-
-export const validStatuses = ["new", "active", "archived", "paused"];
-
-export const validAttributes = {
-	game: gameAttributes,
-	player: playerAttributes,
-	card: cardAttributes,
-	character: characterAttributes,
-	deck: deckAttributes,
-	ability: abilityAttributes,
-};
-export const validDataTypes = {
-	game: gameDataTypes,
-	player: playerDataTypes,
-	card: cardDataTypes,
-	characterDataTypes: characterDataTypes,
-	deck: deckDataTypes,
-	ability: abilityDataTypes,
-};
-export const validOperations = ["add", "subtract", "assign", "remove"];
 
 export const existsAndIsString = (checkName) => {
 	return [
@@ -176,19 +135,28 @@ export const isUniqueByField = (checkName, mongooseModel) => {
 	];
 };
 
-export const checkIfStatus = (checkName) => {
+export const checkIfEnumerated = (checkName, checkValue, lookup = "") => {
+	// if the lookup isn't supplied, use the checkValue to lookup
+	if (lookup === "") lookup = checkValue;
+	// these are stored in plural form, so pluralising
+	lookup = pluralize(lookup);
+	// these are stored as constants, so changing case
+	lookup = constantCase(lookup);
+
+	if (constants[lookup] === undefined)
+		throw `Invalid lookup. ${lookup} doesn't exist`;
 	return [
 		check(checkName).custom((value, { req }) => {
-			if (value === "status") {
+			if (value === checkValue) {
 				// the only operations allowed are: assign
 				if (req.params.operation !== "assign") {
-					throw `Invalid operation. When updating the status, the operation must be 'assign'`;
+					throw `Invalid operation. When updating the ${checkValue}, the operation must be 'assign'`;
 				}
-				// the only values allowed are in the valid status list
-				if (validStatuses.includes(req.params.value) === false) {
-					throw `Invalid value. When updating the status, the valid values are: ${validStatuses.join(
-						", "
-					)}`;
+				// the only values allowed are in the valid list
+				if (constants[lookup].includes(req.params.value) === false) {
+					throw `Invalid value. When updating the ${checkValue}, the valid values are: ${constants[
+						lookup
+					].join(", ")}`;
 				}
 			}
 			return true;
@@ -196,106 +164,55 @@ export const checkIfStatus = (checkName) => {
 	];
 };
 
-export const checkIfAbilityType = (checkName) => {
-	return [
-		check(checkName).custom((value, { req }) => {
-			if (value === "type") {
-				// the only operations allowed are: assign
-				if (req.params.operation !== "assign") {
-					throw `Invalid operation. When updating the ability type, the operation must be 'assign'`;
-				}
-				// the only values allowed are in the valid status list
-				if (validAbilityTypes.includes(req.params.value) === false) {
-					throw `Invalid value. When updating the ability type, the valid values are: ${validAbilityTypes.join(
-						", "
-					)}`;
-				}
-			}
-			return true;
-		}),
-	];
+const getDataType = (thing) => {
+	if (mongoose.isObjectIdOrHexString(thing)) return "objectid";
+	if (_.isArray(thing)) return "array";
+	if (thing === "true" || thing === "false") return "boolean";
+	if (_.isDate(thing)) return "date";
+	if (!_.isNaN(Number(thing))) return "number";
+	if (_.isObject(thing)) return "object";
+	if (_.isString(thing)) return "string";
+	return "unknown";
 };
 
-export const checkIfCardType = (checkName) => {
+export const checkParamCombination = (schema) => {
+	// we care about attribute, operation, and value params
+	// determine data type of value, and check does it match the data type of attribute
+	// look up the operations allowed on the data type, and check if our operation matches
+
+	// sanitize, just in case
+	schema = pluralize.singular(schema).toLocaleLowerCase();
+
 	return [
-		check(checkName).custom((value, { req }) => {
-			if (value === "type") {
-				// the only operations allowed are: assign
-				if (req.params.operation !== "assign") {
-					throw `Invalid operation. When updating the card type, the operation must be 'assign'`;
-				}
-				// the only values allowed are in the valid status list
-				if (validCardTypes.includes(req.params.value) === false) {
-					throw `Invalid value. When updating the card type, the valid values are: ${validCardTypes.join(
-						", "
-					)}`;
-				}
-			}
-			return true;
-		}),
-	];
-};
+		param().custom((params) => {
+			// get value data type
+			const valueDataType = getDataType(params.value);
 
-export const checkIfRarity = (checkName) => {
-	return [
-		check(checkName).custom((value, { req }) => {
-			if (value === "rarity") {
-				// the only operations allowed are: assign
-				if (req.params.operation !== "assign") {
-					throw `Invalid operation. When updating the rarity, the operation must be 'assign'`;
-				}
-				// the only values allowed are in the valid status list
-				if (validRarities.includes(req.params.value) === false) {
-					throw `Invalid value. When updating the rarity, the valid values are: ${validRarities.join(
-						", "
-					)}`;
-				}
-			}
-			return true;
-		}),
-	];
-};
+			const expectedDataType =
+				SCHEMA_DATA_TYPES[schema][params.attribute].type;
+			const isArray =
+				SCHEMA_DATA_TYPES[schema][params.attribute].array || false;
 
-export const checkIfAllowedDataTypeAndOperation = (checkName, dataTypes) => {
-	return [
-		check(checkName).custom((name, { req }) => {
-			let val;
-			let isObjectID = false;
-			if (mongoose.isObjectIdOrHexString(req.params.value)) {
-				val = req.params.value;
-				isObjectID = true;
-			} else {
-				// check if we have some allowed symbols. If so, treat this as a string not a number
-				// this is for the abilities entity, which can have stuff like {"strength": "+4"}
-				const allowedSymbols = ["+", "-", "*", "/"];
-				let hasAllowedSymbol = false;
-				allowedSymbols.forEach((value) => {
-					if (req.params.value.includes(value))
-						hasAllowedSymbol = true;
-				});
-				if (hasAllowedSymbol) {
-					val = req.params.value;
-				} else {
-					val = parseInt(req.params.value);
-					if (isNaN(val)) val = req.params.value;
-					if (val === "true") val = true;
-					if (val === "false") val = false;
-				}
-			}
+			// check if it's the expected data type
+			if (valueDataType !== expectedDataType)
+				throw `Unexpected data type. ${sentenceCase(
+					params.attribute
+				)} expects a data type of ${expectedDataType} but received a data type of ${valueDataType}`;
 
-			if (!dataTypes[name].array && req.params.operation === "remove")
-				throw `Invalid operation. Operation 'remove' only allowed for arrays. Attribute '${name}' is of type '${dataTypes[name].type}'`;
+			const formatter = new Intl.ListFormat("en", {
+				style: "long",
+				type: "disjunction",
+			});
 
-			// object ids are typeof string, so need to handle them separately
-			if (isObjectID) {
-				if (dataTypes[name].type !== "objectid")
-					throw `Invalid data type. Attribute '${name}' expects value '${val}' to be of type '${dataTypes[name].type}'`;
-			} else {
-				if (dataTypes[name].type === "objectid")
-					throw `Invalid data type. Attribute '${name}' expects value '${val}' to be of type 'objectid'`;
-				if (dataTypes[name].type !== typeof val)
-					throw `Invalid data type. Attribute '${name}' expects value '${val}' to be of type '${dataTypes[name].type}'`;
-			}
+			// look up the allowed operations for the data type
+			const dataTypeOperations =
+				OPERATIONS_PER_DATA_TYPE[isArray ? "array" : expectedDataType];
+			if (!dataTypeOperations.includes(params.operation))
+				throw `Unexpected operation. ${sentenceCase(
+					params.attribute
+				)} expects an operation of either ${formatter.format(
+					dataTypeOperations
+				)} but received an operation of ${params.operation}`;
 
 			return true;
 		}),

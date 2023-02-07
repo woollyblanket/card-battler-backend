@@ -17,6 +17,7 @@ import players from "./components/players/routes.js";
 import decks from "./components/decks/routes.js";
 import cards from "./components/cards/routes.js";
 import abilities from "./components/abilities/routes.js";
+import characters from "./components/characters/routes.js";
 
 import { dbConnect } from "./helpers/db.js";
 
@@ -54,6 +55,7 @@ app.use("/players", players);
 app.use("/decks", decks);
 app.use("/cards", cards);
 app.use("/abilities", abilities);
+app.use("/characters", characters);
 app.use("/500", () => {
 	// using in tests to make sure 500 errors are being handled
 	throw new Error("BROKEN");
