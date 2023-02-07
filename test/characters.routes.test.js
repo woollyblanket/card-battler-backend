@@ -67,6 +67,113 @@ describe("GET: /characters/:id", async () => {
 describe("PATCH: /characters/:id/:attribute/:operation/:value", async () => {
 	dbSetupWipeDBBeforeEach();
 
+	-`/characters/:id/abilities/add/<abilityID>` -
+		`/characters/:id/abilities/remove/<abilityID>`;
+
+	it("should add to the character's health", async () => {
+		const characterID = await addEntity(`/characters`, {
+			name: "test",
+			archetype: "hero",
+			description: "test",
+		});
+		if (characterID.error) throw characterID.error;
+
+		const res = await request(app).patch(
+			`/characters/${characterID}/health/add/4`
+		);
+
+		expectToBeTrue(res, {
+			status: 200,
+			success: true,
+			entityIncludes: {
+				health: 4,
+			},
+		});
+	});
+
+	it("should subtract from the character's energy", async () => {
+		const characterID = await addEntity(`/characters`, {
+			name: "test",
+			archetype: "hero",
+			description: "test",
+			energy: 10,
+		});
+		if (characterID.error) throw characterID.error;
+
+		const res = await request(app).patch(
+			`/characters/${characterID}/energy/subtract/4`
+		);
+
+		expectToBeTrue(res, {
+			status: 200,
+			success: true,
+			entityIncludes: {
+				energy: 6,
+			},
+		});
+	});
+
+	it("should add an ability to a character", async () => {
+		const characterID = await addEntity(`/characters`, {
+			name: "test",
+			archetype: "hero",
+			description: "test",
+		});
+		if (characterID.error) throw characterID.error;
+
+		const abilityID = await addEntity(`/abilities`, {
+			name: "test",
+			type: "buff",
+			description: "test",
+		});
+		if (abilityID.error) throw abilityID.error;
+
+		const res = await request(app).patch(
+			`/characters/${characterID}/abilities/add/${abilityID}`
+		);
+
+		expectToBeTrue(res, {
+			status: 200,
+			success: true,
+			attributeArrayContains: {
+				name: "abilities",
+				value: [abilityID],
+			},
+		});
+	});
+
+	it("should remove an ability from a character", async () => {
+		const characterID = await addEntity(`/characters`, {
+			name: "test",
+			archetype: "hero",
+			description: "test",
+		});
+		if (characterID.error) throw characterID.error;
+
+		const abilityID = await addEntity(`/abilities`, {
+			name: "test",
+			type: "buff",
+			description: "test",
+		});
+
+		await request(app).patch(
+			`/characters/${characterID}/abilities/add/${abilityID}`
+		);
+
+		const res = await request(app).patch(
+			`/characters/${characterID}/abilities/remove/${abilityID}`
+		);
+
+		expectToBeTrue(res, {
+			status: 200,
+			success: true,
+			attributeArrayLength: {
+				name: "abilities",
+				value: 0,
+			},
+		});
+	});
+
 	it("should warn that the request is bad", async () => {
 		const characterID = await addEntity(`/characters`, {
 			name: "test",
