@@ -1,15 +1,14 @@
 import mongoose from "mongoose";
+import { ABILITY_TYPES } from "../../helpers/constants.js";
 const { Schema } = mongoose;
-
-export const allowedTypes = ["buff", "debuff", "buff-debuff"];
 
 export const abilitySchema = new Schema({
 	name: { type: String, required: true },
-	type: { type: String, required: true, enum: allowedTypes },
+	type: { type: String, required: true, enum: ABILITY_TYPES },
 	description: { type: String, required: true },
 	duration: { type: Number },
-	damage: { type: String },
-	health: { type: String },
-	energy: { type: String },
-	shield: { type: String },
+	damage: { type: Number },
+	health: { type: Number },
+	energy: { type: Number },
+	shield: { type: Number },
 });

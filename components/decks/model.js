@@ -16,8 +16,7 @@ const debug = createDebugMessages("backend:decks:model");
 const Deck = mongoose.model("Deck", deckSchema);
 const Card = mongoose.model("Card", cardSchema);
 
-export const validAttributes = Object.getOwnPropertyNames(Deck.schema.obj);
-export const validDataTypes = getModelDataTypes(Deck.schema.obj);
+export const deckDataTypes = getModelDataTypes(Deck.schema.obj);
 
 export const createDeck = async (body) => {
 	return await createWithData(Deck, body);

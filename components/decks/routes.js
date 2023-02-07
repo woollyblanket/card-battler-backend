@@ -8,19 +8,18 @@ import {
 } from "./model.js";
 import { execute } from "../../helpers/routes.js";
 import {
-	checkIfAllowedDataTypeAndOperation,
-	checkIfStatus,
+	checkIfEnumerated,
+	checkParamCombination,
 	evaluateRules,
 	existsAndIsAlphanumeric,
 	existsAndIsMongoID,
 	existsAndIsOneOfList,
 	isArrayOfObjectIDs,
 	isMongoID,
-	validAttributes,
-	validDataTypes,
-	validOperations,
 } from "../../helpers/validation.js";
 import createDebugMessages from "debug";
+import { OPERATIONS } from "../../helpers/constants.js";
+import { SCHEMA_PROPERTIES } from "../../helpers/schema.js";
 
 const debug = createDebugMessages("backend:decks:routes");
 const router = express.Router();
@@ -51,11 +50,12 @@ router.get(
 router.patch(
 	"/:deckID/:attribute/:operation/:value",
 	existsAndIsMongoID("deckID"),
-	existsAndIsOneOfList("attribute", validAttributes.deck),
-	existsAndIsOneOfList("operation", validOperations),
+	existsAndIsOneOfList("attribute", SCHEMA_PROPERTIES.deck),
+	existsAndIsOneOfList("operation", OPERATIONS),
 	existsAndIsAlphanumeric("value"),
-	checkIfAllowedDataTypeAndOperation("attribute", validDataTypes.deck),
-	checkIfStatus("attribute"),
+	checkParamCombination("decks"),
+	checkParamCombination("decks"),
+	checkIfEnumerated("attribute", "status"),
 	evaluateRules,
 	async (req, res, next) => {
 		await execute(updateDeckAttribute, req, res, next);

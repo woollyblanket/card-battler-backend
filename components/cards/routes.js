@@ -4,24 +4,20 @@ import {
 	deleteCard,
 	getCard,
 	updateCardAttribute,
-	validCardTypes,
 } from "./model.js";
 import { execute } from "../../helpers/routes.js";
 import {
-	checkIfAllowedDataTypeAndOperation,
-	checkIfCardType,
-	checkIfRarity,
-	checkIfStatus,
+	checkIfEnumerated,
+	checkParamCombination,
 	evaluateRules,
 	existsAndIsAlphanumeric,
 	existsAndIsMongoID,
 	existsAndIsOneOfList,
 	existsAndIsString,
-	validAttributes,
-	validDataTypes,
-	validOperations,
 } from "../../helpers/validation.js";
 import createDebugMessages from "debug";
+import { CARD_TYPES, OPERATIONS } from "../../helpers/constants.js";
+import { SCHEMA_PROPERTIES } from "../../helpers/schema.js";
 
 const debug = createDebugMessages("backend:cards:routes");
 const router = express.Router();
@@ -30,7 +26,7 @@ const router = express.Router();
 router.post(
 	"/",
 	existsAndIsString("name"),
-	existsAndIsOneOfList("type", validCardTypes),
+	existsAndIsOneOfList("type", CARD_TYPES),
 	existsAndIsString("description"),
 	evaluateRules,
 	async (req, res, next) => {
@@ -52,13 +48,13 @@ router.get(
 router.patch(
 	"/:cardID/:attribute/:operation/:value",
 	existsAndIsMongoID("cardID"),
-	existsAndIsOneOfList("attribute", validAttributes.card),
-	existsAndIsOneOfList("operation", validOperations),
+	existsAndIsOneOfList("attribute", SCHEMA_PROPERTIES.card),
+	existsAndIsOneOfList("operation", OPERATIONS),
 	existsAndIsAlphanumeric("value"),
-	checkIfAllowedDataTypeAndOperation("attribute", validDataTypes.card),
-	checkIfStatus("attribute"),
-	checkIfCardType("attribute"),
-	checkIfRarity("attribute"),
+	checkParamCombination("cards"),
+	checkIfEnumerated("attribute", "status"),
+	checkIfEnumerated("attribute", "type", "cardType"),
+	checkIfEnumerated("attribute", "rarity"),
 	evaluateRules,
 	async (req, res, next) => {
 		await execute(updateCardAttribute, req, res, next);

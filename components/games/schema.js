@@ -1,7 +1,4 @@
 import mongoose from "mongoose";
-import createDebugMessages from "debug";
-
-const debug = createDebugMessages("backend:games:schema");
 const { Schema } = mongoose;
 
 export const gameSchema = new Schema({

@@ -2,17 +2,16 @@ import express from "express";
 import { deleteGame, getGame, updateGameAttribute } from "./model.js";
 import { execute } from "../../helpers/routes.js";
 import {
-	checkIfAllowedDataTypeAndOperation,
-	checkIfStatus,
+	checkIfEnumerated,
+	checkParamCombination,
 	evaluateRules,
 	existsAndIsAlphanumeric,
 	existsAndIsMongoID,
 	existsAndIsOneOfList,
-	validAttributes,
-	validDataTypes,
-	validOperations,
 } from "../../helpers/validation.js";
 import createDebugMessages from "debug";
+import { OPERATIONS } from "../../helpers/constants.js";
+import { SCHEMA_PROPERTIES } from "../../helpers/schema.js";
 
 const debug = createDebugMessages("backend:games:routes");
 
@@ -42,11 +41,11 @@ router.delete(
 router.patch(
 	"/:gameID/:attribute/:operation/:value",
 	existsAndIsMongoID("gameID"),
-	existsAndIsOneOfList("attribute", validAttributes.game),
-	existsAndIsOneOfList("operation", validOperations),
+	existsAndIsOneOfList("attribute", SCHEMA_PROPERTIES.game),
+	existsAndIsOneOfList("operation", OPERATIONS),
 	existsAndIsAlphanumeric("value"),
-	checkIfAllowedDataTypeAndOperation("attribute", validDataTypes.game),
-	checkIfStatus("attribute"),
+	checkParamCombination("games"),
+	checkIfEnumerated("attribute", "status"),
 	evaluateRules,
 	async (req, res, next) => {
 		await execute(updateGameAttribute, req, res, next);
