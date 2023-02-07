@@ -1,6 +1,6 @@
 # Card Battler API <!-- omit from toc -->
 
-![nycrc config on GitHub](https://img.shields.io/nycrc/woollyblanket/card-battler-backend) [![Coverage Status](https://coveralls.io/repos/github/woollyblanket/card-battler-backend/badge.svg?branch=main)](https://coveralls.io/github/woollyblanket/card-battler-backend?branch=main)
+![nycrc config on GitHub](https://img.shields.io/nycrc/woollyblanket/card-battler-backend) [![codecov](https://codecov.io/gh/woollyblanket/card-battler-backend/branch/main/graph/badge.svg?token=7WSYG75UDX)](https://codecov.io/gh/woollyblanket/card-battler-backend)
 
 - [Introduction](#introduction)
 - [Endpoints](#endpoints)
