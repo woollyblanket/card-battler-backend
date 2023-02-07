@@ -4,6 +4,7 @@ import { playerDataTypes } from "../components/players/model.js";
 import { characterDataTypes } from "../components/characters/model.js";
 import { cardDataTypes } from "../components/cards/model.js";
 import { deckDataTypes } from "../components/decks/model.js";
+import { enemyDataTypes } from "../components/enemies/model.js";
 
 export const SCHEMA_DATA_TYPES = {
 	game: gameDataTypes,
@@ -12,6 +13,7 @@ export const SCHEMA_DATA_TYPES = {
 	character: characterDataTypes,
 	deck: deckDataTypes,
 	ability: abilityDataTypes,
+	enemy: enemyDataTypes,
 };
 
 export const SCHEMA_PROPERTIES = {
@@ -21,4 +23,5 @@ export const SCHEMA_PROPERTIES = {
 	character: Object.getOwnPropertyNames(characterDataTypes),
 	deck: Object.getOwnPropertyNames(deckDataTypes),
 	ability: Object.getOwnPropertyNames(abilityDataTypes),
+	enemy: Object.getOwnPropertyNames(enemyDataTypes),
 };

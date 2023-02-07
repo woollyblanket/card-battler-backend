@@ -26,4 +26,14 @@ export const ARCHETYPES = [
 	"mentor",
 	"guardian",
 ];
+export const SPECIES = [
+	"ooze",
+	"dragon",
+	"phoenix",
+	"goblin",
+	"elemental",
+	"giant",
+	"ghost",
+	"beast",
+];
 export const SYMBOLS = ["+", "-", "*", "/"];

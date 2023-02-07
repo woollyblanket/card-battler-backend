@@ -6,13 +6,13 @@ import {
 } from "../helpers/tests.js";
 import { app } from "../app.mjs";
 
-describe("POST: /characters", async () => {
+describe("POST: /enemies", async () => {
 	dbSetupWipeDBBeforeEach();
 
-	it("should create a new character", async () => {
+	it("should create a new enemy", async () => {
 		const res = await request(app)
-			.post("/characters")
-			.send({ name: "test", archetype: "hero", description: "test" });
+			.post("/enemies")
+			.send({ name: "test", species: "dragon", description: "test" });
 
 		expectToBeTrue(res, {
 			status: 201,
@@ -21,7 +21,7 @@ describe("POST: /characters", async () => {
 	});
 
 	it("should warn that the request is bad", async () => {
-		const res = await request(app).post(`/characters`);
+		const res = await request(app).post(`/enemies`);
 
 		expectToBeTrue(res, {
 			status: 400,
@@ -31,30 +31,30 @@ describe("POST: /characters", async () => {
 	});
 });
 
-describe("GET: /characters/:id", async () => {
+describe("GET: /enemies/:id", async () => {
 	dbSetupWipeDBBeforeEach();
 
-	it("should get a single character", async () => {
-		const characterID = await addEntity(`/characters`, {
+	it("should get a single enemy", async () => {
+		const enemyID = await addEntity(`/enemies`, {
 			name: "test",
-			archetype: "hero",
+			species: "dragon",
 			description: "test",
 		});
-		if (characterID.error) throw characterID.error;
+		if (enemyID.error) throw enemyID.error;
 
-		const res = await request(app).get(`/characters/${characterID}`);
+		const res = await request(app).get(`/enemies/${enemyID}`);
 
 		expectToBeTrue(res, {
 			status: 200,
 			success: true,
 			entityIncludes: {
-				_id: characterID,
+				_id: enemyID,
 			},
 		});
 	});
 
 	it("should warn that the request is bad", async () => {
-		const res = await request(app).get(`/characters/1`);
+		const res = await request(app).get(`/enemies/1`);
 
 		expectToBeTrue(res, {
 			status: 400,
@@ -64,19 +64,19 @@ describe("GET: /characters/:id", async () => {
 	});
 });
 
-describe("PATCH: /characters/:id/:attribute/:operation/:value", async () => {
+describe("PATCH: /enemies/:id/:attribute/:operation/:value", async () => {
 	dbSetupWipeDBBeforeEach();
 
-	it("should add to the character's health", async () => {
-		const characterID = await addEntity(`/characters`, {
+	it("should add to the enemy's health", async () => {
+		const enemyID = await addEntity(`/enemies`, {
 			name: "test",
-			archetype: "hero",
+			species: "dragon",
 			description: "test",
 		});
-		if (characterID.error) throw characterID.error;
+		if (enemyID.error) throw enemyID.error;
 
 		const res = await request(app).patch(
-			`/characters/${characterID}/health/add/4`
+			`/enemies/${enemyID}/health/add/4`
 		);
 
 		expectToBeTrue(res, {
@@ -88,17 +88,17 @@ describe("PATCH: /characters/:id/:attribute/:operation/:value", async () => {
 		});
 	});
 
-	it("should subtract from the character's energy", async () => {
-		const characterID = await addEntity(`/characters`, {
+	it("should subtract from the enemy's energy", async () => {
+		const enemyID = await addEntity(`/enemies`, {
 			name: "test",
-			archetype: "hero",
+			species: "dragon",
 			description: "test",
 			energy: 10,
 		});
-		if (characterID.error) throw characterID.error;
+		if (enemyID.error) throw enemyID.error;
 
 		const res = await request(app).patch(
-			`/characters/${characterID}/energy/subtract/4`
+			`/enemies/${enemyID}/energy/subtract/4`
 		);
 
 		expectToBeTrue(res, {
@@ -110,13 +110,13 @@ describe("PATCH: /characters/:id/:attribute/:operation/:value", async () => {
 		});
 	});
 
-	it("should add an ability to a character", async () => {
-		const characterID = await addEntity(`/characters`, {
+	it("should add an ability to a enemy", async () => {
+		const enemyID = await addEntity(`/enemies`, {
 			name: "test",
-			archetype: "hero",
+			species: "dragon",
 			description: "test",
 		});
-		if (characterID.error) throw characterID.error;
+		if (enemyID.error) throw enemyID.error;
 
 		const abilityID = await addEntity(`/abilities`, {
 			name: "test",
@@ -126,7 +126,7 @@ describe("PATCH: /characters/:id/:attribute/:operation/:value", async () => {
 		if (abilityID.error) throw abilityID.error;
 
 		const res = await request(app).patch(
-			`/characters/${characterID}/abilities/add/${abilityID}`
+			`/enemies/${enemyID}/abilities/add/${abilityID}`
 		);
 
 		expectToBeTrue(res, {
@@ -139,13 +139,13 @@ describe("PATCH: /characters/:id/:attribute/:operation/:value", async () => {
 		});
 	});
 
-	it("should remove an ability from a character", async () => {
-		const characterID = await addEntity(`/characters`, {
+	it("should remove an ability from a enemy", async () => {
+		const enemyID = await addEntity(`/enemies`, {
 			name: "test",
-			archetype: "hero",
+			species: "dragon",
 			description: "test",
 		});
-		if (characterID.error) throw characterID.error;
+		if (enemyID.error) throw enemyID.error;
 
 		const abilityID = await addEntity(`/abilities`, {
 			name: "test",
@@ -154,11 +154,11 @@ describe("PATCH: /characters/:id/:attribute/:operation/:value", async () => {
 		});
 
 		await request(app).patch(
-			`/characters/${characterID}/abilities/add/${abilityID}`
+			`/enemies/${enemyID}/abilities/add/${abilityID}`
 		);
 
 		const res = await request(app).patch(
-			`/characters/${characterID}/abilities/remove/${abilityID}`
+			`/enemies/${enemyID}/abilities/remove/${abilityID}`
 		);
 
 		expectToBeTrue(res, {
@@ -172,15 +172,15 @@ describe("PATCH: /characters/:id/:attribute/:operation/:value", async () => {
 	});
 
 	it("should warn that the request is bad", async () => {
-		const characterID = await addEntity(`/characters`, {
+		const enemyID = await addEntity(`/enemies`, {
 			name: "test",
-			archetype: "hero",
+			species: "dragon",
 			description: "test",
 		});
-		if (characterID.error) throw characterID.error;
+		if (enemyID.error) throw enemyID.error;
 
 		const res = await request(app).patch(
-			`/characters/${characterID}/name/add/paused`
+			`/enemies/${enemyID}/name/add/paused`
 		);
 
 		expectToBeTrue(res, {
@@ -191,14 +191,14 @@ describe("PATCH: /characters/:id/:attribute/:operation/:value", async () => {
 	});
 
 	it("should warn that the request is bad", async () => {
-		const characterID = await addEntity(`/characters`, {
+		const enemyID = await addEntity(`/enemies`, {
 			name: "test",
-			archetype: "hero",
+			species: "dragon",
 			description: "test",
 		});
-		if (characterID.error) throw characterID.error;
+		if (enemyID.error) throw enemyID.error;
 		const res = await request(app).patch(
-			`/characters/${characterID}/energy/assign/test`
+			`/enemies/${enemyID}/energy/assign/test`
 		);
 
 		expectToBeTrue(res, {
@@ -209,29 +209,29 @@ describe("PATCH: /characters/:id/:attribute/:operation/:value", async () => {
 	});
 });
 
-describe("DELETE: /characters/:id", async () => {
+describe("DELETE: /enemies/:id", async () => {
 	dbSetupWipeDBBeforeEach();
 
-	it("should delete a single character", async () => {
-		const characterID = await addEntity("/characters", {
+	it("should delete a single enemy", async () => {
+		const enemyID = await addEntity("/enemies", {
 			name: "test",
-			archetype: "hero",
+			species: "dragon",
 			description: "test",
 		});
-		if (characterID.error) throw characterID.error;
-		const res = await request(app).delete(`/characters/${characterID}`);
+		if (enemyID.error) throw enemyID.error;
+		const res = await request(app).delete(`/enemies/${enemyID}`);
 
 		expectToBeTrue(res, {
 			status: 200,
 			success: true,
 			entityIncludes: {
-				_id: characterID,
+				_id: enemyID,
 			},
 		});
 	});
 
 	it("should warn that the request is bad", async () => {
-		const res = await request(app).delete(`/characters/1`);
+		const res = await request(app).delete(`/enemies/1`);
 
 		expectToBeTrue(res, {
 			status: 400,
