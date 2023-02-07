@@ -96,7 +96,7 @@ describe("PATCH: /abilities/:id/:attribute/:operation/:value", async () => {
 		if (abilityID.error) throw abilityID.error;
 
 		const res = await request(app).patch(
-			`/abilities/${abilityID}/energy/assign/+4`
+			`/abilities/${abilityID}/energy/assign/4`
 		);
 
 		expectToBeTrue(res, {
@@ -104,7 +104,7 @@ describe("PATCH: /abilities/:id/:attribute/:operation/:value", async () => {
 			success: true,
 			attributeEquals: {
 				name: "energy",
-				value: "+4",
+				value: 4,
 			},
 		});
 	});

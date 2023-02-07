@@ -1,15 +1,15 @@
 # Card Battler API <!-- omit from toc -->
 
-![nycrc config on GitHub](https://img.shields.io/nycrc/woollyblanket/card-battler-backend) [![Coverage Status](https://coveralls.io/repos/github/woollyblanket/card-battler-backend/badge.svg?branch=main)](https://coveralls.io/github/woollyblanket/card-battler-backend?branch=main)
+![nycrc config on GitHub](https://img.shields.io/nycrc/woollyblanket/card-battler-backend) [![codecov](https://codecov.io/gh/woollyblanket/card-battler-backend/branch/main/graph/badge.svg?token=7WSYG75UDX)](https://codecov.io/gh/woollyblanket/card-battler-backend)
 
-- [Introduction](#introduction)
-- [Endpoints](#endpoints)
-  - [Players](#players)
-  - [Games](#games)
-  - [Decks](#decks)
-  - [Cards](#cards)
-  - [Abilities](#abilities)
-  - [Characters](#characters)
+-   [Introduction](#introduction)
+-   [Endpoints](#endpoints)
+    -   [Players](#players)
+    -   [Games](#games)
+    -   [Decks](#decks)
+    -   [Cards](#cards)
+    -   [Abilities](#abilities)
+    -   [Characters](#characters)
 
 ## Introduction
 
@@ -82,4 +82,11 @@ The database schema for this entity is [here](https://github.com/woollyblanket/c
 
 The database schema for this entity is [here](https://github.com/woollyblanket/card-battler-backend/blob/b63a5931dd6ec0b300f321b6836d73ff722fce3c/components/characters/schema.js#L4-L15)
 
-Coming soon!
+-   \[POST\] `/characters` - create a new character. Body should be (at minimum) `{"name": "test","archetype": "hero","description": "this is a test ability"}`
+-   \[GET\] `/characters/:id` - get the character matching the id. id is a Mongo ObjectId
+-   \[PATCH\] `/characters/:id/:attribute/:operation/:value` - update the attribute on the character using the operation and the value. Example:
+    -   `/characters/:id/health/add/4`
+    -   `/characters/:id/energy/subtract/1`
+    -   `/characters/:id/abilities/add/<abilityID>`
+    -   `/characters/:id/abilities/remove/<abilityID>`
+-   \[DELETE\] `/characters/:id` - delete the character. Note: this is a hard delete. The character is removed from the database

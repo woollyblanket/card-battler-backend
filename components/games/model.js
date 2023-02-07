@@ -11,8 +11,7 @@ import createDebugMessages from "debug";
 const debug = createDebugMessages("backend:games:model");
 
 const Game = mongoose.model("Game", gameSchema);
-export const validAttributes = Object.getOwnPropertyNames(Game.schema.obj);
-export const validDataTypes = getModelDataTypes(Game.schema.obj);
+export const gameDataTypes = getModelDataTypes(Game.schema.obj);
 
 export const getGame = async (body, params) => {
 	return await getByID(Game, params.gameID);

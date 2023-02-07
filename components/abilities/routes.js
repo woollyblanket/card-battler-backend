@@ -4,24 +4,21 @@ import {
 	deleteAbility,
 	getAbility,
 	updateAbilityAttribute,
-	validAbilityTypes,
 } from "./model.js";
 import { execute } from "../../helpers/routes.js";
 import {
-	checkIfAbilityType,
-	checkIfAllowedDataTypeAndOperation,
-	checkIfStatus,
+	checkIfEnumerated,
+	checkParamCombination,
 	evaluateRules,
 	existsAndIsMongoID,
 	existsAndIsOneOfList,
 	existsAndIsString,
 	isNumber,
 	isString,
-	validAttributes,
-	validDataTypes,
-	validOperations,
 } from "../../helpers/validation.js";
 import createDebugMessages from "debug";
+import { ABILITY_TYPES, OPERATIONS } from "../../helpers/constants.js";
+import { SCHEMA_PROPERTIES } from "../../helpers/schema.js";
 
 const debug = createDebugMessages("backend:abilities:routes");
 const router = express.Router();
@@ -30,7 +27,7 @@ const router = express.Router();
 router.post(
 	"/",
 	existsAndIsString("name"),
-	existsAndIsOneOfList("type", validAbilityTypes),
+	existsAndIsOneOfList("type", ABILITY_TYPES),
 	existsAndIsString("description"),
 	isNumber("duration"),
 	isString("strength"),
@@ -57,12 +54,12 @@ router.get(
 router.patch(
 	"/:abilityID/:attribute/:operation/:value",
 	existsAndIsMongoID("abilityID"),
-	existsAndIsOneOfList("attribute", validAttributes.ability),
-	existsAndIsOneOfList("operation", validOperations),
+	existsAndIsOneOfList("attribute", SCHEMA_PROPERTIES.ability),
+	existsAndIsOneOfList("operation", OPERATIONS),
 	existsAndIsString("value"), // usually use alphanumeric here, but for abilities we can have symbols like + or -
-	checkIfAllowedDataTypeAndOperation("attribute", validDataTypes.ability),
-	checkIfStatus("attribute"),
-	checkIfAbilityType("attribute"),
+	checkParamCombination("ability"),
+	checkIfEnumerated("attribute", "status"),
+	checkIfEnumerated("attribute", "type", "abilityType"),
 	evaluateRules,
 	async (req, res, next) => {
 		await execute(updateAbilityAttribute, req, res, next);

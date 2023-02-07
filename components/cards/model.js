@@ -1,4 +1,4 @@
-import { allowedRarities, allowedTypes, cardSchema } from "./schema.js";
+import { cardSchema } from "./schema.js";
 import mongoose from "mongoose";
 import {
 	createWithData,
@@ -9,10 +9,7 @@ import {
 } from "../../helpers/model.js";
 
 export const Card = mongoose.model("Card", cardSchema);
-export const validAttributes = Object.getOwnPropertyNames(Card.schema.obj);
-export const validDataTypes = getModelDataTypes(Card.schema.obj);
-export const validCardTypes = allowedTypes;
-export const validRarities = allowedRarities;
+export const cardDataTypes = getModelDataTypes(Card.schema.obj);
 
 export const createCard = async (body) => {
 	return await createWithData(Card, body);

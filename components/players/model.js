@@ -18,8 +18,7 @@ const debug = createDebugMessages("backend:players:model");
 const Player = mongoose.model("Player", playerSchema);
 const Game = mongoose.model("Game", gameSchema);
 
-export const validAttributes = Object.getOwnPropertyNames(Player.schema.obj);
-export const validDataTypes = getModelDataTypes(Player.schema.obj);
+export const playerDataTypes = getModelDataTypes(Player.schema.obj);
 
 export const createPlayer = async (body) => {
 	return await createByField(Player, "username", body.username);
