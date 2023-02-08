@@ -3,7 +3,7 @@ import _ from "underscore";
 
 const debug = createDebugMessages("backend:helpers:model");
 
-export const getByID = async (mongooseModel, id) => {
+export const getByID = async ([mongooseModel, id]) => {
 	try {
 		const item = await mongooseModel.findById(id).exec();
 
@@ -21,7 +21,7 @@ export const getByID = async (mongooseModel, id) => {
 	}
 };
 
-export const getByField = async (mongooseModel, field, value) => {
+export const getByField = async ([mongooseModel, field, value]) => {
 	try {
 		const item = await mongooseModel.findOne({ [field]: value }).exec();
 		if (!item)
@@ -38,7 +38,7 @@ export const getByField = async (mongooseModel, field, value) => {
 	}
 };
 
-export const getAll = async (mongooseModel) => {
+export const getAll = async ([mongooseModel]) => {
 	try {
 		const items = await mongooseModel.find().exec();
 		if (!items)
@@ -53,12 +53,12 @@ export const getAll = async (mongooseModel) => {
 	}
 };
 
-export const getAllEntitiesForID = async (
+export const getAllEntitiesForID = async ([
 	parentModel,
 	parentID,
 	childModel,
-	childField
-) => {
+	childField,
+]) => {
 	try {
 		const item1 = await parentModel.findById(parentID).exec();
 		if (!item1)
@@ -78,12 +78,12 @@ export const getAllEntitiesForID = async (
 	}
 };
 
-export const resolveIDsToEntities = async (
+export const resolveIDsToEntities = async ([
 	parentModel,
 	parentID,
 	parentField,
-	childModel
-) => {
+	childModel,
+]) => {
 	try {
 		const item = await parentModel.findById(parentID).exec();
 		if (!item)
@@ -102,13 +102,13 @@ export const resolveIDsToEntities = async (
 	}
 };
 
-export const getEntityForID = async (
+export const getEntityForID = async ([
 	referenceModel,
 	referenceID,
 	lookupModel,
 	lookupID,
-	fieldInLookup
-) => {
+	fieldInLookup,
+]) => {
 	// finds the lookupID, and checks if it has the referenceID in its fieldInLookup
 	// as in, is the referenceID allowed to know about the lookupID?
 	try {
@@ -244,13 +244,13 @@ const doOperation = (item, updateField, updateOperation, updateValue) => {
 	return { validOperation, error };
 };
 
-export const getByIDAndUpdate = async (
+export const getByIDAndUpdate = async ([
 	mongooseModel,
 	id,
 	updateField,
 	updateValue,
-	updateOperation
-) => {
+	updateOperation,
+]) => {
 	try {
 		let item = await mongooseModel.findById(id).exec();
 		if (!item)
@@ -312,7 +312,7 @@ export const getByIDAndUpdate = async (
 	}
 };
 
-export const deleteByID = async (mongooseModel, id) => {
+export const deleteByID = async ([mongooseModel, id]) => {
 	try {
 		const item = await mongooseModel.findByIdAndDelete(id).exec();
 		if (!item)
@@ -329,7 +329,7 @@ export const deleteByID = async (mongooseModel, id) => {
 	}
 };
 
-export const createByField = async (mongooseModel, field, value) => {
+export const createByField = async ([mongooseModel, field, value]) => {
 	try {
 		const item = await mongooseModel.create({ [field]: value });
 
@@ -346,7 +346,7 @@ export const createByField = async (mongooseModel, field, value) => {
 	}
 };
 
-export const createWithData = async (mongooseModel, data) => {
+export const createWithData = async ([mongooseModel, data]) => {
 	try {
 		const item = await mongooseModel.create(data);
 
@@ -365,12 +365,12 @@ export const createWithData = async (mongooseModel, data) => {
 	}
 };
 
-export const createForID = async (
+export const createForID = async ([
 	lookupModel,
 	lookupID,
 	ownerModel,
-	referenceField
-) => {
+	referenceField,
+]) => {
 	try {
 		const item1 = await lookupModel.findById(lookupID).exec();
 		if (!item1)

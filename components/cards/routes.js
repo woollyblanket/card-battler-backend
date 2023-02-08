@@ -1,10 +1,5 @@
 import express from "express";
-import {
-	createCard,
-	deleteCard,
-	getCard,
-	updateCardAttribute,
-} from "./model.js";
+import { Card } from "./model.js";
 import { execute } from "../../helpers/routes.js";
 import {
 	checkIfEnumerated,
@@ -18,6 +13,12 @@ import {
 import createDebugMessages from "debug";
 import { CARD_TYPES, OPERATIONS } from "../../helpers/constants.js";
 import { SCHEMA_PROPERTIES } from "../../helpers/schema.js";
+import {
+	createWithData,
+	deleteByID,
+	getByID,
+	getByIDAndUpdate,
+} from "../../helpers/model.js";
 
 const debug = createDebugMessages("backend:cards:routes");
 const router = express.Router();
@@ -30,7 +31,7 @@ router.post(
 	existsAndIsString("description"),
 	evaluateRules,
 	async (req, res, next) => {
-		await execute(createCard, req, res, next);
+		await execute(createWithData, [Card, req.body], req, res, next);
 	}
 );
 
@@ -40,7 +41,7 @@ router.get(
 	existsAndIsMongoID("cardID"),
 	evaluateRules,
 	async (req, res, next) => {
-		await execute(getCard, req, res, next);
+		await execute(getByID, [Card, req.params.cardID], req, res, next);
 	}
 );
 
@@ -57,7 +58,19 @@ router.patch(
 	checkIfEnumerated("attribute", "rarity"),
 	evaluateRules,
 	async (req, res, next) => {
-		await execute(updateCardAttribute, req, res, next);
+		await execute(
+			getByIDAndUpdate,
+			[
+				Card,
+				req.params.cardID,
+				req.params.attribute,
+				req.params.value,
+				req.params.operation,
+			],
+			req,
+			res,
+			next
+		);
 	}
 );
 
@@ -67,7 +80,7 @@ router.delete(
 	existsAndIsMongoID("cardID"),
 	evaluateRules,
 	async (req, res, next) => {
-		await execute(deleteCard, req, res, next);
+		await execute(deleteByID, [Card, req.params.cardID], req, res, next);
 	}
 );
 

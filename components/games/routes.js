@@ -1,5 +1,5 @@
 import express from "express";
-import { deleteGame, getGame, updateGameAttribute } from "./model.js";
+import { Game } from "./model.js";
 import { execute } from "../../helpers/routes.js";
 import {
 	checkIfEnumerated,
@@ -12,6 +12,7 @@ import {
 import createDebugMessages from "debug";
 import { OPERATIONS } from "../../helpers/constants.js";
 import { SCHEMA_PROPERTIES } from "../../helpers/schema.js";
+import { deleteByID, getByID, getByIDAndUpdate } from "../../helpers/model.js";
 
 const debug = createDebugMessages("backend:games:routes");
 
@@ -23,7 +24,7 @@ router.get(
 	existsAndIsMongoID("gameID"),
 	evaluateRules,
 	async (req, res, next) => {
-		await execute(getGame, req, res, next);
+		await execute(getByID, [Game, req.params.gameID], req, res, next);
 	}
 );
 
@@ -33,7 +34,7 @@ router.delete(
 	existsAndIsMongoID("gameID"),
 	evaluateRules,
 	async (req, res, next) => {
-		await execute(deleteGame, req, res, next);
+		await execute(deleteByID, [Game, req.params.gameID], req, res, next);
 	}
 );
 
@@ -48,7 +49,19 @@ router.patch(
 	checkIfEnumerated("attribute", "status"),
 	evaluateRules,
 	async (req, res, next) => {
-		await execute(updateGameAttribute, req, res, next);
+		await execute(
+			getByIDAndUpdate,
+			[
+				Game,
+				req.params.gameID,
+				req.params.attribute,
+				req.params.value,
+				req.params.operation,
+			],
+			req,
+			res,
+			next
+		);
 	}
 );
 

@@ -1,10 +1,5 @@
 import express from "express";
-import {
-	createEnemy,
-	deleteEnemy,
-	getEnemy,
-	updateEnemyAttribute,
-} from "./model.js";
+import { Enemy } from "./model.js";
 import { execute } from "../../helpers/routes.js";
 import {
 	checkParamCombination,
@@ -20,6 +15,12 @@ import {
 import createDebugMessages from "debug";
 import { OPERATIONS } from "../../helpers/constants.js";
 import { SCHEMA_PROPERTIES } from "../../helpers/schema.js";
+import {
+	createWithData,
+	deleteByID,
+	getByID,
+	getByIDAndUpdate,
+} from "../../helpers/model.js";
 
 const debug = createDebugMessages("backend:enemies:routes");
 const router = express.Router();
@@ -35,7 +36,7 @@ router.post(
 	isArrayOfObjectIDs("abilities"),
 	evaluateRules,
 	async (req, res, next) => {
-		await execute(createEnemy, req, res, next);
+		await execute(createWithData, [Enemy, req.body], req, res, next);
 	}
 );
 
@@ -45,7 +46,7 @@ router.get(
 	existsAndIsMongoID("enemyID"),
 	evaluateRules,
 	async (req, res, next) => {
-		await execute(getEnemy, req, res, next);
+		await execute(getByID, [Enemy, req.params.enemyID], req, res, next);
 	}
 );
 
@@ -59,7 +60,19 @@ router.patch(
 	checkParamCombination("enemy"),
 	evaluateRules,
 	async (req, res, next) => {
-		await execute(updateEnemyAttribute, req, res, next);
+		await execute(
+			getByIDAndUpdate,
+			[
+				Enemy,
+				req.params.enemyID,
+				req.params.attribute,
+				req.params.value,
+				req.params.operation,
+			],
+			req,
+			res,
+			next
+		);
 	}
 );
 
@@ -69,7 +82,7 @@ router.delete(
 	existsAndIsMongoID("enemyID"),
 	evaluateRules,
 	async (req, res, next) => {
-		await execute(deleteEnemy, req, res, next);
+		await execute(deleteByID, [Enemy, req.params.enemyID], req, res, next);
 	}
 );
 

@@ -1,6 +1,6 @@
 # Card Battler API <!-- omit from toc -->
 
-![nycrc config on GitHub](https://img.shields.io/nycrc/woollyblanket/card-battler-backend) [![codecov](https://codecov.io/gh/woollyblanket/card-battler-backend/branch/main/graph/badge.svg?token=7WSYG75UDX)](https://codecov.io/gh/woollyblanket/card-battler-backend)
+![nycrc config on GitHub](https://img.shields.io/nycrc/woollyblanket/card-battler-backend) [![codecov](https://codecov.io/gh/woollyblanket/card-battler-backend/branch/main/graph/badge.svg?token=7WSYG75UDX)](https://codecov.io/gh/woollyblanket/card-battler-backend) ![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/woollyblanket/card-battler-backend/node.js.yml) ![GitHub repo size](https://img.shields.io/github/repo-size/woollyblanket/card-battler-backend) ![GitHub](https://img.shields.io/github/license/woollyblanket/card-battler-backend) ![GitHub last commit](https://img.shields.io/github/last-commit/woollyblanket/card-battler-backend) ![Code Climate technical debt](https://img.shields.io/codeclimate/tech-debt/woollyblanket/card-battler-backend) ![Code Climate issues](https://img.shields.io/codeclimate/issues/woollyblanket/card-battler-backend) ![Code Climate maintainability](https://img.shields.io/codeclimate/maintainability/woollyblanket/card-battler-backend)
 
 -   [Introduction](#introduction)
 -   [Endpoints](#endpoints)
@@ -10,6 +10,7 @@
     -   [Cards](#cards)
     -   [Abilities](#abilities)
     -   [Characters](#characters)
+    -   [Enemies](#enemies)
 
 ## Introduction
 
@@ -82,7 +83,7 @@ The database schema for this entity is [here](https://github.com/woollyblanket/c
 
 The database schema for this entity is [here](https://github.com/woollyblanket/card-battler-backend/blob/b63a5931dd6ec0b300f321b6836d73ff722fce3c/components/characters/schema.js#L4-L15)
 
--   \[POST\] `/characters` - create a new character. Body should be (at minimum) `{"name": "test","archetype": "hero","description": "this is a test ability"}`
+-   \[POST\] `/characters` - create a new character. Body should be (at minimum) `{"name": "test","archetype": "hero","description": "test"}`
 -   \[GET\] `/characters/:id` - get the character matching the id. id is a Mongo ObjectId
 -   \[PATCH\] `/characters/:id/:attribute/:operation/:value` - update the attribute on the character using the operation and the value. Example:
     -   `/characters/:id/health/add/4`
@@ -90,3 +91,16 @@ The database schema for this entity is [here](https://github.com/woollyblanket/c
     -   `/characters/:id/abilities/add/<abilityID>`
     -   `/characters/:id/abilities/remove/<abilityID>`
 -   \[DELETE\] `/characters/:id` - delete the character. Note: this is a hard delete. The character is removed from the database
+
+### Enemies
+
+The database schema for this entity is [here](https://github.com/woollyblanket/card-battler-backend/blob/b63a5931dd6ec0b300f321b6836d73ff722fce3c/components/enemies/schema.js#L4-L15)
+
+-   \[POST\] `/enemies` - create a new enemy. Body should be (at minimum) `{"name": "test","species": "hero","description": "test"}`
+-   \[GET\] `/enemies/:id` - get the enemy matching the id. id is a Mongo ObjectId
+-   \[PATCH\] `/enemies/:id/:attribute/:operation/:value` - update the attribute on the enemy using the operation and the value. Example:
+    -   `/enemies/:id/health/add/4`
+    -   `/enemies/:id/energy/subtract/1`
+    -   `/enemies/:id/abilities/add/<abilityID>`
+    -   `/enemies/:id/abilities/remove/<abilityID>`
+-   \[DELETE\] `/enemies/:id` - delete the enemy. Note: this is a hard delete. The enemy is removed from the database

@@ -2,9 +2,9 @@ import createDebugMessages from "debug";
 
 const debug = createDebugMessages("backend:helpers:routes");
 
-export const execute = async (action, req, res, next) => {
+export const execute = async (action, params, req, res, next) => {
 	try {
-		const entity = await action(req.body, req.params);
+		const entity = await action(params);
 
 		debug("%O", entity);
 

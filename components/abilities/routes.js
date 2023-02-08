@@ -1,10 +1,5 @@
 import express from "express";
-import {
-	createAbility,
-	deleteAbility,
-	getAbility,
-	updateAbilityAttribute,
-} from "./model.js";
+import { Ability } from "./model.js";
 import { execute } from "../../helpers/routes.js";
 import {
 	checkIfEnumerated,
@@ -19,6 +14,12 @@ import {
 import createDebugMessages from "debug";
 import { ABILITY_TYPES, OPERATIONS } from "../../helpers/constants.js";
 import { SCHEMA_PROPERTIES } from "../../helpers/schema.js";
+import {
+	createWithData,
+	deleteByID,
+	getByID,
+	getByIDAndUpdate,
+} from "../../helpers/model.js";
 
 const debug = createDebugMessages("backend:abilities:routes");
 const router = express.Router();
@@ -36,7 +37,7 @@ router.post(
 	isString("shield"),
 	evaluateRules,
 	async (req, res, next) => {
-		await execute(createAbility, req, res, next);
+		await execute(createWithData, [Ability, req.body], req, res, next);
 	}
 );
 
@@ -46,7 +47,7 @@ router.get(
 	existsAndIsMongoID("abilityID"),
 	evaluateRules,
 	async (req, res, next) => {
-		await execute(getAbility, req, res, next);
+		await execute(getByID, [Ability, req.params.abilityID], req, res, next);
 	}
 );
 
@@ -62,7 +63,19 @@ router.patch(
 	checkIfEnumerated("attribute", "type", "abilityType"),
 	evaluateRules,
 	async (req, res, next) => {
-		await execute(updateAbilityAttribute, req, res, next);
+		await execute(
+			getByIDAndUpdate,
+			[
+				Ability,
+				req.params.abilityID,
+				req.params.attribute,
+				req.params.value,
+				req.params.operation,
+			],
+			req,
+			res,
+			next
+		);
 	}
 );
 
@@ -72,7 +85,13 @@ router.delete(
 	existsAndIsMongoID("abilityID"),
 	evaluateRules,
 	async (req, res, next) => {
-		await execute(deleteAbility, req, res, next);
+		await execute(
+			deleteByID,
+			[Ability, req.params.abilityID],
+			req,
+			res,
+			next
+		);
 	}
 );
 

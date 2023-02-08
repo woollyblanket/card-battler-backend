@@ -1,11 +1,5 @@
 import express from "express";
-import {
-	createDeck,
-	deleteDeck,
-	getCardsInDeck,
-	getDeck,
-	updateDeckAttribute,
-} from "./model.js";
+import { Deck } from "./model.js";
 import { execute } from "../../helpers/routes.js";
 import {
 	checkIfEnumerated,
@@ -20,6 +14,14 @@ import {
 import createDebugMessages from "debug";
 import { OPERATIONS } from "../../helpers/constants.js";
 import { SCHEMA_PROPERTIES } from "../../helpers/schema.js";
+import {
+	createWithData,
+	deleteByID,
+	getByID,
+	getByIDAndUpdate,
+	resolveIDsToEntities,
+} from "../../helpers/model.js";
+import { Card } from "../cards/model.js";
 
 const debug = createDebugMessages("backend:decks:routes");
 const router = express.Router();
@@ -32,7 +34,7 @@ router.post(
 	isArrayOfObjectIDs("cards"),
 	evaluateRules,
 	async (req, res, next) => {
-		await execute(createDeck, req, res, next);
+		await execute(createWithData, [Deck, req.body], req, res, next);
 	}
 );
 
@@ -42,7 +44,7 @@ router.get(
 	existsAndIsMongoID("deckID"),
 	evaluateRules,
 	async (req, res, next) => {
-		await execute(getDeck, req, res, next);
+		await execute(getByID, [Deck, req.params.deckID], req, res, next);
 	}
 );
 
@@ -58,7 +60,19 @@ router.patch(
 	checkIfEnumerated("attribute", "status"),
 	evaluateRules,
 	async (req, res, next) => {
-		await execute(updateDeckAttribute, req, res, next);
+		await execute(
+			getByIDAndUpdate,
+			[
+				Deck,
+				req.params.deckID,
+				req.params.attribute,
+				req.params.value,
+				req.params.operation,
+			],
+			req,
+			res,
+			next
+		);
 	}
 );
 
@@ -68,7 +82,7 @@ router.delete(
 	existsAndIsMongoID("deckID"),
 	evaluateRules,
 	async (req, res, next) => {
-		await execute(deleteDeck, req, res, next);
+		await execute(deleteByID, [Deck, req.params.deckID], req, res, next);
 	}
 );
 
@@ -78,7 +92,13 @@ router.get(
 	existsAndIsMongoID("deckID"),
 	evaluateRules,
 	async (req, res, next) => {
-		await execute(getCardsInDeck, req, res, next);
+		await execute(
+			resolveIDsToEntities,
+			[Deck, req.params.deckID, "cards", Card],
+			req,
+			res,
+			next
+		);
 	}
 );
 

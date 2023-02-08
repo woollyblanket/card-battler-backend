@@ -1,10 +1,5 @@
 import express from "express";
-import {
-	createCharacter,
-	deleteCharacter,
-	getCharacter,
-	updateCharacterAttribute,
-} from "./model.js";
+import { Character } from "./model.js";
 import { execute } from "../../helpers/routes.js";
 import {
 	checkParamCombination,
@@ -20,6 +15,12 @@ import {
 import createDebugMessages from "debug";
 import { OPERATIONS } from "../../helpers/constants.js";
 import { SCHEMA_PROPERTIES } from "../../helpers/schema.js";
+import {
+	createWithData,
+	deleteByID,
+	getByID,
+	getByIDAndUpdate,
+} from "../../helpers/model.js";
 
 const debug = createDebugMessages("backend:characters:routes");
 const router = express.Router();
@@ -35,7 +36,7 @@ router.post(
 	isArrayOfObjectIDs("abilities"),
 	evaluateRules,
 	async (req, res, next) => {
-		await execute(createCharacter, req, res, next);
+		await execute(createWithData, [Character, req.body], req, res, next);
 	}
 );
 
@@ -45,7 +46,13 @@ router.get(
 	existsAndIsMongoID("characterID"),
 	evaluateRules,
 	async (req, res, next) => {
-		await execute(getCharacter, req, res, next);
+		await execute(
+			getByID,
+			[Character, req.params.characterID],
+			req,
+			res,
+			next
+		);
 	}
 );
 
@@ -59,7 +66,19 @@ router.patch(
 	checkParamCombination("character"),
 	evaluateRules,
 	async (req, res, next) => {
-		await execute(updateCharacterAttribute, req, res, next);
+		await execute(
+			getByIDAndUpdate,
+			[
+				Character,
+				req.params.characterID,
+				req.params.attribute,
+				req.params.value,
+				req.params.operation,
+			],
+			req,
+			res,
+			next
+		);
 	}
 );
 
@@ -69,7 +88,13 @@ router.delete(
 	existsAndIsMongoID("characterID"),
 	evaluateRules,
 	async (req, res, next) => {
-		await execute(deleteCharacter, req, res, next);
+		await execute(
+			deleteByID,
+			[Character, req.params.characterID],
+			req,
+			res,
+			next
+		);
 	}
 );
 
