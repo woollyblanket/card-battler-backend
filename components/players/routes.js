@@ -1,5 +1,4 @@
 import express from "express";
-import mongoose from "mongoose";
 import { execute } from "../../helpers/routes.js";
 import {
 	evaluateRules,

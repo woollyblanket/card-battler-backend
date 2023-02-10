@@ -42,6 +42,13 @@ export const expectToBeTrue = (res, details) => {
 		expect(
 			res.body.data.entity[details.attributeArrayLength.name].length
 		).to.be.equal(details.attributeArrayLength.value);
+
+	if (details.validationMessageContains)
+		expect(
+			res.body.error.errors.some((x) =>
+				x.msg.includes(details.validationMessageContains)
+			)
+		).to.be.true;
 };
 
 export const addEntity = async (path, data) => {

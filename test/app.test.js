@@ -21,3 +21,15 @@ describe("GET /500", () => {
 		});
 	});
 });
+
+describe("GET /some-unknown-path", () => {
+	it("should give an invalid entity warning", async () => {
+		const res = await request(app).get(`/some-unknown-path`);
+		expectToBeTrue(res, {
+			status: 400,
+			success: false,
+			isError: true,
+			validationMessageContains: "Invalid entity",
+		});
+	});
+});

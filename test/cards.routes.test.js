@@ -25,6 +25,36 @@ describe("POST: /cards", async () => {
 		});
 	});
 
+	it("should warn that the rarity is incorrect", async () => {
+		const res = await request(app).post("/cards").send({
+			name: "test",
+			description: "test",
+			type: "heal",
+			rarity: "test",
+		});
+
+		expectToBeTrue(res, {
+			status: 400,
+			success: false,
+			isError: true,
+		});
+	});
+
+	it("should warn that the data type is incorrect", async () => {
+		const res = await request(app).post("/cards").send({
+			name: "test",
+			description: "test",
+			type: "heal",
+			energy: "test",
+		});
+
+		expectToBeTrue(res, {
+			status: 400,
+			success: false,
+			isError: true,
+		});
+	});
+
 	it("should warn that the request is bad", async () => {
 		const res = await request(app).post("/cards").send();
 
