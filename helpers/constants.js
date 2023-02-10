@@ -1,5 +1,4 @@
 export const STATUSES = ["new", "active", "archived", "paused"];
-export const OPERATIONS = ["add", "subtract", "assign", "remove"];
 export const OPERATIONS_PER_DATA_TYPE = {
 	string: ["assign"],
 	number: ["add", "subtract", "assign"],
@@ -36,4 +35,3 @@ export const SPECIES = [
 	"ghost",
 	"beast",
 ];
-export const SYMBOLS = ["+", "-", "*", "/"];

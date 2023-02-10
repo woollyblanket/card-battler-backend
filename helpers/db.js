@@ -29,7 +29,7 @@ export const dbCloseTest = async (mongoServer) => {
 	}
 };
 
-export const getURI = () => {
+const getURI = () => {
 	let dbURI;
 	switch (process.env.NODE_ENV) {
 		case "development": {

@@ -1,8 +1,7 @@
 import { check, param, validationResult } from "express-validator";
-import * as constants from "./constants.js";
 import createDebugMessages from "debug";
 import mongoose from "mongoose";
-import { constantCase, sentenceCase } from "change-case";
+import { sentenceCase } from "change-case";
 import pluralize from "pluralize";
 import _ from "underscore";
 import { OPERATIONS_PER_DATA_TYPE } from "./constants.js";
@@ -60,17 +59,6 @@ export const existsAndIsString = (checkName) => {
 	];
 };
 
-export const isString = (checkName) => {
-	return [
-		check(checkName)
-			.optional()
-			.isString()
-			.withMessage(`${checkName} must be a string`)
-			.trim()
-			.escape(),
-	];
-};
-
 export const existsAndIsMongoID = (checkName) => {
 	return check(checkName)
 		.exists()
@@ -79,111 +67,6 @@ export const existsAndIsMongoID = (checkName) => {
 		.withMessage(`${checkName} must be a MongoDB ObjectId`)
 		.trim()
 		.escape();
-};
-
-export const isMongoID = (checkName) => {
-	return [
-		check(checkName)
-			.optional()
-			.isMongoId()
-			.withMessage(`${checkName} must be a MongoDB ObjectId`)
-			.trim()
-			.escape(),
-	];
-};
-
-export const existsAndIsOneOfList = (checkName, list) => {
-	return [
-		check(checkName)
-			.exists()
-			.withMessage(`${checkName} must be supplied`)
-			.isIn(list)
-			.withMessage(
-				`${checkName} must be one of the following values: ${list.join(
-					", "
-				)}`
-			)
-			.trim()
-			.escape(),
-	];
-};
-
-export const isNumber = (checkName) => {
-	return [
-		check(checkName)
-			.optional()
-			.isNumeric()
-			.withMessage(`${checkName} must be a number`)
-			.trim()
-			.escape(),
-	];
-};
-
-export const existsAndIsAlphanumeric = (checkName) => {
-	return [
-		check(checkName)
-			.exists()
-			.withMessage(`${checkName} must be supplied`)
-			.isAlphanumeric()
-			.withMessage(`${checkName} must be alphanumeric`)
-			.trim()
-			.escape(),
-	];
-};
-
-export const isArrayOfObjectIDs = (checkName) => {
-	return [
-		check(checkName)
-			.optional()
-			.isArray()
-			.withMessage(`${checkName} must be an array`),
-		check(`${checkName}.*`)
-			.optional()
-			.isMongoId()
-			.withMessage(`${checkName} must contain Mongo ObjectIds`),
-	];
-};
-
-export const isUniqueByField = (checkName, mongooseModel) => {
-	return [
-		check(checkName).custom(async (value) => {
-			const item = await mongooseModel
-				.findOne({ [checkName]: value })
-				.exec();
-
-			if (item) throw `${value} already exists`;
-			return true;
-		}),
-	];
-};
-
-export const checkIfEnumerated = (checkName, checkValue, lookup = "") => {
-	// if the lookup isn't supplied, use the checkValue to lookup
-	if (lookup === "") lookup = checkValue;
-	// these are stored in plural form, so pluralising
-	lookup = pluralize(lookup);
-	// these are stored as constants, so changing case
-	lookup = constantCase(lookup);
-
-	if (constants[lookup] === undefined)
-		throw `Invalid lookup. ${lookup} doesn't exist`;
-	return [
-		check(checkName).custom((value, { req }) => {
-			if (value === checkValue) {
-				// the only operations allowed are: assign
-				if (req.params.operation !== "assign") {
-					throw `Invalid operation. When updating the ${checkValue}, the operation must be 'assign'`;
-				}
-				// the only values allowed are in the valid list
-				if (constants[lookup].includes(req.params.value) === false) {
-					throw `Invalid value. When updating the ${checkValue}, the valid values are: ${constants[
-						lookup
-					].join(", ")}`;
-				}
-			}
-			return true;
-		}),
-	];
 };
 
 const getDataType = (thing) => {
@@ -441,10 +324,12 @@ export const isValidEntity = (entityName) => {
 		// only allow plural paths
 		// don't want people to use /card instead of /cards as
 		// it's less RESTful
+
 		if (pluralize.isSingular(value)) throw `Invalid entity: ${value}`;
 
 		try {
-			getModelFromName(value);
+			const model = getModelFromName(value);
+			console.log("model :>> ", model);
 		} catch (error) {
 			throw `Invalid entity: ${value}`;
 		}

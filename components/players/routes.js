@@ -7,7 +7,6 @@ import {
 	existsAndIsString,
 } from "../../helpers/validation.js";
 import createDebugMessages from "debug";
-import { playerSchema } from "./schema.js";
 import {
 	createForID,
 	getAllEntitiesForID,
@@ -15,9 +14,9 @@ import {
 	getEntityForID,
 } from "../../helpers/model.js";
 import { Game } from "../games/model.js";
+import { Player } from "./model.js";
 
 const debug = createDebugMessages("battler:backend:players:routes");
-const Player = mongoose.model("Player", playerSchema);
 
 const router = express.Router();
 
