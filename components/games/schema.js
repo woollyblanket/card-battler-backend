@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import { STATUSES } from "../../helpers/constants.js";
 const { Schema } = mongoose;
 
 export const gameSchema = new Schema({
@@ -7,7 +8,7 @@ export const gameSchema = new Schema({
 	level: { type: Number, default: 1 },
 	score: { type: Number, default: 0 },
 	deck: { type: "ObjectId", ref: "Deck" },
-	status: { type: String, default: "new" },
+	status: { type: String, default: "new", enum: STATUSES },
 	goal: { type: Number, default: 30 },
 	created: { type: Date, default: Date.now },
 	ended: { type: Date },

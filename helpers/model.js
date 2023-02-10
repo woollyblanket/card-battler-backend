@@ -1,4 +1,7 @@
+import { sentenceCase } from "change-case";
 import createDebugMessages from "debug";
+import mongoose from "mongoose";
+import pluralize from "pluralize";
 import _ from "underscore";
 
 const debug = createDebugMessages("backend:helpers:model");
@@ -424,4 +427,10 @@ export const getModelDataTypes = (schemaObject) => {
 		}
 	});
 	return dataTypes;
+};
+
+export const getModelFromName = (modelName) => {
+	modelName = sentenceCase(modelName);
+	modelName = pluralize.singular(modelName);
+	return mongoose.model(modelName);
 };

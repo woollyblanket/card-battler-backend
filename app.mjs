@@ -12,6 +12,7 @@ import { fileURLToPath } from "url";
 import cors from "cors";
 import { responseEnhancer } from "express-response-formatter";
 
+import crud from "./helpers/routes.js";
 import games from "./components/games/routes.js";
 import players from "./components/players/routes.js";
 import decks from "./components/decks/routes.js";
@@ -51,6 +52,13 @@ app.use(responseEnhancer());
 // --------------------------------------------------------
 // Routes
 // --------------------------------------------------------
+
+app.use("/500", () => {
+	// using in tests to make sure 500 errors are being handled
+	// having this at the start so my generic crud doesn't catch it
+	throw new Error("BROKEN");
+});
+app.use("/", crud);
 app.use("/games", games);
 app.use("/players", players);
 app.use("/decks", decks);
@@ -58,10 +66,6 @@ app.use("/cards", cards);
 app.use("/abilities", abilities);
 app.use("/characters", characters);
 app.use("/enemies", enemies);
-app.use("/500", () => {
-	// using in tests to make sure 500 errors are being handled
-	throw new Error("BROKEN");
-});
 
 // error logging
 app.use((err, req, res, next) => {

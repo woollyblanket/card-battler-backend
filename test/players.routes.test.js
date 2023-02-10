@@ -215,3 +215,24 @@ describe("GET: /players/:id/games/:id", async () => {
 		});
 	});
 });
+
+describe("PATCH: /players/:id/username/assign/test", async () => {
+	dbSetupWipeDBBeforeEach();
+
+	it("should warn that the player already exists", async () => {
+		const player = await addEntity("/players", { username: "test1" });
+		console.log("player :>> ", player);
+		const playerID = await addEntity("/players", { username: "test2" });
+		console.log("playerID :>> ", playerID);
+
+		const res = await request(app).patch(
+			`/players/${playerID}/username/assign/test1`
+		);
+
+		expectToBeTrue(res, {
+			status: 400,
+			success: false,
+			errorMessage: "Validation error",
+		});
+	});
+});

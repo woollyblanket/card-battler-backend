@@ -5,17 +5,13 @@ import {
 	evaluateRules,
 	existsAndIsMongoID,
 	existsAndIsString,
-	isUniqueByField,
 } from "../../helpers/validation.js";
 import createDebugMessages from "debug";
 import { playerSchema } from "./schema.js";
 import {
-	createByField,
 	createForID,
-	getAll,
 	getAllEntitiesForID,
 	getByField,
-	getByID,
 	getEntityForID,
 } from "../../helpers/model.js";
 import { Game } from "../games/model.js";
@@ -24,38 +20,6 @@ const debug = createDebugMessages("backend:players:routes");
 const Player = mongoose.model("Player", playerSchema);
 
 const router = express.Router();
-
-// [post] /players - create new player
-router.post(
-	"/",
-	existsAndIsString("username"),
-	isUniqueByField("username", Player),
-	evaluateRules,
-	async (req, res, next) => {
-		await execute(
-			createByField,
-			[Player, "username", req.body.username],
-			req,
-			res,
-			next
-		);
-	}
-);
-
-// [get] /players - get all players (restricted to admin users)
-router.get("/", async (req, res, next) => {
-	await execute(getAll, [Player], req, res, next);
-});
-
-// [get] /players/:playerID - get player of id (not username)
-router.get(
-	"/:playerID",
-	existsAndIsMongoID("playerID"),
-	evaluateRules,
-	async (req, res, next) => {
-		await execute(getByID, [Player, req.params.playerID], req, res, next);
-	}
-);
 
 // [get] /players/username/:username - get player of username
 router.get(
