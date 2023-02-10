@@ -4,7 +4,7 @@ import * as dotenv from "dotenv";
 import { MongoMemoryServer } from "mongodb-memory-server";
 dotenv.config();
 
-const debug = Debug("backend:helpers:db");
+const debug = Debug("battler:backend:helpers:db");
 
 export const dbConnectTest = async () => {
 	try {

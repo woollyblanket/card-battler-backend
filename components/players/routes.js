@@ -16,7 +16,7 @@ import {
 } from "../../helpers/model.js";
 import { Game } from "../games/model.js";
 
-const debug = createDebugMessages("backend:players:routes");
+const debug = createDebugMessages("battler:backend:players:routes");
 const Player = mongoose.model("Player", playerSchema);
 
 const router = express.Router();

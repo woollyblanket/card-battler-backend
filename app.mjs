@@ -69,7 +69,7 @@ app.use("/enemies", enemies);
 
 // error logging
 app.use((err, req, res, next) => {
-	const debug = createDebugMessages("backend:error");
+	const debug = createDebugMessages("battler:backend:error");
 	debug(err.stack);
 	next(err);
 });

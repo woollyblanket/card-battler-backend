@@ -6,7 +6,7 @@ import createDebugMessages from "debug";
 import { resolveIDsToEntities } from "../../helpers/model.js";
 import { Card } from "../cards/model.js";
 
-const debug = createDebugMessages("backend:decks:routes");
+const debug = createDebugMessages("battler:backend:decks:routes");
 const router = express.Router();
 
 // [get] /decks/:id/cards - get all the cards in the deck

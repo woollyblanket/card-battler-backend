@@ -16,7 +16,7 @@ import {
 	validate,
 } from "./validation.js";
 
-const debug = createDebugMessages("backend:helpers:routes");
+const debug = createDebugMessages("battler:backend:helpers:routes");
 const router = express.Router();
 
 export const execute = async (action, params, req, res, next) => {

@@ -8,7 +8,7 @@ import { ObjectId } from "mongodb";
 import { createHash } from "crypto";
 import { sentenceCase } from "change-case";
 
-const debug = createDebugMessages("backend:helpers:seeder");
+const debug = createDebugMessages("battler:backend:helpers:seeder");
 
 export const getObjectId = (name) => {
 	try {

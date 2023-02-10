@@ -4,7 +4,7 @@ import mongoose from "mongoose";
 import pluralize from "pluralize";
 import _ from "underscore";
 
-const debug = createDebugMessages("backend:helpers:model");
+const debug = createDebugMessages("battler:backend:helpers:model");
 
 export const getByID = async ([mongooseModel, id]) => {
 	try {

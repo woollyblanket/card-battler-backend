@@ -10,7 +10,7 @@ import { andList, orList } from "./text.js";
 import { getModelFromName } from "./model.js";
 import { normaliseSchema } from "./schema.js";
 
-const debug = createDebugMessages("backend:helpers:validation");
+const debug = createDebugMessages("battler:backend:helpers:validation");
 
 export const evaluateRules = (req, res, next) => {
 	const result = validationResult(req);

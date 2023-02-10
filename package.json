@@ -5,7 +5,7 @@
 	"type": "module",
 	"scripts": {
 		"test": "NODE_ENV=test c8 mocha --recursive --exit --timeout 60000",
-		"test-debug": "NODE_ENV=test DEBUG=backend:* c8 mocha --recursive --exit --timeout 60000",
+		"test-debug": "NODE_ENV=test DEBUG=battler:* c8 mocha --recursive --exit --timeout 60000",
 		"start": "node ./bin/www.js",
 		"dev": "nodemon ./bin/www.js"
 	},

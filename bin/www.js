@@ -8,7 +8,7 @@ import { app } from "../app.mjs";
 import createDebugMessages from "debug";
 import http from "http";
 
-const debug = createDebugMessages("backend:server");
+const debug = createDebugMessages("battler:backend:server");
 
 /**
  * Get port from environment and store in Express.
