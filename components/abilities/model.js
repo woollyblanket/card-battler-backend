@@ -1,4 +1,10 @@
-import { abilitySchema } from "./schema.js";
+// EXTERNAL IMPORTS		///////////////////////////////////////////
 import mongoose from "mongoose";
 
+// INTERNAL IMPORTS		///////////////////////////////////////////
+import { abilitySchema } from "./schema.js";
+
+// PRIVATE 				///////////////////////////////////////////
+
+// PUBLIC 				///////////////////////////////////////////
 export const Ability = mongoose.model("Ability", abilitySchema);

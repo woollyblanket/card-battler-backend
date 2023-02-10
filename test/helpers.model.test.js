@@ -1,8 +1,12 @@
+// EXTERNAL IMPORTS		///////////////////////////////////////////
+import mongoose from "mongoose";
 import { expect } from "chai";
+
+// INTERNAL IMPORTS		///////////////////////////////////////////
 import * as model from "../helpers/model.js";
 import { dbSetupWipeDBBeforeEach } from "../helpers/tests.js";
-import mongoose from "mongoose";
 
+// PRIVATE 				///////////////////////////////////////////
 const schema = new mongoose.Schema({
 	name: { type: String },
 	number: { type: Number },
@@ -18,6 +22,7 @@ const schema2 = new mongoose.Schema({
 });
 const Test2 = mongoose.model("Test2", schema2);
 
+// PUBLIC 				///////////////////////////////////////////
 describe("helpers:model getByID", async () => {
 	dbSetupWipeDBBeforeEach();
 	it("should find an entity in the db by id", async () => {

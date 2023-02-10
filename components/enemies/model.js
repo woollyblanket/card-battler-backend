@@ -1,4 +1,10 @@
-import { enemySchema } from "./schema.js";
+// EXTERNAL IMPORTS		///////////////////////////////////////////
 import mongoose from "mongoose";
 
+// INTERNAL IMPORTS		///////////////////////////////////////////
+import { enemySchema } from "./schema.js";
+
+// PRIVATE 				///////////////////////////////////////////
+
+// PUBLIC 				///////////////////////////////////////////
 export const Enemy = mongoose.model("Enemy", enemySchema);

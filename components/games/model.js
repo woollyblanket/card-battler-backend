@@ -1,4 +1,10 @@
-import { gameSchema } from "./schema.js";
+// EXTERNAL IMPORTS		///////////////////////////////////////////
 import mongoose from "mongoose";
 
+// INTERNAL IMPORTS		///////////////////////////////////////////
+import { gameSchema } from "./schema.js";
+
+// PRIVATE 				///////////////////////////////////////////
+
+// PUBLIC 				///////////////////////////////////////////
 export const Game = mongoose.model("Game", gameSchema);

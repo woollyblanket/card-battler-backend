@@ -1,14 +1,20 @@
+// EXTERNAL IMPORTS		///////////////////////////////////////////
 import express from "express";
-import { Deck } from "./model.js";
-import { execute } from "../../helpers/routes.js";
-import { evaluateRules, existsAndIsMongoID } from "../../helpers/validation.js";
 import createDebugMessages from "debug";
-import { resolveIDsToEntities } from "../../helpers/model.js";
-import { Card } from "../cards/model.js";
 
+// INTERNAL IMPORTS		///////////////////////////////////////////
+import { Deck } from "./model.js";
+import { Card } from "../cards/model.js";
+import { execute } from "../../helpers/routes.js";
+import { evaluateRules } from "../../helpers/validation.evaluate.js";
+import { existsAndIsMongoID } from "../../helpers/validation.standard.js";
+import { resolveIDsToEntities } from "../../helpers/model.js";
+
+// PRIVATE 				///////////////////////////////////////////
 const debug = createDebugMessages("battler:backend:decks:routes");
 const router = express.Router();
 
+// PUBLIC 				///////////////////////////////////////////
 // [get] /decks/:id/cards - get all the cards in the deck
 router.get(
 	"/:deckID/cards",

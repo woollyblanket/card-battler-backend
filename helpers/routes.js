@@ -1,5 +1,8 @@
+// EXTERNAL IMPORTS		///////////////////////////////////////////
 import express from "express";
 import createDebugMessages from "debug";
+
+// INTERNAL IMPORTS		///////////////////////////////////////////
 import {
 	createWithData,
 	deleteByID,
@@ -8,17 +11,19 @@ import {
 	getByIDAndUpdate,
 	getModelFromName,
 } from "./model.js";
+import { validate } from "./validation.evaluate.js";
 import {
 	checkModel,
 	checkParamCombination,
-	existsAndIsMongoID,
 	isValidEntity,
-	validate,
-} from "./validation.js";
+} from "./validation.custom.js";
+import { existsAndIsMongoID } from "./validation.standard.js";
 
+// PRIVATE 				///////////////////////////////////////////
 const debug = createDebugMessages("battler:backend:helpers:routes");
 const router = express.Router();
 
+// PUBLIC 				///////////////////////////////////////////
 export const execute = async (action, params, req, res, next) => {
 	try {
 		const entity = await action(params);

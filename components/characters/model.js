@@ -1,4 +1,10 @@
-import { characterSchema } from "./schema.js";
+// EXTERNAL IMPORTS		///////////////////////////////////////////
 import mongoose from "mongoose";
 
+// INTERNAL IMPORTS		///////////////////////////////////////////
+import { characterSchema } from "./schema.js";
+
+// PRIVATE 				///////////////////////////////////////////
+
+// PUBLIC 				///////////////////////////////////////////
 export const Character = mongoose.model("Character", characterSchema);

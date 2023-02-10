@@ -1,7 +1,13 @@
+// EXTERNAL IMPORTS		///////////////////////////////////////////
 import mongoose from "mongoose";
+
+// INTERNAL IMPORTS		///////////////////////////////////////////
 import { STATUSES } from "../../helpers/constants.js";
+
+// PRIVATE 				///////////////////////////////////////////
 const { Schema } = mongoose;
 
+// PUBLIC 				///////////////////////////////////////////
 export const gameSchema = new Schema({
 	player: { type: "ObjectId", ref: "Player", required: true },
 	round: { type: Number, default: 1 },

@@ -1,6 +1,6 @@
+// EXTERNAL IMPORTS		///////////////////////////////////////////
 import path from "path";
 import glob from "glob";
-import { dbConnect, dbConnectTest } from "./db.js";
 import pluralize from "pluralize";
 import mongoose from "mongoose";
 import createDebugMessages from "debug";
@@ -8,29 +8,11 @@ import { ObjectId } from "mongodb";
 import { createHash } from "crypto";
 import { sentenceCase } from "change-case";
 
+// INTERNAL IMPORTS		///////////////////////////////////////////
+import { dbConnect, dbConnectTest } from "./db.js";
+
+// PRIVATE 				///////////////////////////////////////////
 const debug = createDebugMessages("battler:backend:helpers:seeder");
-
-export const getObjectId = (name) => {
-	try {
-		if (!name) throw "Name cannot be empty";
-
-		const hash = createHash("sha1").update(name, "utf8").digest("hex");
-
-		return new ObjectId(hash.substring(0, 24));
-	} catch (error) {
-		return { error };
-	}
-};
-
-export const getObjectIds = (names) => {
-	try {
-		if (!names) throw "Names cannot be empty";
-		if (!Array.isArray(names)) throw "Names must be an array";
-		return names.map((name) => getObjectId(name));
-	} catch (error) {
-		return { error };
-	}
-};
 
 const parseConfig = (config) => {
 	// normalise everything to lower case
@@ -57,6 +39,30 @@ const parseConfig = (config) => {
 	}
 
 	return data;
+};
+
+// PUBLIC 				///////////////////////////////////////////
+
+export const getObjectId = (name) => {
+	try {
+		if (!name) throw "Name cannot be empty";
+
+		const hash = createHash("sha1").update(name, "utf8").digest("hex");
+
+		return new ObjectId(hash.substring(0, 24));
+	} catch (error) {
+		return { error };
+	}
+};
+
+export const getObjectIds = (names) => {
+	try {
+		if (!names) throw "Names cannot be empty";
+		if (!Array.isArray(names)) throw "Names must be an array";
+		return names.map((name) => getObjectId(name));
+	} catch (error) {
+		return { error };
+	}
 };
 
 export const seed = async (configuration) => {

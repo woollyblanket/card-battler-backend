@@ -1,6 +1,12 @@
+// EXTERNAL IMPORTS		///////////////////////////////////////////
 import mongoose from "mongoose";
+
+// INTERNAL IMPORTS		///////////////////////////////////////////
 const { Schema } = mongoose;
 
+// PRIVATE 				///////////////////////////////////////////
+
+// PUBLIC 				///////////////////////////////////////////
 export const deckSchema = new Schema({
 	game: { type: "ObjectId", ref: "Game" },
 	character: { type: "ObjectId", ref: "Character" },

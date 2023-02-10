@@ -1,7 +1,13 @@
+// EXTERNAL IMPORTS		///////////////////////////////////////////
 import request from "supertest";
+
+// INTERNAL IMPORTS		///////////////////////////////////////////
 import { app } from "../app.mjs";
 import { expectToBeTrue } from "../helpers/tests.js";
 
+// PRIVATE 				///////////////////////////////////////////
+
+// PUBLIC 				///////////////////////////////////////////
 describe("GET /404/404/404", () => {
 	it("should give a 404", async () => {
 		const res = await request(app).get(`/404/404/404`);

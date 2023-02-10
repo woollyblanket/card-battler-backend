@@ -1,4 +1,10 @@
-import { deckSchema } from "./schema.js";
+// EXTERNAL IMPORTS		///////////////////////////////////////////
 import mongoose from "mongoose";
 
+// INTERNAL IMPORTS		///////////////////////////////////////////
+import { deckSchema } from "./schema.js";
+
+// PRIVATE 				///////////////////////////////////////////
+
+// PUBLIC 				///////////////////////////////////////////
 export const Deck = mongoose.model("Deck", deckSchema);

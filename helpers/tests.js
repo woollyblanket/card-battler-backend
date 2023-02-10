@@ -1,8 +1,14 @@
-import { dbCloseTest, dbConnectTest, dbWipe } from "./db.js";
-import { expect } from "chai";
+// EXTERNAL IMPORTS		///////////////////////////////////////////
 import request from "supertest";
+import { expect } from "chai";
+
+// INTERNAL IMPORTS		///////////////////////////////////////////
+import { dbCloseTest, dbConnectTest, dbWipe } from "./db.js";
 import { app } from "../app.mjs";
 
+// PRIVATE 				///////////////////////////////////////////
+
+// PUBLIC 				///////////////////////////////////////////
 export const dbSetupWipeDBBeforeEach = () => {
 	let mongoServer;
 	before(async () => {
@@ -18,36 +24,47 @@ export const dbSetupWipeDBBeforeEach = () => {
 	});
 };
 
-export const expectToBeTrue = (res, details) => {
-	if (details.status) expect(res.statusCode).to.equal(details.status);
-	if (details.success)
-		expect(res.body.data.success).to.equal(details.success);
-	if (details.entityIncludes)
-		expect(res.body.data.entity).to.include(details.entityIncludes);
-	if (details.messageIncludes)
-		expect(res.body.data.message).to.include(details.messageIncludes);
-	if (details.isError) expect(res.body).to.haveOwnProperty("error");
-	if (details.errorMessage)
-		expect(res.body.error.message).to.include(details.errorMessage);
-	if (details.entitiesExist) expect(res.body.data.entities).to.be.an("array");
-	if (details.attributeEquals)
-		expect(res.body.data.entity[details.attributeEquals.name]).to.be.equal(
-			details.attributeEquals.value
+export const expectToBeTrue = (
+	res,
+	{
+		status,
+		success,
+		entityIncludes,
+		messageIncludes,
+		isError,
+		errorMessage,
+		entitiesExist,
+		attributeEquals,
+		attributeArrayContains,
+		attributeArrayLength,
+		validationMessageContains,
+	}
+) => {
+	const data = res.body.data;
+	const error = res.body.error;
+	if (status) expect(res.statusCode).to.equal(status);
+	if (success) expect(data.success).to.equal(success);
+	if (entityIncludes) expect(data.entity).to.include(entityIncludes);
+	if (messageIncludes) expect(data.message).to.include(messageIncludes);
+	if (isError) expect(res.body).to.haveOwnProperty("error");
+	if (errorMessage) expect(error.message).to.include(errorMessage);
+	if (entitiesExist) expect(data.entities).to.be.an("array");
+	if (attributeEquals)
+		expect(data.entity[attributeEquals.name]).to.be.equal(
+			attributeEquals.value
 		);
-	if (details.attributeArrayContains)
-		expect(
-			res.body.data.entity[details.attributeArrayContains.name]
-		).to.include.members(details.attributeArrayContains.value);
-	if (details.attributeArrayLength)
-		expect(
-			res.body.data.entity[details.attributeArrayLength.name].length
-		).to.be.equal(details.attributeArrayLength.value);
+	if (attributeArrayContains)
+		expect(data.entity[attributeArrayContains.name]).to.include.members(
+			attributeArrayContains.value
+		);
+	if (attributeArrayLength)
+		expect(data.entity[attributeArrayLength.name].length).to.be.equal(
+			attributeArrayLength.value
+		);
 
-	if (details.validationMessageContains)
+	if (validationMessageContains)
 		expect(
-			res.body.error.errors.some((x) =>
-				x.msg.includes(details.validationMessageContains)
-			)
+			error.errors.some((x) => x.msg.includes(validationMessageContains))
 		).to.be.true;
 };
 

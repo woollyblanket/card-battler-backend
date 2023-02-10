@@ -1,11 +1,14 @@
+// EXTERNAL IMPORTS		///////////////////////////////////////////
 import express from "express";
+import createDebugMessages from "debug";
+
+// INTERNAL IMPORTS		///////////////////////////////////////////
 import { execute } from "../../helpers/routes.js";
+import { evaluateRules } from "../../helpers/validation.evaluate.js";
 import {
-	evaluateRules,
 	existsAndIsMongoID,
 	existsAndIsString,
-} from "../../helpers/validation.js";
-import createDebugMessages from "debug";
+} from "../../helpers/validation.standard.js";
 import {
 	createForID,
 	getAllEntitiesForID,
@@ -15,10 +18,11 @@ import {
 import { Game } from "../games/model.js";
 import { Player } from "./model.js";
 
+// PRIVATE 				///////////////////////////////////////////
 const debug = createDebugMessages("battler:backend:players:routes");
-
 const router = express.Router();
 
+// PUBLIC 				///////////////////////////////////////////
 // [get] /players/username/:username - get player of username
 router.get(
 	"/username/:username",

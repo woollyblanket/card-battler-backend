@@ -1,12 +1,18 @@
+// EXTERNAL IMPORTS		///////////////////////////////////////////
+import { MongoMemoryServer } from "mongodb-memory-server";
+import { expect } from "chai";
+
+// INTERNAL IMPORTS		///////////////////////////////////////////
 import {
 	dbClose,
 	dbCloseTest,
 	dbConnect,
 	dbConnectTest,
 } from "../helpers/db.js";
-import { MongoMemoryServer } from "mongodb-memory-server";
-import { expect } from "chai";
 
+// PRIVATE 				///////////////////////////////////////////
+
+// PUBLIC 				///////////////////////////////////////////
 describe("helpers:db dbConnectTest dbCloseTest", async () => {
 	it("should create and close a new test database connection", async () => {
 		const db = await dbConnectTest();

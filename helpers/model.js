@@ -1,11 +1,131 @@
-import { sentenceCase } from "change-case";
+// EXTERNAL IMPORTS		///////////////////////////////////////////
 import createDebugMessages from "debug";
 import mongoose from "mongoose";
 import pluralize from "pluralize";
 import _ from "underscore";
+import { sentenceCase } from "change-case";
 
+// INTERNAL IMPORTS		///////////////////////////////////////////
+
+// PRIVATE 				///////////////////////////////////////////
 const debug = createDebugMessages("battler:backend:helpers:model");
 
+const setFieldIfUndefined = async (item, updateField, updateValue, model) => {
+	const defaultValues = {
+		objectid: updateValue,
+		number: 0,
+		string: "",
+		array: [],
+		object: {},
+	};
+
+	if (item[updateField] === undefined) {
+		debug(`${updateField} isn't set. Creating first, then updating`);
+
+		const dataType = getModelDataTypes(model.schema.obj)[updateField].type;
+
+		item[updateField] = defaultValues[dataType];
+
+		item = await item.save();
+	}
+	return item[updateField] === undefined;
+};
+
+const buildMessage = (
+	item,
+	updateField,
+	updateOperation,
+	updateValue,
+	wasUndefined,
+	validOperation,
+	oldVal,
+	oldValSize,
+	newVal,
+	newValSize,
+	model
+) => {
+	let message = "";
+
+	if (validOperation) {
+		let diff = "";
+
+		if (wasUndefined) oldVal = "<blank>";
+
+		if (Array.isArray(item[updateField])) {
+			const text = { add: "Added", remove: "Removed" };
+			diff += `Size: ${oldValSize} -> ${newValSize}. ${text[updateOperation]}: ${updateValue}`;
+		} else {
+			diff += `${oldVal} -> ${newVal}`;
+		}
+
+		message = `Updated the ${updateField} (${diff}) on ${model.modelName.toLowerCase()}: ${
+			item._id
+		}`;
+	} else {
+		message = `Invalid operation type: ${updateOperation}`;
+	}
+	return message;
+};
+
+const doOperation = (item, updateField, updateOperation, updateValue) => {
+	let validOperation = true;
+	let error = "";
+
+	switch (updateOperation) {
+		case "add": {
+			// can add integers together or add an item to an array
+			if (Number.isInteger(item[updateField])) {
+				if (isNaN(parseInt(updateValue))) {
+					error = `${updateValue} isn't a number`;
+					break;
+				}
+				item[updateField] += parseInt(updateValue);
+			} else if (Array.isArray(item[updateField])) {
+				item[updateField].push(updateValue);
+			} else {
+				error = `${item[updateField]} isn't an integer or array`;
+			}
+
+			break;
+		}
+		case "subtract": {
+			if (!Number.isInteger(item[updateField])) {
+				error = `${item[updateField]} isn't an integer`;
+				break;
+			}
+			if (isNaN(parseInt(updateValue))) {
+				error = `${updateValue} isn't a number`;
+				break;
+			}
+			item[updateField] -= parseInt(updateValue);
+			break;
+		}
+		case "assign": {
+			item[updateField] = updateValue;
+			break;
+		}
+		case "remove": {
+			if (!Array.isArray(item[updateField])) {
+				error = `${item[updateField]} isn't an array`;
+				break;
+			}
+			const index = item[updateField].indexOf(updateValue);
+			if (index > -1) {
+				item[updateField].splice(index, 1);
+			}
+			break;
+		}
+		default: {
+			// do nothing
+			validOperation = false;
+			break;
+		}
+	}
+
+	return { validOperation, error };
+};
+
+// PUBLIC 				///////////////////////////////////////////
 export const getByID = async ([mongooseModel, id]) => {
 	try {
 		const item = await mongooseModel.findById(id).exec();
@@ -130,121 +250,6 @@ export const getEntityForID = async ([
 	} catch (error) {
 		return { error };
 	}
-};
-
-const setFieldIfUndefined = async (item, updateField, updateValue, model) => {
-	const defaultValues = {
-		objectid: updateValue,
-		number: 0,
-		string: "",
-		array: [],
-		object: {},
-	};
-
-	if (item[updateField] === undefined) {
-		debug(`${updateField} isn't set. Creating first, then updating`);
-
-		const dataType = getModelDataTypes(model.schema.obj)[updateField].type;
-
-		item[updateField] = defaultValues[dataType];
-
-		item = await item.save();
-	}
-	return item[updateField] === undefined;
-};
-
-const buildMessage = (
-	item,
-	updateField,
-	updateOperation,
-	updateValue,
-	wasUndefined,
-	validOperation,
-	oldVal,
-	oldValSize,
-	newVal,
-	newValSize,
-	model
-) => {
-	let message = "";
-
-	if (validOperation) {
-		let diff = "";
-
-		if (wasUndefined) oldVal = "<blank>";
-
-		if (Array.isArray(item[updateField])) {
-			const text = { add: "Added", remove: "Removed" };
-			diff += `Size: ${oldValSize} -> ${newValSize}. ${text[updateOperation]}: ${updateValue}`;
-		} else {
-			diff += `${oldVal} -> ${newVal}`;
-		}
-
-		message = `Updated the ${updateField} (${diff}) on ${model.modelName.toLowerCase()}: ${
-			item._id
-		}`;
-	} else {
-		message = `Invalid operation type: ${updateOperation}`;
-	}
-	return message;
-};
-
-const doOperation = (item, updateField, updateOperation, updateValue) => {
-	let validOperation = true;
-	let error = "";
-
-	switch (updateOperation) {
-		case "add": {
-			// can add integers together or add an item to an array
-			if (Number.isInteger(item[updateField])) {
-				if (isNaN(parseInt(updateValue))) {
-					error = `${updateValue} isn't a number`;
-					break;
-				}
-				item[updateField] += parseInt(updateValue);
-			} else if (Array.isArray(item[updateField])) {
-				item[updateField].push(updateValue);
-			} else {
-				error = `${item[updateField]} isn't an integer or array`;
-			}
-
-			break;
-		}
-		case "subtract": {
-			if (!Number.isInteger(item[updateField])) {
-				error = `${item[updateField]} isn't an integer`;
-				break;
-			}
-			if (isNaN(parseInt(updateValue))) {
-				error = `${updateValue} isn't a number`;
-				break;
-			}
-			item[updateField] -= parseInt(updateValue);
-			break;
-		}
-		case "assign": {
-			item[updateField] = updateValue;
-			break;
-		}
-		case "remove": {
-			if (!Array.isArray(item[updateField])) {
-				error = `${item[updateField]} isn't an array`;
-				break;
-			}
-			const index = item[updateField].indexOf(updateValue);
-			if (index > -1) {
-				item[updateField].splice(index, 1);
-			}
-			break;
-		}
-		default: {
-			// do nothing
-			validOperation = false;
-			break;
-		}
-	}
-
-	return { validOperation, error };
 };
 
 export const getByIDAndUpdate = async ([

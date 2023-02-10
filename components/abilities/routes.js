@@ -1,9 +1,13 @@
+// EXTERNAL IMPORTS		///////////////////////////////////////////
 import express from "express";
 import createDebugMessages from "debug";
-// needs to be imported into a file that's used
+
+// INTERNAL IMPORTS		///////////////////////////////////////////
 import { Ability } from "./model.js";
 
+// PRIVATE 				///////////////////////////////////////////
 const debug = createDebugMessages("battler:backend:abilities:routes");
 const router = express.Router();
 
+// PUBLIC 				///////////////////////////////////////////
 export default router;

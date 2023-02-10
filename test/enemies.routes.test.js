@@ -1,4 +1,7 @@
+// EXTERNAL IMPORTS		///////////////////////////////////////////
 import request from "supertest";
+
+// INTERNAL IMPORTS		///////////////////////////////////////////
 import {
 	addEntity,
 	dbSetupWipeDBBeforeEach,
@@ -6,6 +9,9 @@ import {
 } from "../helpers/tests.js";
 import { app } from "../app.mjs";
 
+// PRIVATE 				///////////////////////////////////////////
+
+// PUBLIC 				///////////////////////////////////////////
 describe("POST: /enemies", async () => {
 	dbSetupWipeDBBeforeEach();
 

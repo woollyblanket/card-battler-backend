@@ -1,73 +1,20 @@
-import { check, param, validationResult } from "express-validator";
+// EXTERNAL IMPORTS		///////////////////////////////////////////
 import createDebugMessages from "debug";
 import mongoose from "mongoose";
-import { sentenceCase } from "change-case";
 import pluralize from "pluralize";
 import _ from "underscore";
+import { check, param } from "express-validator";
+import { sentenceCase } from "change-case";
+
+// INTERNAL IMPORTS 	///////////////////////////////////////////
 import { OPERATIONS_PER_DATA_TYPE } from "./constants.js";
 import { andList, orList } from "./text.js";
 import { getModelFromName } from "./model.js";
 import { normaliseSchema } from "./schema.js";
 
-const debug = createDebugMessages("battler:backend:helpers:validation");
+// PRIVATE 				///////////////////////////////////////////
 
-export const evaluateRules = (req, res, next) => {
-	const result = validationResult(req);
-
-	if (result.isEmpty()) return next();
-
-	debug("%j", result.errors);
-
-	res.formatter.badRequest({
-		message: "Validation error",
-		success: false,
-		errors: result.errors,
-	});
-};
-
-export const validate = (validations) => {
-	return async (req, res, next) => {
-		for (let validation of validations) {
-			const result = await validation.run(req);
-			if (result.errors.length) break;
-		}
-
-		const result = validationResult(req);
-		if (result.isEmpty()) {
-			return next();
-		}
-
-		debug("%j", result.errors);
-
-		res.formatter.badRequest({
-			message: "Validation error",
-			success: false,
-			errors: result.errors,
-		});
-	};
-};
-
-export const existsAndIsString = (checkName) => {
-	return [
-		check(checkName)
-			.exists()
-			.withMessage(`${checkName} must be supplied`)
-			.isString()
-			.withMessage(`${checkName} must be a string`)
-			.trim()
-			.escape(),
-	];
-};
-
-export const existsAndIsMongoID = (checkName) => {
-	return check(checkName)
-		.exists()
-		.withMessage(`${checkName} must be supplied`)
-		.isMongoId()
-		.withMessage(`${checkName} must be a MongoDB ObjectId`)
-		.trim()
-		.escape();
-};
+const debug = createDebugMessages("battler:backend:helpers:validation:custom");
 
 const getDataType = (thing) => {
 	if (mongoose.isObjectIdOrHexString(thing)) return "objectid";
@@ -84,73 +31,6 @@ const getDataType = (thing) => {
 	if (_.isObject(thing)) return "object";
 	if (_.isString(thing)) return "string";
 	return "unknown";
-};
-
-export const checkParamCombination = () => {
-	// we care about attribute, operation, and value params
-	// determine data type of value, and check does it match the data type of attribute
-	// look up the operations allowed on the data type, and check if our operation matches
-
-	return param().custom(async (params) => {
-		const model = getModelFromName(params.entities);
-		const normalised = normaliseSchema(model.schema.obj);
-
-		// check if it's the expected data type
-		if (!isValidDataType(normalised, params.attribute, params.value)) {
-			throw messageBuilder(
-				"data type",
-				params.attribute,
-				normalised[params.attribute].type,
-				getDataType(params.value),
-				"a data type"
-			);
-		}
-
-		// check if the enums are correct
-		if (!isValidEnum(normalised, params.attribute, params.value)) {
-			throw messageBuilder(
-				"enum",
-				params.attribute,
-				normalised[params.attribute].enum,
-				params.value,
-				"a value"
-			);
-		}
-
-		// look up the allowed operations for the data type
-		const dataTypeOperations =
-			OPERATIONS_PER_DATA_TYPE[
-				normalised[params.attribute].isArray
-					? "array"
-					: normalised[params.attribute].type
-			];
-
-		if (!dataTypeOperations.includes(params.operation))
-			throw messageBuilder(
-				"operation type",
-				"operation",
-				dataTypeOperations,
-				params.operation,
-				"an operation"
-			);
-
-		// check for uniqueness
-		if (normalised[params.attribute].unique) {
-			const unique = await isUnique(model, {
-				[params.attribute]: params.value,
-			});
-			if (!unique)
-				throw messageBuilder(
-					"unique",
-					params.attribute,
-					"",
-					params.value,
-					""
-				);
-		}
-
-		return true;
-	});
 };
 
 const isRequiredIncluded = (schemaObj, body) => {
@@ -235,6 +115,75 @@ const messageBuilder = (rule, field, expected, actual, entity) => {
 	}
 
 	return message;
+};
+
+// PUBLIC 				///////////////////////////////////////////
+
+export const checkParamCombination = () => {
+	// we care about attribute, operation, and value params
+	// determine data type of value, and check does it match the data type of attribute
+	// look up the operations allowed on the data type, and check if our operation matches
+
+	return param().custom(async (params) => {
+		const model = getModelFromName(params.entities);
+		const normalised = normaliseSchema(model.schema.obj);
+
+		// check if it's the expected data type
+		if (!isValidDataType(normalised, params.attribute, params.value)) {
+			throw messageBuilder(
+				"data type",
+				params.attribute,
+				normalised[params.attribute].type,
+				getDataType(params.value),
+				"a data type"
+			);
+		}
+
+		// check if the enums are correct
+		if (!isValidEnum(normalised, params.attribute, params.value)) {
+			throw messageBuilder(
+				"enum",
+				params.attribute,
+				normalised[params.attribute].enum,
+				params.value,
+				"a value"
+			);
+		}
+
+		// look up the allowed operations for the data type
+		const dataTypeOperations =
+			OPERATIONS_PER_DATA_TYPE[
+				normalised[params.attribute].isArray
+					? "array"
+					: normalised[params.attribute].type
+			];
+
+		if (!dataTypeOperations.includes(params.operation))
+			throw messageBuilder(
+				"operation type",
+				"operation",
+				dataTypeOperations,
+				params.operation,
+				"an operation"
+			);
+
+		// check for uniqueness
+		if (normalised[params.attribute].unique) {
+			const unique = await isUnique(model, {
+				[params.attribute]: params.value,
+			});
+			if (!unique)
+				throw messageBuilder(
+					"unique",
+					params.attribute,
+					"",
+					params.value,
+					""
+				);
+		}
+
+		return true;
+	});
 };
 
 export const checkModel = (modelName) => {
@@ -328,8 +277,7 @@ export const isValidEntity = (entityName) => {
 		if (pluralize.isSingular(value)) throw `Invalid entity: ${value}`;
 
 		try {
-			const model = getModelFromName(value);
-			console.log("model :>> ", model);
+			getModelFromName(value);
 		} catch (error) {
 			throw `Invalid entity: ${value}`;
 		}
