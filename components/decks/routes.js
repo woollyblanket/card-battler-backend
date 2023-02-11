@@ -14,6 +14,8 @@ import { resolveIDsToEntities } from "../../helpers/model.js";
 const debug = createDebugMessages("battler:backend:decks:routes");
 const router = express.Router();
 
+debug(Deck);
+
 // PUBLIC 				///////////////////////////////////////////
 // [get] /decks/:id/cards - get all the cards in the deck
 router.get(

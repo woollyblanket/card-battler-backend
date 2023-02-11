@@ -24,48 +24,48 @@ export const dbSetupWipeDBBeforeEach = () => {
 	});
 };
 
-export const expectToBeTrue = (
-	res,
-	{
-		status,
-		success,
-		entityIncludes,
-		messageIncludes,
-		isError,
-		errorMessage,
-		entitiesExist,
-		attributeEquals,
-		attributeArrayContains,
-		attributeArrayLength,
-		validationMessageContains,
-	}
-) => {
-	const data = res.body.data;
-	const error = res.body.error;
-	if (status) expect(res.statusCode).to.equal(status);
-	if (success) expect(data.success).to.equal(success);
-	if (entityIncludes) expect(data.entity).to.include(entityIncludes);
-	if (messageIncludes) expect(data.message).to.include(messageIncludes);
-	if (isError) expect(res.body).to.haveOwnProperty("error");
-	if (errorMessage) expect(error.message).to.include(errorMessage);
-	if (entitiesExist) expect(data.entities).to.be.an("array");
-	if (attributeEquals)
-		expect(data.entity[attributeEquals.name]).to.be.equal(
-			attributeEquals.value
-		);
-	if (attributeArrayContains)
-		expect(data.entity[attributeArrayContains.name]).to.include.members(
-			attributeArrayContains.value
-		);
-	if (attributeArrayLength)
-		expect(data.entity[attributeArrayLength.name].length).to.be.equal(
-			attributeArrayLength.value
-		);
+export const expectSuccess = (res, status, data) => {
+	expect(res.statusCode).to.equal(status);
+	expect(res.body.data.success).to.equal(true);
+	if (data) expect(res.body.data.entity).to.include(data);
+};
 
-	if (validationMessageContains)
+export const expectSuccessMultiple = (res, status, data) => {
+	expect(res.statusCode).to.equal(status);
+	expect(res.body.data.success).to.equal(true);
+	expect(res.body.data.entities).to.be.an("array");
+
+	if (data) {
+		for (const key of Object.keys(data)) {
+			expect(
+				res.body.data.entities.some((entity) =>
+					entity[key].to.include(data[key])
+				)
+			).to.be.true;
+		}
+	}
+};
+
+export const expectError = (res, status, validationMessage = "") => {
+	expect(res.statusCode).to.equal(status);
+	expect(res.body.error.success).to.equal(false);
+	expect(res.body).to.haveOwnProperty("error");
+
+	if (validationMessage)
 		expect(
-			error.errors.some((x) => x.msg.includes(validationMessageContains))
+			res.body.error.errors.some((x) => x.msg.includes(validationMessage))
 		).to.be.true;
+};
+
+export const expectPatchUpdate = (res, data) => {
+	expect(res.statusCode).to.equal(200);
+	expect(res.body.data.success).to.equal(true);
+
+	for (const key of Object.keys(data)) {
+		// using "eql" instead of "equal" as that uses deep
+		// comparison and works for arrays and objects
+		expect(res.body.data.entity[key]).to.be.eql(data[key]);
+	}
 };
 
 export const addEntity = async (path, data) => {

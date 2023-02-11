@@ -31,19 +31,15 @@ export const execute = async (action, params, req, res, next) => {
 		debug("%O", entity);
 
 		if (entity.error) {
-			res.formatter.ok({
-				message: entity.error,
+			res.formatter.badRequest({
+				message: entity.error.message,
 				success: false,
 			});
 		} else {
-			switch (req.method) {
-				case "POST":
-					res.formatter.created(entity);
-					break;
-
-				default:
-					res.formatter.ok(entity);
-					break;
+			if (req.method === "POST") {
+				res.formatter.created(entity);
+			} else {
+				res.formatter.ok(entity);
 			}
 		}
 	} catch (error) {

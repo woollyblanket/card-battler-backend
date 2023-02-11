@@ -274,12 +274,13 @@ export const isValidEntity = (entityName) => {
 		// don't want people to use /card instead of /cards as
 		// it's less RESTful
 
-		if (pluralize.isSingular(value)) throw `Invalid entity: ${value}`;
+		if (pluralize.isSingular(value))
+			throw new Error(`Invalid entity: ${value}`);
 
 		try {
 			getModelFromName(value);
 		} catch (error) {
-			throw `Invalid entity: ${value}`;
+			throw new Error(`Invalid entity: ${value}`);
 		}
 		return true;
 	});

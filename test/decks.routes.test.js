@@ -5,7 +5,10 @@ import request from "supertest";
 import {
 	addEntity,
 	dbSetupWipeDBBeforeEach,
-	expectToBeTrue,
+	expectError,
+	expectPatchUpdate,
+	expectSuccess,
+	expectSuccessMultiple,
 } from "../helpers/tests.js";
 import { app } from "../app.mjs";
 
@@ -18,20 +21,13 @@ describe("POST: /decks", async () => {
 	it("should create a new deck", async () => {
 		const res = await request(app).post("/decks").send();
 
-		expectToBeTrue(res, {
-			status: 201,
-			success: true,
-		});
+		expectSuccess(res, 201);
 	});
 
 	it("should create a new starter deck", async () => {
 		const res = await request(app).post("/decks").send({ starter: true });
 
-		expectToBeTrue(res, {
-			status: 201,
-			success: true,
-			entityIncludes: { starter: true },
-		});
+		expectSuccess(res, 201, { starter: true });
 	});
 
 	it("should create a new deck attached to a game", async () => {
@@ -42,11 +38,7 @@ describe("POST: /decks", async () => {
 
 		const res = await request(app).post("/decks").send({ game: gameID });
 
-		expectToBeTrue(res, {
-			status: 201,
-			success: true,
-			entityIncludes: { game: gameID },
-		});
+		expectSuccess(res, 201, { game: gameID });
 	});
 });
 
@@ -59,23 +51,13 @@ describe("GET: /decks/:id", async () => {
 
 		const res = await request(app).get(`/decks/${deckID}`);
 
-		expectToBeTrue(res, {
-			status: 200,
-			success: true,
-			entityIncludes: {
-				_id: deckID,
-			},
-		});
+		expectSuccess(res, 200, { _id: deckID });
 	});
 
 	it("should warn that the request is bad", async () => {
 		const res = await request(app).get(`/decks/1`);
 
-		expectToBeTrue(res, {
-			status: 400,
-			success: false,
-			isError: true,
-		});
+		expectError(res, 400);
 	});
 });
 
@@ -97,21 +79,13 @@ describe("GET: /decks/:id/cards", async () => {
 
 		const res = await request(app).get(`/decks/${deckID}/cards`);
 
-		expectToBeTrue(res, {
-			status: 200,
-			success: true,
-			entitiesExist: true,
-		});
+		expectSuccessMultiple(res, 200);
 	});
 
 	it("should warn that the request is bad", async () => {
 		const res = await request(app).get(`/decks/1/cards`);
 
-		expectToBeTrue(res, {
-			status: 400,
-			success: false,
-			isError: true,
-		});
+		expectError(res, 400);
 	});
 });
 
@@ -125,12 +99,7 @@ describe("PATCH: /decks/:id/:attribute/:operation/:value", async () => {
 		const res = await request(app).patch(
 			`/decks/${deckID}/game/add/paused`
 		);
-
-		expectToBeTrue(res, {
-			status: 400,
-			success: false,
-			isError: true,
-		});
+		expectError(res, 400);
 	});
 
 	it("should warn that the request is bad", async () => {
@@ -138,11 +107,7 @@ describe("PATCH: /decks/:id/:attribute/:operation/:value", async () => {
 		if (deckID.error) throw deckID.error;
 		const res = await request(app).patch(`/decks/${deckID}/game/assign/1`);
 
-		expectToBeTrue(res, {
-			status: 400,
-			success: false,
-			isError: true,
-		});
+		expectError(res, 400);
 	});
 
 	it("should attach the deck to a game", async () => {
@@ -157,14 +122,7 @@ describe("PATCH: /decks/:id/:attribute/:operation/:value", async () => {
 			`/decks/${deckID}/game/assign/${gameID}`
 		);
 
-		expectToBeTrue(res, {
-			status: 200,
-			success: true,
-			attributeEquals: {
-				name: "game",
-				value: gameID,
-			},
-		});
+		expectPatchUpdate(res, { game: gameID });
 	});
 
 	it("should change the deck to a starter deck", async () => {
@@ -174,14 +132,7 @@ describe("PATCH: /decks/:id/:attribute/:operation/:value", async () => {
 			`/decks/${deckID}/starter/assign/true`
 		);
 
-		expectToBeTrue(res, {
-			status: 200,
-			success: true,
-			attributeEquals: {
-				name: "starter",
-				value: true,
-			},
-		});
+		expectPatchUpdate(res, { starter: true });
 	});
 
 	it("should add a card to the deck", async () => {
@@ -197,14 +148,7 @@ describe("PATCH: /decks/:id/:attribute/:operation/:value", async () => {
 			`/decks/${deckID}/cards/add/${cardID}`
 		);
 
-		expectToBeTrue(res, {
-			status: 200,
-			success: true,
-			attributeArrayContains: {
-				name: "cards",
-				value: [cardID],
-			},
-		});
+		expectPatchUpdate(res, { cards: [cardID] });
 	});
 
 	it("should remove a card from the deck", async () => {
@@ -221,14 +165,7 @@ describe("PATCH: /decks/:id/:attribute/:operation/:value", async () => {
 			`/decks/${deckID}/cards/remove/${cardID}`
 		);
 
-		expectToBeTrue(res, {
-			status: 200,
-			success: true,
-			attributeArrayLength: {
-				name: "cards",
-				value: 0,
-			},
-		});
+		expectPatchUpdate(res, { cards: [] });
 	});
 });
 
@@ -240,22 +177,12 @@ describe("DELETE: /decks/:id", async () => {
 		if (deckID.error) throw deckID.error;
 		const res = await request(app).delete(`/decks/${deckID}`);
 
-		expectToBeTrue(res, {
-			status: 200,
-			success: true,
-			entityIncludes: {
-				_id: deckID,
-			},
-		});
+		expectSuccess(res, 200, { _id: deckID });
 	});
 
 	it("should warn that the request is bad", async () => {
 		const res = await request(app).delete(`/decks/1`);
 
-		expectToBeTrue(res, {
-			status: 400,
-			success: false,
-			isError: true,
-		});
+		expectError(res, 400);
 	});
 });

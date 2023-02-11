@@ -1,0 +1,6 @@
+version: "2" # required to adjust maintainability checks
+checks:
+    # sonar suggests 15 as a good threshold
+    method-complexity:
+        config:
+            threshold: 10

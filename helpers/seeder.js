@@ -45,7 +45,7 @@ const parseConfig = (config) => {
 
 export const getObjectId = (name) => {
 	try {
-		if (!name) throw "Name cannot be empty";
+		if (!name) throw new Error("Name cannot be empty");
 
 		const hash = createHash("sha1").update(name, "utf8").digest("hex");
 
@@ -57,8 +57,8 @@ export const getObjectId = (name) => {
 
 export const getObjectIds = (names) => {
 	try {
-		if (!names) throw "Names cannot be empty";
-		if (!Array.isArray(names)) throw "Names must be an array";
+		if (!names) throw new Error("Names cannot be empty");
+		if (!Array.isArray(names)) throw new Error("Names must be an array");
 		return names.map((name) => getObjectId(name));
 	} catch (error) {
 		return { error };
@@ -84,7 +84,7 @@ export const seed = async (configuration) => {
 		}
 
 		if (mongoose.connection.readyState !== 1)
-			throw "Couldn't connect to DB";
+			throw new Error("Couldn't connect to DB");
 
 		if (config.command === "drop") {
 			let alreadyDropped = new Map();
@@ -148,9 +148,11 @@ export function CardBuilder(obj) {
 		? ` for ${obj.duration} ${pluralize("round", obj.duration)}`
 		: "";
 	let descriptionMiddle = obj.aoe ? obj.pluralSubject : obj.singularSubject;
-	descriptionMiddle.length !== 0
-		? (descriptionMiddle = ` ${descriptionMiddle} `)
-		: (descriptionMiddle = ` ${descriptionMiddle}`);
+	if (descriptionMiddle.length !== 0) {
+		descriptionMiddle = ` ${descriptionMiddle} `;
+	} else {
+		descriptionMiddle = ` ${descriptionMiddle}`;
+	}
 
 	this.description =
 		obj.description ||
@@ -161,9 +163,8 @@ export function DeckBuilder(obj) {
 	this.starter = obj.starter;
 	this.cards = [];
 
-	for (let i = 0; i < obj.cards.length; i++) {
-		const cardID = obj.cards[i];
-		this.cards.push(getObjectId(cardID));
+	for (const element of obj.cards) {
+		this.cards.push(getObjectId(element));
 	}
 }
 

@@ -22,6 +22,8 @@ import { Player } from "./model.js";
 const debug = createDebugMessages("battler:backend:players:routes");
 const router = express.Router();
 
+debug(Player);
+
 // PUBLIC 				///////////////////////////////////////////
 // [get] /players/username/:username - get player of username
 router.get(

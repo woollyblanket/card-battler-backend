@@ -223,7 +223,7 @@ describe("helpers:model getByIDAndUpdate", async () => {
 		expect(result.entity.number).to.be.equal(5);
 	});
 
-	it("should handle bools - true", async () => {
+	it("should handle booleans - true", async () => {
 		const test = await Test1.create({ name: "test", bool: false });
 
 		const result = await model.getByIDAndUpdate([
@@ -237,7 +237,7 @@ describe("helpers:model getByIDAndUpdate", async () => {
 		expect(result.entity.bool).to.be.equal(true);
 	});
 
-	it("should handle bools - false", async () => {
+	it("should handle booleans - false", async () => {
 		const test = await Test1.create({ name: "test", bool: true });
 
 		const result = await model.getByIDAndUpdate([

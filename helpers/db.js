@@ -28,7 +28,7 @@ const getURI = () => {
 		}
 		default: {
 			debug("Couldn't get appropriate DB URI");
-			throw "Couldn't get appropriate DB URI";
+			throw new Error("Couldn't get appropriate DB URI");
 		}
 	}
 	return dbURI;
@@ -40,7 +40,6 @@ export const dbConnectTest = async () => {
 		const mongoServer = await MongoMemoryServer.create();
 		const mongoUri = mongoServer.getUri();
 		mongoose.set("strictQuery", false);
-		// mongoose.set("debug", true);
 		await mongoose.connect(mongoUri);
 
 		return mongoServer;

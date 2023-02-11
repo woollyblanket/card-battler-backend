@@ -9,5 +9,7 @@ import { Card } from "./model.js";
 const debug = createDebugMessages("battler:backend:cards:routes");
 const router = express.Router();
 
+debug(Card);
+
 // PUBLIC 				///////////////////////////////////////////
 export default router;

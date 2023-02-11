@@ -9,5 +9,7 @@ import { Ability } from "./model.js";
 const debug = createDebugMessages("battler:backend:abilities:routes");
 const router = express.Router();
 
+debug(Ability);
+
 // PUBLIC 				///////////////////////////////////////////
 export default router;

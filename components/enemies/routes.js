@@ -9,5 +9,7 @@ import { Enemy } from "./model.js";
 const debug = createDebugMessages("battler:backend:enemies:routes");
 const router = express.Router();
 
+debug(Enemy);
+
 // PUBLIC 				///////////////////////////////////////////
 export default router;

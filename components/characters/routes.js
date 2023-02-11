@@ -9,5 +9,7 @@ import { Character } from "./model.js";
 const debug = createDebugMessages("battler:backend:characters:routes");
 const router = express.Router();
 
+debug(Character);
+
 // PUBLIC 				///////////////////////////////////////////
 export default router;

@@ -9,5 +9,7 @@ import { Game } from "./model.js";
 const debug = createDebugMessages("battler:backend:games:routes");
 const router = express.Router();
 
+debug(Game);
+
 // PUBLIC 				///////////////////////////////////////////
 export default router;
