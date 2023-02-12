@@ -1,133 +1,14 @@
+// EXTERNAL IMPORTS		///////////////////////////////////////////
 import createDebugMessages from "debug";
+import mongoose from "mongoose";
+import pluralize from "pluralize";
 import _ from "underscore";
+import { sentenceCase } from "change-case";
 
-const debug = createDebugMessages("backend:helpers:model");
+// INTERNAL IMPORTS		///////////////////////////////////////////
 
-export const getByID = async (mongooseModel, id) => {
-	try {
-		const item = await mongooseModel.findById(id).exec();
-
-		if (!item)
-			throw `Couldn't find the ${mongooseModel.modelName.toLowerCase()}`;
-		return {
-			message: `Fetched the ${mongooseModel.modelName.toLowerCase()}: ${
-				item._id
-			}`,
-			success: true,
-			entity: item,
-		};
-	} catch (error) {
-		return { error };
-	}
-};
-
-export const getByField = async (mongooseModel, field, value) => {
-	try {
-		const item = await mongooseModel.findOne({ [field]: value }).exec();
-		if (!item)
-			throw `Couldn't find the ${mongooseModel.modelName.toLowerCase()}`;
-		return {
-			message: `Fetched the ${mongooseModel.modelName.toLowerCase()}: ${
-				item[field]
-			}`,
-			success: true,
-			entity: item,
-		};
-	} catch (error) {
-		return { error };
-	}
-};
-
-export const getAll = async (mongooseModel) => {
-	try {
-		const items = await mongooseModel.find().exec();
-		if (!items)
-			throw `Couldn't find any ${mongooseModel.modelName.toLowerCase()}s`;
-		return {
-			message: `Fetched all the ${mongooseModel.modelName.toLowerCase()}s`,
-			success: true,
-			entities: items,
-		};
-	} catch (error) {
-		return { error };
-	}
-};
-
-export const getAllEntitiesForID = async (
-	parentModel,
-	parentID,
-	childModel,
-	childField
-) => {
-	try {
-		const item1 = await parentModel.findById(parentID).exec();
-		if (!item1)
-			throw `Couldn't find the ${parentModel.modelName.toLowerCase()}`;
-		const items = await childModel.find({
-			[childField]: parentID,
-		});
-		if (!items)
-			throw `Couldn't find the ${childModel.modelName.toLowerCase()}`;
-		return {
-			message: `Fetched all ${childModel.modelName.toLowerCase()}s associated with the ${parentModel.modelName.toLowerCase()} (${parentID})`,
-			success: true,
-			entities: items,
-		};
-	} catch (error) {
-		return { error };
-	}
-};
-
-export const resolveIDsToEntities = async (
-	parentModel,
-	parentID,
-	parentField,
-	childModel
-) => {
-	try {
-		const item = await parentModel.findById(parentID).exec();
-		if (!item)
-			throw `Couldn't find the ${parentModel.modelName.toLowerCase()}`;
-
-		const items = await childModel.find({ _id: item[parentField] });
-		if (!items)
-			throw `Couldn't find the ${childModel.modelName.toLowerCase()}`;
-		return {
-			message: `Fetched all ${childModel.modelName.toLowerCase()}s associated with the ${parentModel.modelName.toLowerCase()} (${parentID})`,
-			success: true,
-			entities: items,
-		};
-	} catch (error) {
-		return { error };
-	}
-};
-
-export const getEntityForID = async (
-	referenceModel,
-	referenceID,
-	lookupModel,
-	lookupID,
-	fieldInLookup
-) => {
-	// finds the lookupID, and checks if it has the referenceID in its fieldInLookup
-	// as in, is the referenceID allowed to know about the lookupID?
-	try {
-		const item = await lookupModel.findById(lookupID).exec();
-		if (!item)
-			throw `Couldn't find the ${lookupModel.modelName.toLowerCase()}`;
-
-		if (item[fieldInLookup].toString() !== referenceID.toString())
-			throw `That ${lookupModel.modelName.toLowerCase()} is not associated with that ${referenceModel.modelName.toLowerCase()}`;
-
-		return {
-			message: `Fetched the ${lookupModel.modelName.toLowerCase()} (${lookupID}) associated with the ${referenceModel.modelName.toLowerCase()} (${referenceID})`,
-			success: true,
-			entity: item,
-		};
-	} catch (error) {
-		return { error };
-	}
-};
+// PRIVATE 				///////////////////////////////////////////
+const debug = createDebugMessages("battler:backend:helpers:model");
 
 const setFieldIfUndefined = async (item, updateField, updateValue, model) => {
 	const defaultValues = {
@@ -152,18 +33,17 @@ const setFieldIfUndefined = async (item, updateField, updateValue, model) => {
 
 const buildMessage = (
 	item,
-	updateField,
-	updateOperation,
-	updateValue,
+	inputs,
 	wasUndefined,
 	validOperation,
 	oldVal,
 	oldValSize,
-	newVal,
-	newValSize,
 	model
 ) => {
 	let message = "";
+	const { updateField, updateOperation, updateValue } = inputs;
+	const newVal = item[updateField];
+	const newValSize = item[updateField].length;
 
 	if (validOperation) {
 		let diff = "";
@@ -186,52 +66,78 @@ const buildMessage = (
 	return message;
 };
 
+const doAdd = (fieldToUpdate, valueToAdd) => {
+	// can add integers together or add an item to an array
+	try {
+		let newValue = fieldToUpdate;
+
+		if (Number.isInteger(fieldToUpdate)) {
+			if (isNaN(parseInt(valueToAdd))) {
+				throw new Error(`${valueToAdd} isn't a number`);
+			}
+			newValue += parseInt(valueToAdd);
+		} else if (Array.isArray(fieldToUpdate)) {
+			newValue.push(valueToAdd);
+		} else {
+			throw new Error(`${fieldToUpdate} isn't an integer or array`);
+		}
+		return newValue;
+	} catch (error) {
+		return { error };
+	}
+};
+
+const doSubtract = (fieldToUpdate, valueToSubtract) => {
+	try {
+		let newValue = fieldToUpdate;
+		if (!Number.isInteger(fieldToUpdate)) {
+			throw new Error(`${fieldToUpdate} isn't an integer`);
+		}
+		if (isNaN(parseInt(valueToSubtract))) {
+			throw new Error(`${valueToSubtract} isn't a number`);
+		}
+		newValue -= parseInt(valueToSubtract);
+		return newValue;
+	} catch (error) {
+		return { error };
+	}
+};
+
+const doRemove = (fieldToUpdate, valueToRemove) => {
+	try {
+		let newArray = fieldToUpdate;
+		if (!Array.isArray(fieldToUpdate)) {
+			throw new Error(`${fieldToUpdate} isn't an array`);
+		}
+		const index = fieldToUpdate.indexOf(valueToRemove);
+		if (index > -1) {
+			newArray.splice(index, 1);
+		}
+		return newArray;
+	} catch (error) {
+		return { error };
+	}
+};
+
 const doOperation = (item, updateField, updateOperation, updateValue) => {
 	let validOperation = true;
-	let error = "";
+	let result = item[updateField];
 
 	switch (updateOperation) {
 		case "add": {
-			// can add integers together or add an item to an array
-			if (Number.isInteger(item[updateField])) {
-				if (isNaN(parseInt(updateValue))) {
-					error = `${updateValue} isn't a number`;
-					break;
-				}
-				item[updateField] += parseInt(updateValue);
-			} else if (Array.isArray(item[updateField])) {
-				item[updateField].push(updateValue);
-			} else {
-				error = `${item[updateField]} isn't an integer or array`;
-			}
-
+			result = doAdd(item[updateField], updateValue);
 			break;
 		}
 		case "subtract": {
-			if (!Number.isInteger(item[updateField])) {
-				error = `${item[updateField]} isn't an integer`;
-				break;
-			}
-			if (isNaN(parseInt(updateValue))) {
-				error = `${updateValue} isn't a number`;
-				break;
-			}
-			item[updateField] -= parseInt(updateValue);
+			result = doSubtract(item[updateField], updateValue);
 			break;
 		}
 		case "assign": {
-			item[updateField] = updateValue;
+			result = updateValue;
 			break;
 		}
 		case "remove": {
-			if (!Array.isArray(item[updateField])) {
-				error = `${item[updateField]} isn't an array`;
-				break;
-			}
-			const index = item[updateField].indexOf(updateValue);
-			if (index > -1) {
-				item[updateField].splice(index, 1);
-			}
+			result = doRemove(item[updateField], updateValue);
 			break;
 		}
 		default: {
@@ -241,20 +147,169 @@ const doOperation = (item, updateField, updateOperation, updateValue) => {
 		}
 	}
 
-	return { validOperation, error };
+	if (!result.error) item[updateField] = result;
+
+	return { validOperation, error: result.error };
 };
 
-export const getByIDAndUpdate = async (
+// PUBLIC 				///////////////////////////////////////////
+export const getByID = async ([mongooseModel, id]) => {
+	try {
+		const item = await mongooseModel.findById(id).exec();
+
+		if (!item)
+			throw new Error(
+				`Couldn't find the ${mongooseModel.modelName.toLowerCase()}`
+			);
+		return {
+			message: `Fetched the ${mongooseModel.modelName.toLowerCase()}: ${
+				item._id
+			}`,
+			success: true,
+			entity: item,
+		};
+	} catch (error) {
+		return { error };
+	}
+};
+
+export const getByField = async ([mongooseModel, field, value]) => {
+	try {
+		const item = await mongooseModel.findOne({ [field]: value }).exec();
+		if (!item)
+			throw new Error(
+				`Couldn't find the ${mongooseModel.modelName.toLowerCase()}`
+			);
+		return {
+			message: `Fetched the ${mongooseModel.modelName.toLowerCase()}: ${
+				item[field]
+			}`,
+			success: true,
+			entity: item,
+		};
+	} catch (error) {
+		return { error };
+	}
+};
+
+export const getAll = async ([mongooseModel]) => {
+	try {
+		const items = await mongooseModel.find().exec();
+		if (!items)
+			throw new Error(
+				`Couldn't find any ${mongooseModel.modelName.toLowerCase()}s`
+			);
+		return {
+			message: `Fetched all the ${mongooseModel.modelName.toLowerCase()}s`,
+			success: true,
+			entities: items,
+		};
+	} catch (error) {
+		return { error };
+	}
+};
+
+export const getAllEntitiesForID = async ([
+	parentModel,
+	parentID,
+	childModel,
+	childField,
+]) => {
+	try {
+		const item1 = await parentModel.findById(parentID).exec();
+		if (!item1)
+			throw new Error(
+				`Couldn't find the ${parentModel.modelName.toLowerCase()}`
+			);
+		const items = await childModel.find({
+			[childField]: parentID,
+		});
+		if (!items)
+			throw new Error(
+				`Couldn't find the ${childModel.modelName.toLowerCase()}`
+			);
+		return {
+			message: `Fetched all ${childModel.modelName.toLowerCase()}s associated with the ${parentModel.modelName.toLowerCase()} (${parentID})`,
+			success: true,
+			entities: items,
+		};
+	} catch (error) {
+		return { error };
+	}
+};
+
+export const resolveIDsToEntities = async ([
+	parentModel,
+	parentID,
+	parentField,
+	childModel,
+]) => {
+	try {
+		const item = await parentModel.findById(parentID).exec();
+		if (!item)
+			throw new Error(
+				`Couldn't find the ${parentModel.modelName.toLowerCase()}`
+			);
+
+		const items = await childModel.find({ _id: item[parentField] });
+		if (!items)
+			throw new Error(
+				`Couldn't find the ${childModel.modelName.toLowerCase()}`
+			);
+		return {
+			message: `Fetched all ${childModel.modelName.toLowerCase()}s associated with the ${parentModel.modelName.toLowerCase()} (${parentID})`,
+			success: true,
+			entities: items,
+		};
+	} catch (error) {
+		return { error };
+	}
+};
+
+export const getEntityForID = async ([
+	referenceModel,
+	referenceID,
+	lookupModel,
+	lookupID,
+	fieldInLookup,
+]) => {
+	// finds the lookupID, and checks if it has the referenceID in its fieldInLookup
+	// as in, is the referenceID allowed to know about the lookupID?
+	try {
+		const item = await lookupModel.findById(lookupID).exec();
+		if (!item)
+			throw new Error(
+				`Couldn't find the ${lookupModel.modelName.toLowerCase()}`
+			);
+
+		if (item[fieldInLookup].toString() !== referenceID.toString())
+			throw new Error(
+				`That ${lookupModel.modelName.toLowerCase()} is not associated with that ${referenceModel.modelName.toLowerCase()}`
+			);
+
+		return {
+			message: `Fetched the ${lookupModel.modelName.toLowerCase()} (${lookupID}) associated with the ${referenceModel.modelName.toLowerCase()} (${referenceID})`,
+			success: true,
+			entity: item,
+		};
+	} catch (error) {
+		return { error };
+	}
+};
+
+export const getByIDAndUpdate = async ([
 	mongooseModel,
 	id,
 	updateField,
 	updateValue,
-	updateOperation
-) => {
+	updateOperation,
+]) => {
 	try {
 		let item = await mongooseModel.findById(id).exec();
 		if (!item)
-			throw `Couldn't find the ${mongooseModel.modelName.toLowerCase()}`;
+			throw new Error(
+				`Couldn't find the ${mongooseModel.modelName.toLowerCase()}`
+			);
 
 		// casting to bool if appropriate
 		if (updateValue === "true") updateValue = true;
@@ -288,15 +343,11 @@ export const getByIDAndUpdate = async (
 
 		const message = buildMessage(
 			item,
-			updateField,
-			updateOperation,
-			updateValue,
+			{ updateField, updateOperation, updateValue },
 			wasUndefined,
 			result.validOperation,
 			oldVal,
 			oldValSize,
-			item[updateField],
-			item[updateField].length,
 			mongooseModel
 		);
 
@@ -312,11 +363,13 @@ export const getByIDAndUpdate = async (
 	}
 };
 
-export const deleteByID = async (mongooseModel, id) => {
+export const deleteByID = async ([mongooseModel, id]) => {
 	try {
 		const item = await mongooseModel.findByIdAndDelete(id).exec();
 		if (!item)
-			throw `Couldn't find the ${mongooseModel.modelName.toLowerCase()}`;
+			throw new Error(
+				`Couldn't find the ${mongooseModel.modelName.toLowerCase()}`
+			);
 		return {
 			message: `Deleted the ${mongooseModel.modelName.toLowerCase()}: ${
 				item._id
@@ -329,12 +382,14 @@ export const deleteByID = async (mongooseModel, id) => {
 	}
 };
 
-export const createByField = async (mongooseModel, field, value) => {
+export const createByField = async ([mongooseModel, field, value]) => {
 	try {
 		const item = await mongooseModel.create({ [field]: value });
 
 		if (!item)
-			throw `Couldn't create the ${mongooseModel.modelName.toLowerCase()}`;
+			throw new Error(
+				`Couldn't create the ${mongooseModel.modelName.toLowerCase()}`
+			);
 
 		return {
 			message: `Created a ${mongooseModel.modelName.toLowerCase()} (${value})`,
@@ -346,12 +401,14 @@ export const createByField = async (mongooseModel, field, value) => {
 	}
 };
 
-export const createWithData = async (mongooseModel, data) => {
+export const createWithData = async ([mongooseModel, data]) => {
 	try {
 		const item = await mongooseModel.create(data);
 
 		if (!item)
-			throw `Couldn't create the ${mongooseModel.modelName.toLowerCase()}`;
+			throw new Error(
+				`Couldn't create the ${mongooseModel.modelName.toLowerCase()}`
+			);
 
 		return {
 			message: `Created a ${mongooseModel.modelName.toLowerCase()} with data: ${JSON.stringify(
@@ -365,22 +422,26 @@ export const createWithData = async (mongooseModel, data) => {
 	}
 };
 
-export const createForID = async (
+export const createForID = async ([
 	lookupModel,
 	lookupID,
 	ownerModel,
-	referenceField
-) => {
+	referenceField,
+]) => {
 	try {
 		const item1 = await lookupModel.findById(lookupID).exec();
 		if (!item1)
-			throw `Couldn't find the ${lookupModel.modelName.toLowerCase()}`;
+			throw new Error(
+				`Couldn't find the ${lookupModel.modelName.toLowerCase()}`
+			);
 
 		const item2 = await ownerModel.create({
 			[referenceField]: lookupID,
 		});
 		if (!item2)
-			throw `Couldn't create the ${ownerModel.modelName.toLowerCase()}`;
+			throw new Error(
+				`Couldn't create the ${ownerModel.modelName.toLowerCase()}`
+			);
 
 		return {
 			message: `Created a ${ownerModel.modelName.toLowerCase()} (${
@@ -424,4 +485,10 @@ export const getModelDataTypes = (schemaObject) => {
 		}
 	});
 	return dataTypes;
+};
+
+export const getModelFromName = (modelName) => {
+	modelName = sentenceCase(modelName);
+	modelName = pluralize.singular(modelName);
+	return mongoose.model(modelName);
 };

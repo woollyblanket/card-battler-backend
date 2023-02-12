@@ -1,7 +1,13 @@
+// EXTERNAL IMPORTS		///////////////////////////////////////////
 import mongoose from "mongoose";
+
+// INTERNAL IMPORTS		///////////////////////////////////////////
 import { CARD_TYPES, RARITIES } from "../../helpers/constants.js";
+
+// PRIVATE 				///////////////////////////////////////////
 const { Schema } = mongoose;
 
+// PUBLIC 				///////////////////////////////////////////
 export const cardSchema = new Schema({
 	name: { type: String, required: true },
 	type: { type: String, required: true, enum: CARD_TYPES },

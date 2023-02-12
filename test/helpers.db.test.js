@@ -1,12 +1,18 @@
+// EXTERNAL IMPORTS		///////////////////////////////////////////
+import { MongoMemoryServer } from "mongodb-memory-server";
+import { expect } from "chai";
+
+// INTERNAL IMPORTS		///////////////////////////////////////////
 import {
 	dbClose,
 	dbCloseTest,
 	dbConnect,
 	dbConnectTest,
 } from "../helpers/db.js";
-import { MongoMemoryServer } from "mongodb-memory-server";
-import { expect } from "chai";
 
+// PRIVATE 				///////////////////////////////////////////
+
+// PUBLIC 				///////////////////////////////////////////
 describe("helpers:db dbConnectTest dbCloseTest", async () => {
 	it("should create and close a new test database connection", async () => {
 		const db = await dbConnectTest();
@@ -19,7 +25,6 @@ describe("helpers:db dbConnectTest dbCloseTest", async () => {
 
 describe("helpers:db dbConnect dbClose", async () => {
 	it("should create and close a new database connection", async () => {
-		process.env.NODE_ENV = "test";
 		const db = await dbConnect();
 		expect(db.getClient().s.url).to.equal(process.env.MONGODB_URI_TEST);
 		expect(db.getClient().s.hasBeenClosed).to.be.false;

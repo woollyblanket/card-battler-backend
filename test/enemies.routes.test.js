@@ -1,11 +1,19 @@
+// EXTERNAL IMPORTS		///////////////////////////////////////////
 import request from "supertest";
+
+// INTERNAL IMPORTS		///////////////////////////////////////////
 import {
 	addEntity,
 	dbSetupWipeDBBeforeEach,
-	expectToBeTrue,
+	expectError,
+	expectPatchUpdate,
+	expectSuccess,
 } from "../helpers/tests.js";
 import { app } from "../app.mjs";
 
+// PRIVATE 				///////////////////////////////////////////
+
+// PUBLIC 				///////////////////////////////////////////
 describe("POST: /enemies", async () => {
 	dbSetupWipeDBBeforeEach();
 
@@ -14,20 +22,17 @@ describe("POST: /enemies", async () => {
 			.post("/enemies")
 			.send({ name: "test", species: "dragon", description: "test" });
 
-		expectToBeTrue(res, {
-			status: 201,
-			success: true,
+		expectSuccess(res, 201, {
+			name: "test",
+			species: "dragon",
+			description: "test",
 		});
 	});
 
 	it("should warn that the request is bad", async () => {
 		const res = await request(app).post(`/enemies`);
 
-		expectToBeTrue(res, {
-			status: 400,
-			success: false,
-			isError: true,
-		});
+		expectError(res, 400);
 	});
 });
 
@@ -44,23 +49,13 @@ describe("GET: /enemies/:id", async () => {
 
 		const res = await request(app).get(`/enemies/${enemyID}`);
 
-		expectToBeTrue(res, {
-			status: 200,
-			success: true,
-			entityIncludes: {
-				_id: enemyID,
-			},
-		});
+		expectSuccess(res, 200, { _id: enemyID });
 	});
 
 	it("should warn that the request is bad", async () => {
 		const res = await request(app).get(`/enemies/1`);
 
-		expectToBeTrue(res, {
-			status: 400,
-			success: false,
-			isError: true,
-		});
+		expectError(res, 400);
 	});
 });
 
@@ -79,13 +74,7 @@ describe("PATCH: /enemies/:id/:attribute/:operation/:value", async () => {
 			`/enemies/${enemyID}/health/add/4`
 		);
 
-		expectToBeTrue(res, {
-			status: 200,
-			success: true,
-			entityIncludes: {
-				health: 4,
-			},
-		});
+		expectPatchUpdate(res, { health: 4 });
 	});
 
 	it("should subtract from the enemy's energy", async () => {
@@ -101,13 +90,7 @@ describe("PATCH: /enemies/:id/:attribute/:operation/:value", async () => {
 			`/enemies/${enemyID}/energy/subtract/4`
 		);
 
-		expectToBeTrue(res, {
-			status: 200,
-			success: true,
-			entityIncludes: {
-				energy: 6,
-			},
-		});
+		expectPatchUpdate(res, { energy: 6 });
 	});
 
 	it("should add an ability to a enemy", async () => {
@@ -129,14 +112,7 @@ describe("PATCH: /enemies/:id/:attribute/:operation/:value", async () => {
 			`/enemies/${enemyID}/abilities/add/${abilityID}`
 		);
 
-		expectToBeTrue(res, {
-			status: 200,
-			success: true,
-			attributeArrayContains: {
-				name: "abilities",
-				value: [abilityID],
-			},
-		});
+		expectPatchUpdate(res, { abilities: [abilityID] });
 	});
 
 	it("should remove an ability from a enemy", async () => {
@@ -161,14 +137,7 @@ describe("PATCH: /enemies/:id/:attribute/:operation/:value", async () => {
 			`/enemies/${enemyID}/abilities/remove/${abilityID}`
 		);
 
-		expectToBeTrue(res, {
-			status: 200,
-			success: true,
-			attributeArrayLength: {
-				name: "abilities",
-				value: 0,
-			},
-		});
+		expectPatchUpdate(res, { abilities: [] });
 	});
 
 	it("should warn that the request is bad", async () => {
@@ -183,11 +152,7 @@ describe("PATCH: /enemies/:id/:attribute/:operation/:value", async () => {
 			`/enemies/${enemyID}/name/add/paused`
 		);
 
-		expectToBeTrue(res, {
-			status: 400,
-			success: false,
-			isError: true,
-		});
+		expectError(res, 400);
 	});
 
 	it("should warn that the request is bad", async () => {
@@ -201,11 +166,7 @@ describe("PATCH: /enemies/:id/:attribute/:operation/:value", async () => {
 			`/enemies/${enemyID}/energy/assign/test`
 		);
 
-		expectToBeTrue(res, {
-			status: 400,
-			success: false,
-			isError: true,
-		});
+		expectError(res, 400);
 	});
 });
 
@@ -221,22 +182,12 @@ describe("DELETE: /enemies/:id", async () => {
 		if (enemyID.error) throw enemyID.error;
 		const res = await request(app).delete(`/enemies/${enemyID}`);
 
-		expectToBeTrue(res, {
-			status: 200,
-			success: true,
-			entityIncludes: {
-				_id: enemyID,
-			},
-		});
+		expectSuccess(res, 200, { _id: enemyID });
 	});
 
 	it("should warn that the request is bad", async () => {
 		const res = await request(app).delete(`/enemies/1`);
 
-		expectToBeTrue(res, {
-			status: 400,
-			success: false,
-			isError: true,
-		});
+		expectError(res, 400);
 	});
 });

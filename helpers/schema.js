@@ -1,27 +1,35 @@
-import { gameDataTypes } from "../components/games/model.js";
-import { abilityDataTypes } from "../components/abilities/model.js";
-import { playerDataTypes } from "../components/players/model.js";
-import { characterDataTypes } from "../components/characters/model.js";
-import { cardDataTypes } from "../components/cards/model.js";
-import { deckDataTypes } from "../components/decks/model.js";
-import { enemyDataTypes } from "../components/enemies/model.js";
+// EXTERNAL IMPORTS		///////////////////////////////////////////
+import _ from "underscore";
 
-export const SCHEMA_DATA_TYPES = {
-	game: gameDataTypes,
-	player: playerDataTypes,
-	card: cardDataTypes,
-	character: characterDataTypes,
-	deck: deckDataTypes,
-	ability: abilityDataTypes,
-	enemy: enemyDataTypes,
-};
+// INTERNAL IMPORTS		///////////////////////////////////////////
 
-export const SCHEMA_PROPERTIES = {
-	game: Object.getOwnPropertyNames(gameDataTypes),
-	player: Object.getOwnPropertyNames(playerDataTypes),
-	card: Object.getOwnPropertyNames(cardDataTypes),
-	character: Object.getOwnPropertyNames(characterDataTypes),
-	deck: Object.getOwnPropertyNames(deckDataTypes),
-	ability: Object.getOwnPropertyNames(abilityDataTypes),
-	enemy: Object.getOwnPropertyNames(enemyDataTypes),
+// PRIVATE 				///////////////////////////////////////////
+
+// PUBLIC 				///////////////////////////////////////////
+// schemas can have a few different formats
+// return a consistent format
+export const normaliseSchema = (schemaObj) => {
+	let normalised = {};
+	for (const [key, value] of Object.entries(schemaObj)) {
+		let type;
+		let isArray = false;
+		let details = value;
+
+		if (_.isArray(value)) {
+			details = value[0];
+			isArray = true;
+		}
+
+		if (_.isString(details.type)) type = details.type.toLowerCase();
+		if (_.isFunction(details.type)) type = details.type.name.toLowerCase();
+
+		normalised[key] = {
+			type,
+			isArray,
+			enum: details.enum,
+			required: details.required || false,
+			unique: details.unique || false,
+		};
+	}
+	return normalised;
 };

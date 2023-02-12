@@ -1,63 +1,43 @@
+// EXTERNAL IMPORTS		///////////////////////////////////////////
 import express from "express";
-import mongoose from "mongoose";
-import {
-	createNewGameForPlayer,
-	createPlayer,
-	getAllGamesForPlayer,
-	getAllPlayers,
-	getGameForPlayer,
-	getPlayer,
-	getPlayerByUsername,
-} from "./model.js";
-import { execute } from "../../helpers/routes.js";
+import createDebugMessages from "debug";
 
+// INTERNAL IMPORTS		///////////////////////////////////////////
+import { execute } from "../../helpers/routes.js";
+import { evaluateRules } from "../../helpers/validation.evaluate.js";
 import {
-	evaluateRules,
 	existsAndIsMongoID,
 	existsAndIsString,
-	isUniqueByField,
-} from "../../helpers/validation.js";
-import createDebugMessages from "debug";
-import { playerSchema } from "./schema.js";
+} from "../../helpers/validation.standard.js";
+import {
+	createForID,
+	getAllEntitiesForID,
+	getByField,
+	getEntityForID,
+} from "../../helpers/model.js";
+import { Game } from "../games/model.js";
+import { Player } from "./model.js";
 
-const debug = createDebugMessages("backend:players:routes");
-const Player = mongoose.model("Player", playerSchema);
-
+// PRIVATE 				///////////////////////////////////////////
+const debug = createDebugMessages("battler:backend:players:routes");
 const router = express.Router();
 
-// [post] /players - create new player
-router.post(
-	"/",
-	existsAndIsString("username"),
-	isUniqueByField("username", Player),
-	evaluateRules,
-	async (req, res, next) => {
-		await execute(createPlayer, req, res, next);
-	}
-);
+debug(Player);
 
-// [get] /players - get all players (restricted to admin users)
-router.get("/", async (req, res, next) => {
-	await execute(getAllPlayers, req, res, next);
-});
-
-// [get] /players/:playerID - get player of id (not username)
-router.get(
-	"/:playerID",
-	existsAndIsMongoID("playerID"),
-	evaluateRules,
-	async (req, res, next) => {
-		await execute(getPlayer, req, res, next);
-	}
-);
-
+// PUBLIC 				///////////////////////////////////////////
 // [get] /players/username/:username - get player of username
 router.get(
 	"/username/:username",
 	existsAndIsString("username"),
 	evaluateRules,
 	async (req, res, next) => {
-		await execute(getPlayerByUsername, req, res, next);
+		await execute(
+			getByField,
+			[Player, "username", req.params.username],
+			req,
+			res,
+			next
+		);
 	}
 );
 
@@ -67,7 +47,13 @@ router.get(
 	existsAndIsMongoID("playerID"),
 	evaluateRules,
 	async (req, res, next) => {
-		await execute(getAllGamesForPlayer, req, res, next);
+		await execute(
+			getAllEntitiesForID,
+			[Player, req.params.playerID, Game, "player"],
+			req,
+			res,
+			next
+		);
 	}
 );
 
@@ -77,7 +63,13 @@ router.post(
 	existsAndIsMongoID("playerID"),
 	evaluateRules,
 	async (req, res, next) => {
-		await execute(createNewGameForPlayer, req, res, next);
+		await execute(
+			createForID,
+			[Player, req.params.playerID, Game, "player"],
+			req,
+			res,
+			next
+		);
 	}
 );
 
@@ -88,7 +80,13 @@ router.get(
 	existsAndIsMongoID("gameID"),
 	evaluateRules,
 	async (req, res, next) => {
-		await execute(getGameForPlayer, req, res, next);
+		await execute(
+			getEntityForID,
+			[Player, req.params.playerID, Game, req.params.gameID, "player"],
+			req,
+			res,
+			next
+		);
 	}
 );
 

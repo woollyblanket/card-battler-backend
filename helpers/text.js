@@ -1,13 +1,16 @@
 // EXTERNAL IMPORTS		///////////////////////////////////////////
-import mongoose from "mongoose";
 
 // INTERNAL IMPORTS		///////////////////////////////////////////
 
 // PRIVATE 				///////////////////////////////////////////
-const { Schema } = mongoose;
 
 // PUBLIC 				///////////////////////////////////////////
-export const playerSchema = new Schema({
-	joined: { type: Date, default: Date.now },
-	username: { type: String, required: true, unique: true },
+export const orList = new Intl.ListFormat("en", {
+	style: "long",
+	type: "disjunction",
+});
+
+export const andList = new Intl.ListFormat("en", {
+	style: "long",
+	type: "conjunction",
 });

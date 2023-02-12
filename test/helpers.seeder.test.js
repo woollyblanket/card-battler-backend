@@ -1,9 +1,15 @@
-import { expect } from "chai";
-import { dbSetupWipeDBBeforeEach } from "../helpers/tests.js";
+// EXTERNAL IMPORTS		///////////////////////////////////////////
 import mongoose from "mongoose";
+import { expect } from "chai";
+
+// INTERNAL IMPORTS		///////////////////////////////////////////
+import { dbSetupWipeDBBeforeEach } from "../helpers/tests.js";
 import { getObjectId, getObjectIds, seed } from "../helpers/seeder.js";
 import { dbClose } from "../helpers/db.js";
 
+// PRIVATE 				///////////////////////////////////////////
+
+// PUBLIC 				///////////////////////////////////////////
 describe("helpers:seeder getObjectId", async () => {
 	it("should create a predictable ObjectId", async () => {
 		const id = getObjectId("test").toString();

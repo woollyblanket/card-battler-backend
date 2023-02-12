@@ -1,11 +1,19 @@
+// EXTERNAL IMPORTS		///////////////////////////////////////////
 import request from "supertest";
+
+// INTERNAL IMPORTS		///////////////////////////////////////////
 import {
 	addEntity,
 	dbSetupWipeDBBeforeEach,
-	expectToBeTrue,
+	expectError,
+	expectPatchUpdate,
+	expectSuccess,
 } from "../helpers/tests.js";
 import { app } from "../app.mjs";
 
+// PRIVATE 				///////////////////////////////////////////
+
+// PUBLIC 				///////////////////////////////////////////
 describe("GET: /games/:id", async () => {
 	dbSetupWipeDBBeforeEach();
 
@@ -17,23 +25,13 @@ describe("GET: /games/:id", async () => {
 
 		const res = await request(app).get(`/games/${gameID}`);
 
-		expectToBeTrue(res, {
-			status: 200,
-			success: true,
-			entityIncludes: {
-				_id: gameID,
-			},
-		});
+		expectSuccess(res, 200, { _id: gameID });
 	});
 
 	it("should warn that the request is bad", async () => {
 		const res = await request(app).get(`/games/1`);
 
-		expectToBeTrue(res, {
-			status: 400,
-			success: false,
-			isError: true,
-		});
+		expectError(res, 400);
 	});
 });
 
@@ -48,23 +46,13 @@ describe("DELETE: /games/:id", async () => {
 
 		const res = await request(app).delete(`/games/${gameID}`);
 
-		expectToBeTrue(res, {
-			status: 200,
-			success: true,
-			entityIncludes: {
-				_id: gameID,
-			},
-		});
+		expectSuccess(res, 200, { _id: gameID });
 	});
 
 	it("should warn that the request is bad", async () => {
 		const res = await request(app).delete(`/games/1`);
 
-		expectToBeTrue(res, {
-			status: 400,
-			success: false,
-			isError: true,
-		});
+		expectError(res, 400);
 	});
 });
 
@@ -83,14 +71,7 @@ describe("PATCH: /games/:id/:attribute/:operation/:value", async () => {
 			`/games/${gameID}/status/assign/paused`
 		);
 
-		expectToBeTrue(res, {
-			status: 200,
-			success: true,
-			attributeEquals: {
-				name: "status",
-				value: "paused",
-			},
-		});
+		expectPatchUpdate(res, { status: "paused" });
 	});
 
 	it("should warn that the request is bad", async () => {
@@ -102,11 +83,7 @@ describe("PATCH: /games/:id/:attribute/:operation/:value", async () => {
 			`/games/${gameID}/status/add/paused`
 		);
 
-		expectToBeTrue(res, {
-			status: 400,
-			success: false,
-			isError: true,
-		});
+		expectError(res, 400);
 	});
 
 	it("should warn that the request is bad", async () => {
@@ -118,11 +95,7 @@ describe("PATCH: /games/:id/:attribute/:operation/:value", async () => {
 			`/games/${gameID}/status/assign/asdf`
 		);
 
-		expectToBeTrue(res, {
-			status: 400,
-			success: false,
-			isError: true,
-		});
+		expectError(res, 400);
 	});
 
 	it("should increment the level by 1", async () => {
@@ -132,14 +105,7 @@ describe("PATCH: /games/:id/:attribute/:operation/:value", async () => {
 		if (gameID.error) throw gameID.error;
 		const res = await request(app).patch(`/games/${gameID}/level/add/1`);
 
-		expectToBeTrue(res, {
-			status: 200,
-			success: true,
-			attributeEquals: {
-				name: "level",
-				value: 2,
-			},
-		});
+		expectPatchUpdate(res, { level: 2 });
 	});
 
 	it("should make the round equal 5", async () => {
@@ -149,14 +115,7 @@ describe("PATCH: /games/:id/:attribute/:operation/:value", async () => {
 		if (gameID.error) throw gameID.error;
 		const res = await request(app).patch(`/games/${gameID}/round/assign/5`);
 
-		expectToBeTrue(res, {
-			status: 200,
-			success: true,
-			attributeEquals: {
-				name: "round",
-				value: 5,
-			},
-		});
+		expectPatchUpdate(res, { round: 5 });
 	});
 
 	it("should warn that the request is bad", async () => {
@@ -168,11 +127,7 @@ describe("PATCH: /games/:id/:attribute/:operation/:value", async () => {
 			`/games/${gameID}/round/assign/asdf`
 		);
 
-		expectToBeTrue(res, {
-			status: 400,
-			success: false,
-			isError: true,
-		});
+		expectError(res, 400);
 	});
 
 	it("should subtract 1 from the round", async () => {
@@ -184,14 +139,7 @@ describe("PATCH: /games/:id/:attribute/:operation/:value", async () => {
 			`/games/${gameID}/round/subtract/1`
 		);
 
-		expectToBeTrue(res, {
-			status: 200,
-			success: true,
-			attributeEquals: {
-				name: "round",
-				value: 0,
-			},
-		});
+		expectPatchUpdate(res, { round: 0 });
 	});
 
 	it("should warn that the request is bad", async () => {
@@ -203,11 +151,7 @@ describe("PATCH: /games/:id/:attribute/:operation/:value", async () => {
 			`/games/${gameID}/round/remove/asdf`
 		);
 
-		expectToBeTrue(res, {
-			status: 400,
-			success: false,
-			isError: true,
-		});
+		expectError(res, 400);
 	});
 
 	it("should warn that the request is bad", async () => {
@@ -217,10 +161,6 @@ describe("PATCH: /games/:id/:attribute/:operation/:value", async () => {
 		if (gameID.error) throw gameID.error;
 		const res = await request(app).patch(`/games/${gameID}/round/remove/1`);
 
-		expectToBeTrue(res, {
-			status: 400,
-			success: false,
-			isError: true,
-		});
+		expectError(res, 400);
 	});
 });

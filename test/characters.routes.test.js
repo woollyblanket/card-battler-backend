@@ -1,11 +1,19 @@
+// EXTERNAL IMPORTS		///////////////////////////////////////////
 import request from "supertest";
+
+// INTERNAL IMPORTS		///////////////////////////////////////////
 import {
 	addEntity,
 	dbSetupWipeDBBeforeEach,
-	expectToBeTrue,
+	expectError,
+	expectPatchUpdate,
+	expectSuccess,
 } from "../helpers/tests.js";
 import { app } from "../app.mjs";
 
+// PRIVATE 				///////////////////////////////////////////
+
+// PUBLIC 				///////////////////////////////////////////
 describe("POST: /characters", async () => {
 	dbSetupWipeDBBeforeEach();
 
@@ -14,20 +22,17 @@ describe("POST: /characters", async () => {
 			.post("/characters")
 			.send({ name: "test", archetype: "hero", description: "test" });
 
-		expectToBeTrue(res, {
-			status: 201,
-			success: true,
+		expectSuccess(res, 201, {
+			name: "test",
+			archetype: "hero",
+			description: "test",
 		});
 	});
 
 	it("should warn that the request is bad", async () => {
 		const res = await request(app).post(`/characters`);
 
-		expectToBeTrue(res, {
-			status: 400,
-			success: false,
-			isError: true,
-		});
+		expectError(res, 400);
 	});
 });
 
@@ -44,23 +49,13 @@ describe("GET: /characters/:id", async () => {
 
 		const res = await request(app).get(`/characters/${characterID}`);
 
-		expectToBeTrue(res, {
-			status: 200,
-			success: true,
-			entityIncludes: {
-				_id: characterID,
-			},
-		});
+		expectSuccess(res, 200, { _id: characterID });
 	});
 
 	it("should warn that the request is bad", async () => {
 		const res = await request(app).get(`/characters/1`);
 
-		expectToBeTrue(res, {
-			status: 400,
-			success: false,
-			isError: true,
-		});
+		expectError(res, 400);
 	});
 });
 
@@ -79,13 +74,7 @@ describe("PATCH: /characters/:id/:attribute/:operation/:value", async () => {
 			`/characters/${characterID}/health/add/4`
 		);
 
-		expectToBeTrue(res, {
-			status: 200,
-			success: true,
-			entityIncludes: {
-				health: 4,
-			},
-		});
+		expectPatchUpdate(res, { health: 4 });
 	});
 
 	it("should subtract from the character's energy", async () => {
@@ -101,13 +90,7 @@ describe("PATCH: /characters/:id/:attribute/:operation/:value", async () => {
 			`/characters/${characterID}/energy/subtract/4`
 		);
 
-		expectToBeTrue(res, {
-			status: 200,
-			success: true,
-			entityIncludes: {
-				energy: 6,
-			},
-		});
+		expectPatchUpdate(res, { energy: 6 });
 	});
 
 	it("should add an ability to a character", async () => {
@@ -129,14 +112,7 @@ describe("PATCH: /characters/:id/:attribute/:operation/:value", async () => {
 			`/characters/${characterID}/abilities/add/${abilityID}`
 		);
 
-		expectToBeTrue(res, {
-			status: 200,
-			success: true,
-			attributeArrayContains: {
-				name: "abilities",
-				value: [abilityID],
-			},
-		});
+		expectPatchUpdate(res, { abilities: [abilityID] });
 	});
 
 	it("should remove an ability from a character", async () => {
@@ -161,14 +137,7 @@ describe("PATCH: /characters/:id/:attribute/:operation/:value", async () => {
 			`/characters/${characterID}/abilities/remove/${abilityID}`
 		);
 
-		expectToBeTrue(res, {
-			status: 200,
-			success: true,
-			attributeArrayLength: {
-				name: "abilities",
-				value: 0,
-			},
-		});
+		expectPatchUpdate(res, 200, { abilities: [] });
 	});
 
 	it("should warn that the request is bad", async () => {
@@ -183,11 +152,7 @@ describe("PATCH: /characters/:id/:attribute/:operation/:value", async () => {
 			`/characters/${characterID}/name/add/paused`
 		);
 
-		expectToBeTrue(res, {
-			status: 400,
-			success: false,
-			isError: true,
-		});
+		expectError(res, 400);
 	});
 
 	it("should warn that the request is bad", async () => {
@@ -200,12 +165,7 @@ describe("PATCH: /characters/:id/:attribute/:operation/:value", async () => {
 		const res = await request(app).patch(
 			`/characters/${characterID}/energy/assign/test`
 		);
-
-		expectToBeTrue(res, {
-			status: 400,
-			success: false,
-			isError: true,
-		});
+		expectError(res, 400);
 	});
 });
 
@@ -221,22 +181,12 @@ describe("DELETE: /characters/:id", async () => {
 		if (characterID.error) throw characterID.error;
 		const res = await request(app).delete(`/characters/${characterID}`);
 
-		expectToBeTrue(res, {
-			status: 200,
-			success: true,
-			entityIncludes: {
-				_id: characterID,
-			},
-		});
+		expectSuccess(res, 200, { _id: characterID });
 	});
 
 	it("should warn that the request is bad", async () => {
 		const res = await request(app).delete(`/characters/1`);
 
-		expectToBeTrue(res, {
-			status: 400,
-			success: false,
-			isError: true,
-		});
+		expectError(res, 400);
 	});
 });

@@ -1,35 +1,17 @@
+// EXTERNAL IMPORTS		///////////////////////////////////////////
 import mongoose from "mongoose";
 import Debug from "debug";
 import * as dotenv from "dotenv";
 import { MongoMemoryServer } from "mongodb-memory-server";
+
+// INTERNAL IMPORTS		///////////////////////////////////////////
+
 dotenv.config();
 
-const debug = Debug("backend:helpers:db");
+// PRIVATE 				///////////////////////////////////////////
+const debug = Debug("battler:backend:helpers:db");
 
-export const dbConnectTest = async () => {
-	try {
-		const mongoServer = await MongoMemoryServer.create();
-		const mongoUri = mongoServer.getUri();
-		mongoose.set("strictQuery", false);
-		// mongoose.set("debug", true);
-		await mongoose.connect(mongoUri);
-
-		return mongoServer;
-	} catch (error) {
-		return { error };
-	}
-};
-
-export const dbCloseTest = async (mongoServer) => {
-	try {
-		await mongoose.disconnect();
-		await mongoServer.stop();
-	} catch (error) {
-		return { error };
-	}
-};
-
-export const getURI = () => {
+const getURI = () => {
 	let dbURI;
 	switch (process.env.NODE_ENV) {
 		case "development": {
@@ -46,10 +28,33 @@ export const getURI = () => {
 		}
 		default: {
 			debug("Couldn't get appropriate DB URI");
-			throw "Couldn't get appropriate DB URI";
+			throw new Error("Couldn't get appropriate DB URI");
 		}
 	}
 	return dbURI;
+};
+
+// PUBLIC 				///////////////////////////////////////////
+export const dbConnectTest = async () => {
+	try {
+		const mongoServer = await MongoMemoryServer.create();
+		const mongoUri = mongoServer.getUri();
+		mongoose.set("strictQuery", false);
+		await mongoose.connect(mongoUri);
+
+		return mongoServer;
+	} catch (error) {
+		return { error };
+	}
+};
+
+export const dbCloseTest = async (mongoServer) => {
+	try {
+		await mongoose.disconnect();
+		await mongoServer.stop();
+	} catch (error) {
+		return { error };
+	}
 };
 
 export const dbConnect = async () => {
