@@ -11,6 +11,7 @@ import cors from "cors";
 import { fileURLToPath } from "url";
 import { responseEnhancer } from "express-response-formatter";
 import ExpressMongoSanitize from "express-mongo-sanitize";
+import helmet from "helmet";
 
 // INTERNAL IMPORTS		///////////////////////////////////////////
 import { dbConnect } from "./helpers/db.js";
@@ -25,8 +26,11 @@ import characters from "./components/characters/routes.js";
 import enemies from "./components/enemies/routes.js";
 
 // PRIVATE 				///////////////////////////////////////////
+const debug = createDebugMessages("battler:backend:app");
+
 const app = express();
 app.disable("x-powered-by");
+app.use(helmet());
 
 const main = async () => {
 	if (process.env.NODE_ENV !== "test") {
@@ -46,7 +50,13 @@ app.use(cors(corsOptions));
 app.use(logger("dev"));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
-app.use(ExpressMongoSanitize());
+app.use(
+	ExpressMongoSanitize({
+		onSanitize: ({ req, key }) => {
+			debug(`This request[${key}] has been sanitised %O`, req[key]);
+		},
+	})
+);
 app.use(cookieParser());
 app.use(
 	express.static(

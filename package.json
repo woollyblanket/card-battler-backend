@@ -21,6 +21,7 @@
 		"express-response-formatter": "^2.0.2",
 		"express-validator": "^6.14.3",
 		"glob": "^8.1.0",
+		"helmet": "^6.0.1",
 		"mongodb-memory-server": "^8.11.4",
 		"mongoose": "^6.8.4",
 		"morgan": "^1.10.0",
