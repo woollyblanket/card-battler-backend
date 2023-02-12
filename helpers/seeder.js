@@ -62,7 +62,7 @@ const doDrop = async (droppedSet, modelName, config, model) => {
 		config.collections.includes(modelName)
 	) {
 		await model.deleteMany();
-		debug("Deleted everything from %O", model);
+		debug("Deleted everything from %O", pluralize(model.collection.name));
 	}
 
 	return modelName;
@@ -126,7 +126,7 @@ export const seed = async (configuration) => {
 			const model = mongoose.connection.model(modelName);
 
 			// drop if appropriate
-			const dropped = doDrop(
+			const dropped = await doDrop(
 				alreadyDropped,
 				lowerCaseModelName,
 				config,
@@ -135,7 +135,11 @@ export const seed = async (configuration) => {
 			if (dropped) alreadyDropped.set(dropped, true);
 			// add
 			await model.create(data);
-			debug(`Added ${data.length} items to %O from %O`, model, file);
+			debug(
+				`Added ${data.length} items to %O from %O`,
+				pluralize(model.collection.name),
+				file
+			);
 		}
 
 		return;
@@ -205,4 +209,34 @@ export function AbilityBuilder(obj) {
 	this.description =
 		obj.description ||
 		`${descriptionStart}${descriptionMiddle}${descriptionEnd}${descriptionDuration}`;
+}
+
+export function CharacterBuilder(obj) {
+	this._id = getObjectId(`${obj.archetype}:${obj.name.toLowerCase()}`);
+	this.name = obj.name;
+	this.archetype = obj.archetype;
+	this.description = obj.description;
+	this.health = obj.health;
+	this.energy = obj.energy;
+	this.abilities = [];
+
+	for (const element of obj.abilities) {
+		this.abilities.push(getObjectId(element));
+	}
+}
+
+export function EnemyBuilder(obj) {
+	this._id = getObjectId(`${obj.species}:${obj.name.toLowerCase()}`);
+	this.name = obj.name;
+	this.species = obj.species;
+	this.description = `${sentenceCase(obj.name)} the ${sentenceCase(
+		obj.species
+	)}`;
+	this.health = obj.health;
+	this.energy = obj.energy;
+	this.abilities = [];
+
+	for (const element of obj.abilities) {
+		this.abilities.push(getObjectId(element));
+	}
 }
