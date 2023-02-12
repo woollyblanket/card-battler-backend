@@ -32,6 +32,7 @@ jobs:
                   node-version: ${{ matrix.node-version }}
                   cache: "npm"
                   fetch-depth: 0
+            - run: git fetch --unshallow
 
             - name: Start MongoDB
               uses: supercharge/mongodb-github-action@1.8.0
