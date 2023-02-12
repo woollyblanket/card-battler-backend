@@ -45,23 +45,8 @@ jobs:
             - name: Upload coverage reports to Codecov
               uses: codecov/codecov-action@v3
 
-<<<<<<< HEAD
-    sonarcloud:
-        name: SonarCloud
-        runs-on: ubuntu-latest
-            steps:
-                - uses: actions/checkout@v3
-                with:
-                    fetch-depth: 0 
-                - name: SonarCloud Scan
-                uses: SonarSource/sonarcloud-github-action@master
-                env:
-                    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} 
-                    SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-=======
             - name: SonarCloud Scan
               uses: SonarSource/sonarcloud-github-action@master
               env:
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
                   SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
->>>>>>> parent of 43c9f5f (Update node.js.yml)
