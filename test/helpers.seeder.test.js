@@ -21,8 +21,7 @@ describe("helpers:seeder getObjectId", async () => {
 	});
 
 	it("should throw an error", async () => {
-		const result = getObjectId();
-		expect(result.error).to.exist;
+		expect(() => getObjectId()).to.throw("Name cannot be empty");
 	});
 });
 
@@ -39,10 +38,8 @@ describe("helpers:seeder getObjectIds", async () => {
 	});
 
 	it("should throw an error", async () => {
-		let result = getObjectIds();
-		expect(result.error).to.exist;
-		result = getObjectIds("test");
-		expect(result.error).to.exist;
+		expect(() => getObjectIds()).to.throw("Names cannot be empty");
+		expect(() => getObjectIds("test")).to.throw("Names must be an array");
 	});
 });
 

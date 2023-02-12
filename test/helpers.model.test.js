@@ -334,7 +334,7 @@ describe("helpers:model createForID", async () => {
 describe("helpers:model getModelDataTypes", async () => {
 	dbSetupWipeDBBeforeEach();
 	it("should get the data types present in the model", async () => {
-		const result = await model.getModelDataTypes(Test1.schema.obj);
+		const result = model.getModelDataTypes(Test1.schema.obj);
 		expect(result.name.type).to.equal("string");
 		expect(result.number.type).to.equal("number");
 		expect(result.array.type).to.equal("mixed");
