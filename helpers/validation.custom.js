@@ -107,6 +107,10 @@ const messageBuilder = (rule, field, expected, actual, entity) => {
 			)} '${andList.format(actual)}' already exists`;
 			break;
 
+		case "entity exists":
+			message += `Field ${field} doesn't exist.`;
+			break;
+
 		default:
 			message += `Field '${field}' expects ${entity} of ${orList.format(
 				expected
@@ -115,6 +119,20 @@ const messageBuilder = (rule, field, expected, actual, entity) => {
 	}
 
 	return message;
+};
+
+const errorParser = (messages) => {
+	let error = "";
+
+	for (let i = 0; i < messages.length; i++) {
+		const message = messages[i];
+		error += `Rule: ${message.rule} - `;
+		error += `${message.message}`;
+
+		if (i !== messages.length - 1) error += " | ";
+	}
+
+	return error;
 };
 
 // PUBLIC 				///////////////////////////////////////////
@@ -127,6 +145,9 @@ export const checkParamCombination = () => {
 	return param().custom(async (params) => {
 		const model = getModelFromName(params.entities);
 		const normalised = normaliseSchema(model.schema.obj);
+
+		if (!isInSchema(normalised, params.attribute))
+			throw messageBuilder("entity exists", params.attribute, "", "", "");
 
 		// check if it's the expected data type
 		if (!isValidDataType(normalised, params.attribute, params.value)) {
@@ -256,15 +277,7 @@ export const checkModel = (modelName) => {
 			}
 		}
 
-		let error = "";
-
-		for (let i = 0; i < messages.length; i++) {
-			const message = messages[i];
-			error += `Rule: ${message.rule} - `;
-			error += `${message.message}`;
-
-			if (i !== messages.length - 1) error += " | ";
-		}
+		let error = errorParser(messages);
 
 		if (messages.length !== 0) throw new Error(error);
 		return true;
