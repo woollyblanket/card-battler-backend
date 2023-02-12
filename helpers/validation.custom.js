@@ -256,7 +256,17 @@ export const checkModel = (modelName) => {
 			}
 		}
 
-		if (messages.length !== 0) throw new Error(messages);
+		let error = "";
+
+		for (let i = 0; i < messages.length; i++) {
+			const message = messages[i];
+			error += `Rule: ${message.rule} - `;
+			error += `${message.message}`;
+
+			if (i !== messages.length - 1) error += " | ";
+		}
+
+		if (messages.length !== 0) throw new Error(error);
 		return true;
 	});
 };

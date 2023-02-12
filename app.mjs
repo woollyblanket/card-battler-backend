@@ -25,6 +25,8 @@ import characters from "./components/characters/routes.js";
 import enemies from "./components/enemies/routes.js";
 
 // PRIVATE 				///////////////////////////////////////////
+const debug = createDebugMessages("battler:backend:app");
+
 const app = express();
 app.disable("x-powered-by");
 
@@ -46,7 +48,13 @@ app.use(cors(corsOptions));
 app.use(logger("dev"));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
-app.use(ExpressMongoSanitize());
+app.use(
+	ExpressMongoSanitize({
+		onSanitize: ({ req, key }) => {
+			debug(`This request[${key}] has been sanitised %O`, req[key]);
+		},
+	})
+);
 app.use(cookieParser());
 app.use(
 	express.static(
