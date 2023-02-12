@@ -189,7 +189,6 @@ export const checkParamCombination = () => {
 export const checkModel = (modelName) => {
 	return check(modelName).custom(async (value, { req }) => {
 		let messages = [];
-		let rule = "";
 		let name = sentenceCase(value);
 		name = pluralize.singular(name);
 
@@ -201,11 +200,10 @@ export const checkModel = (modelName) => {
 		const requiredDetails = isRequiredIncluded(normalised, req.body);
 
 		if (!requiredDetails.result) {
-			rule = "required";
 			messages.push({
-				rule,
+				rule: "required",
 				message: messageBuilder(
-					rule,
+					"required",
 					"",
 					requiredDetails.required,
 					requiredDetails.missing,
@@ -219,13 +217,11 @@ export const checkModel = (modelName) => {
 			if (!isInSchema(normalised, key)) continue;
 
 			// make sure anything with enums are using allowed values
-			rule = "enums";
-
 			if (!isValidEnum(normalised, key, value)) {
 				messages.push({
-					rule,
+					rule: "enums",
 					message: messageBuilder(
-						rule,
+						"enums",
 						key,
 						normalised[key].enum,
 						value,
@@ -235,13 +231,11 @@ export const checkModel = (modelName) => {
 			}
 
 			// make sure the data types are correct
-			rule = "data type";
-
 			if (!isValidDataType(normalised, key, value)) {
 				messages.push({
-					rule,
+					rule: "data type",
 					message: messageBuilder(
-						rule,
+						"data type",
 						key,
 						normalised[key].type,
 						getDataType(value),
@@ -251,19 +245,18 @@ export const checkModel = (modelName) => {
 			}
 
 			// check for uniqueness
-			rule = "unique";
 			if (normalised[key].unique) {
 				const unique = await isUnique(model, { [key]: value });
 				if (!unique) {
 					messages.push({
-						rule,
-						message: messageBuilder(rule, key, "", value, ""),
+						rule: "unique",
+						message: messageBuilder("unique", key, "", value, ""),
 					});
 				}
 			}
 		}
 
-		if (messages.length !== 0) throw messages;
+		if (messages.length !== 0) throw new Error(messages);
 		return true;
 	});
 };

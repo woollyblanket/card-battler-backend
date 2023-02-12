@@ -10,29 +10,26 @@ import _ from "underscore";
 // return a consistent format
 export const normaliseSchema = (schemaObj) => {
 	let normalised = {};
-	for (const key in schemaObj) {
-		if (Object.hasOwnProperty.call(schemaObj, key)) {
-			let element = schemaObj[key];
-			let type;
-			let isArray = false;
+	for (const [key, value] of Object.entries(schemaObj)) {
+		let type;
+		let isArray = false;
+		let details = value;
 
-			if (_.isArray(element)) {
-				element = element[0];
-				isArray = true;
-			}
-
-			if (_.isString(element.type)) type = element.type.toLowerCase();
-			if (_.isFunction(element.type))
-				type = element.type.name.toLowerCase();
-
-			normalised[key] = {
-				type,
-				isArray,
-				enum: element.enum,
-				required: element.required || false,
-				unique: element.unique || false,
-			};
+		if (_.isArray(value)) {
+			details = value[0];
+			isArray = true;
 		}
+
+		if (_.isString(details.type)) type = details.type.toLowerCase();
+		if (_.isFunction(details.type)) type = details.type.name.toLowerCase();
+
+		normalised[key] = {
+			type,
+			isArray,
+			enum: details.enum,
+			required: details.required || false,
+			unique: details.unique || false,
+		};
 	}
 	return normalised;
 };

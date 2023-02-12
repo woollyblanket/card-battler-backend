@@ -33,18 +33,17 @@ const setFieldIfUndefined = async (item, updateField, updateValue, model) => {
 
 const buildMessage = (
 	item,
-	updateField,
-	updateOperation,
-	updateValue,
+	inputs,
 	wasUndefined,
 	validOperation,
 	oldVal,
 	oldValSize,
-	newVal,
-	newValSize,
 	model
 ) => {
 	let message = "";
+	const { updateField, updateOperation, updateValue } = inputs;
+	const newVal = item[updateField];
+	const newValSize = item[updateField].length;
 
 	if (validOperation) {
 		let diff = "";
@@ -67,52 +66,78 @@ const buildMessage = (
 	return message;
 };
 
+const doAdd = (fieldToUpdate, valueToAdd) => {
+	// can add integers together or add an item to an array
+	try {
+		let newValue = fieldToUpdate;
+
+		if (Number.isInteger(fieldToUpdate)) {
+			if (isNaN(parseInt(valueToAdd))) {
+				throw new Error(`${valueToAdd} isn't a number`);
+			}
+			newValue += parseInt(valueToAdd);
+		} else if (Array.isArray(fieldToUpdate)) {
+			newValue.push(valueToAdd);
+		} else {
+			throw new Error(`${fieldToUpdate} isn't an integer or array`);
+		}
+		return newValue;
+	} catch (error) {
+		return { error };
+	}
+};
+
+const doSubtract = (fieldToUpdate, valueToSubtract) => {
+	try {
+		let newValue = fieldToUpdate;
+		if (!Number.isInteger(fieldToUpdate)) {
+			throw new Error(`${fieldToUpdate} isn't an integer`);
+		}
+		if (isNaN(parseInt(valueToSubtract))) {
+			throw new Error(`${valueToSubtract} isn't a number`);
+		}
+		newValue -= parseInt(valueToSubtract);
+		return newValue;
+	} catch (error) {
+		return { error };
+	}
+};
+
+const doRemove = (fieldToUpdate, valueToRemove) => {
+	try {
+		let newArray = fieldToUpdate;
+		if (!Array.isArray(fieldToUpdate)) {
+			throw new Error(`${fieldToUpdate} isn't an array`);
+		}
+		const index = fieldToUpdate.indexOf(valueToRemove);
+		if (index > -1) {
+			newArray.splice(index, 1);
+		}
+		return newArray;
+	} catch (error) {
+		return { error };
+	}
+};
+
 const doOperation = (item, updateField, updateOperation, updateValue) => {
 	let validOperation = true;
-	let error = "";
+	let result = item[updateField];
 
 	switch (updateOperation) {
 		case "add": {
-			// can add integers together or add an item to an array
-			if (Number.isInteger(item[updateField])) {
-				if (isNaN(parseInt(updateValue))) {
-					error = `${updateValue} isn't a number`;
-					break;
-				}
-				item[updateField] += parseInt(updateValue);
-			} else if (Array.isArray(item[updateField])) {
-				item[updateField].push(updateValue);
-			} else {
-				error = `${item[updateField]} isn't an integer or array`;
-			}
-
+			result = doAdd(item[updateField], updateValue);
 			break;
 		}
 		case "subtract": {
-			if (!Number.isInteger(item[updateField])) {
-				error = `${item[updateField]} isn't an integer`;
-				break;
-			}
-			if (isNaN(parseInt(updateValue))) {
-				error = `${updateValue} isn't a number`;
-				break;
-			}
-			item[updateField] -= parseInt(updateValue);
+			result = doSubtract(item[updateField], updateValue);
 			break;
 		}
 		case "assign": {
-			item[updateField] = updateValue;
+			result = updateValue;
 			break;
 		}
 		case "remove": {
-			if (!Array.isArray(item[updateField])) {
-				error = `${item[updateField]} isn't an array`;
-				break;
-			}
-			const index = item[updateField].indexOf(updateValue);
-			if (index > -1) {
-				item[updateField].splice(index, 1);
-			}
+			result = doRemove(item[updateField], updateValue);
 			break;
 		}
 		default: {
@@ -122,7 +147,9 @@ const doOperation = (item, updateField, updateOperation, updateValue) => {
 		}
 	}
 
-	return { validOperation, error };
+	if (!result.error) item[updateField] = result;
+
+	return { validOperation, error: result.error };
 };
 
 // PUBLIC 				///////////////////////////////////////////
@@ -316,15 +343,11 @@ export const getByIDAndUpdate = async ([
 
 		const message = buildMessage(
 			item,
-			updateField,
-			updateOperation,
-			updateValue,
+			{ updateField, updateOperation, updateValue },
 			wasUndefined,
 			result.validOperation,
 			oldVal,
 			oldValSize,
-			item[updateField],
-			item[updateField].length,
 			mongooseModel
 		);
 

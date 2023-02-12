@@ -41,6 +41,42 @@ const parseConfig = (config) => {
 	return data;
 };
 
+const connectToDbIfNeeded = async () => {
+	if (mongoose.connection.readyState === 0) {
+		if (process.env.NODE_ENV === "test") {
+			await dbConnectTest();
+		} else {
+			await dbConnect();
+		}
+	}
+
+	if (mongoose.connection.readyState !== 1)
+		throw new Error("Couldn't connect to DB");
+};
+
+const doDrop = async (droppedSet, modelName, config, model) => {
+	// already dropped
+	if (droppedSet.get(modelName)) return;
+	if (
+		config.collections[0] === "all" ||
+		config.collections.includes(modelName)
+	) {
+		await model.deleteMany();
+		debug("Deleted everything from %O", model);
+	}
+
+	return modelName;
+};
+
+const checkIfAllowedFile = (filePath) => {
+	// when running tests, only use the test folder
+	// otherwise, ignore the test folder
+	return (
+		(process.env.NODE_ENV === "test" && filePath.includes("test")) ||
+		(process.env.NODE_ENV !== "test" && !filePath.includes("test"))
+	);
+};
+
 // PUBLIC 				///////////////////////////////////////////
 
 export const getObjectId = (name) => {
@@ -74,53 +110,42 @@ export const seed = async (configuration) => {
 			return;
 		}
 
+		if (config.command !== "drop") {
+			// skip for now
+			debug("Skipping seeding. Unrecognised command");
+			return;
+		}
+
 		// make sure we're connected to the db
-		if (mongoose.connection.readyState === 0) {
-			if (process.env.NODE_ENV === "test") {
-				await dbConnectTest();
-			} else {
-				await dbConnect();
-			}
+		await connectToDbIfNeeded();
+
+		let alreadyDropped = new Map();
+		const files = glob.sync("./seed-data/**/*.js");
+
+		for (const file of files) {
+			// skip this loop if we don't have a file we like
+			const goodToContinue = checkIfAllowedFile(path.dirname(file));
+			if (!goodToContinue) continue;
+
+			const obj = await import(path.resolve(file));
+			const { modelName, data } = obj.default;
+			const lowerCaseModelName = modelName.toLowerCase();
+
+			const model = mongoose.connection.model(modelName);
+
+			// drop if appropriate
+			const dropped = doDrop(
+				alreadyDropped,
+				lowerCaseModelName,
+				config,
+				model
+			);
+			if (dropped) alreadyDropped.set(dropped, true);
+			// add
+			await model.create(data);
+			debug(`Added ${data.length} items to %O from %O`, model, file);
 		}
 
-		if (mongoose.connection.readyState !== 1)
-			throw new Error("Couldn't connect to DB");
-
-		if (config.command === "drop") {
-			let alreadyDropped = new Map();
-			const files = glob.sync("./seed-data/**/*.js");
-
-			for (const file of files) {
-				// when running tests, only use the test folder
-				// otherwise, ignore the test folder
-
-				if (process.env.NODE_ENV === "test") {
-					if (!path.dirname(file).includes("test")) continue;
-				} else {
-					if (path.dirname(file).includes("test")) continue;
-				}
-
-				const obj = await import(path.resolve(file));
-				const { modelName, data } = obj.default;
-				const lowerCaseModelName = modelName.toLowerCase();
-
-				const model = mongoose.connection.model(modelName);
-
-				if (
-					!alreadyDropped.get(modelName) &&
-					(config.collections[0] === "all" ||
-						config.collections.includes(lowerCaseModelName))
-				) {
-					// drop first
-					await model.deleteMany();
-					debug("Deleted everything from %O", model);
-					alreadyDropped.set(modelName, true);
-				}
-				// add
-				await model.create(data);
-				debug(`Added ${data.length} items to %O from %O`, model, file);
-			}
-		}
 		return;
 	} catch (error) {
 		return { error };
