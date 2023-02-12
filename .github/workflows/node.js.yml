@@ -25,14 +25,13 @@ jobs:
         steps:
             - name: Git checkout
               uses: actions/checkout@v3
-
+              with:
+                  fetch-depth: 0
             - name: Use Node.js ${{ matrix.node-version }}
               uses: actions/setup-node@v3
               with:
                   node-version: ${{ matrix.node-version }}
                   cache: "npm"
-                  fetch-depth: 0
-            - run: git fetch --unshallow
 
             - name: Start MongoDB
               uses: supercharge/mongodb-github-action@1.8.0
