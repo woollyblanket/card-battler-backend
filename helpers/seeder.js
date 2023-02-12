@@ -80,25 +80,17 @@ const checkIfAllowedFile = (filePath) => {
 // PUBLIC 				///////////////////////////////////////////
 
 export const getObjectId = (name) => {
-	try {
-		if (!name) throw new Error("Name cannot be empty");
+	if (!name) throw new Error("Name cannot be empty");
 
-		const hash = createHash("sha1").update(name, "utf8").digest("hex");
+	const hash = createHash("sha1").update(name, "utf8").digest("hex");
 
-		return new ObjectId(hash.substring(0, 24));
-	} catch (error) {
-		return { error };
-	}
+	return new ObjectId(hash.substring(0, 24));
 };
 
 export const getObjectIds = (names) => {
-	try {
-		if (!names) throw new Error("Names cannot be empty");
-		if (!Array.isArray(names)) throw new Error("Names must be an array");
-		return names.map((name) => getObjectId(name));
-	} catch (error) {
-		return { error };
-	}
+	if (!names) throw new Error("Names cannot be empty");
+	if (!Array.isArray(names)) throw new Error("Names must be an array");
+	return names.map((name) => getObjectId(name));
 };
 
 export const seed = async (configuration) => {

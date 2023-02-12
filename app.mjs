@@ -10,6 +10,7 @@ import bodyParser from "body-parser";
 import cors from "cors";
 import { fileURLToPath } from "url";
 import { responseEnhancer } from "express-response-formatter";
+import ExpressMongoSanitize from "express-mongo-sanitize";
 
 // INTERNAL IMPORTS		///////////////////////////////////////////
 import { dbConnect } from "./helpers/db.js";
@@ -25,6 +26,7 @@ import enemies from "./components/enemies/routes.js";
 
 // PRIVATE 				///////////////////////////////////////////
 const app = express();
+app.disable("x-powered-by");
 
 const main = async () => {
 	if (process.env.NODE_ENV !== "test") {
@@ -33,13 +35,18 @@ const main = async () => {
 	}
 };
 
+const corsOptions = {
+	origin: true,
+};
+
 // PUBLIC 				///////////////////////////////////////////
 main().catch((err) => console.log(err));
 
-app.use(cors());
+app.use(cors(corsOptions));
 app.use(logger("dev"));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
+app.use(ExpressMongoSanitize());
 app.use(cookieParser());
 app.use(
 	express.static(
