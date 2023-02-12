@@ -11,6 +11,7 @@ import cors from "cors";
 import { fileURLToPath } from "url";
 import { responseEnhancer } from "express-response-formatter";
 import ExpressMongoSanitize from "express-mongo-sanitize";
+import helmet from "helmet";
 
 // INTERNAL IMPORTS		///////////////////////////////////////////
 import { dbConnect } from "./helpers/db.js";
@@ -29,6 +30,7 @@ const debug = createDebugMessages("battler:backend:app");
 
 const app = express();
 app.disable("x-powered-by");
+app.use(helmet());
 
 const main = async () => {
 	if (process.env.NODE_ENV !== "test") {
