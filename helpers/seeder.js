@@ -234,6 +234,7 @@ export function EnemyBuilder(obj) {
 	)}`;
 	this.health = obj.health;
 	this.energy = obj.energy;
+	this.rarity = obj.rarity;
 	this.abilities = [];
 
 	for (const element of obj.abilities) {

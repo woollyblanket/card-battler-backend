@@ -5,6 +5,7 @@ const data = {
 	description: "",
 	health: 100,
 	energy: 3,
+	rarity: "rare",
 	abilities: [],
 };
 

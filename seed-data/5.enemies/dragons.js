@@ -5,6 +5,7 @@ const data = {
 	description: "",
 	health: 150,
 	energy: 2,
+	rarity: "epic",
 	abilities: [],
 };
 
@@ -30,6 +31,11 @@ export default {
 		new EnemyBuilder({
 			...data,
 			name: "Black",
+		}),
+		new EnemyBuilder({
+			...data,
+			name: "Platinum",
+			rarity: "mythic",
 		}),
 	],
 };
