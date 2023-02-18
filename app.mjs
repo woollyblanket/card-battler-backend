@@ -73,8 +73,12 @@ app.use("/500", () => {
 	// having this at the start so my generic crud doesn't catch it
 	throw new Error("BROKEN");
 });
-app.use("/", crud);
 app.use("/games", games);
+
+// default CRUD operations on all resources.
+// put other routes above to override
+app.use("/", crud);
+
 app.use("/players", players);
 app.use("/decks", decks);
 app.use("/cards", cards);

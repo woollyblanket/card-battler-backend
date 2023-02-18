@@ -2,7 +2,7 @@
 import createDebugMessages from "debug";
 import mongoose from "mongoose";
 import pluralize from "pluralize";
-import _ from "underscore";
+import _ from "lodash";
 import { sentenceCase } from "change-case";
 
 // INTERNAL IMPORTS		///////////////////////////////////////////
