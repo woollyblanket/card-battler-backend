@@ -20,7 +20,12 @@ describe("POST: /enemies", async () => {
 	it("should create a new enemy", async () => {
 		const res = await request(app)
 			.post("/enemies")
-			.send({ name: "test", species: "dragon", description: "test" });
+			.send({
+				name: "test",
+				species: "dragon",
+				description: "test",
+				rarity: "common",
+			});
 
 		expectSuccess(res, 201, {
 			name: "test",
@@ -44,6 +49,7 @@ describe("GET: /enemies/:id", async () => {
 			name: "test",
 			species: "dragon",
 			description: "test",
+			rarity: "common",
 		});
 		if (enemyID.error) throw enemyID.error;
 
@@ -67,6 +73,7 @@ describe("PATCH: /enemies/:id/:attribute/:operation/:value", async () => {
 			name: "test",
 			species: "dragon",
 			description: "test",
+			rarity: "common",
 		});
 		if (enemyID.error) throw enemyID.error;
 
@@ -83,6 +90,7 @@ describe("PATCH: /enemies/:id/:attribute/:operation/:value", async () => {
 			species: "dragon",
 			description: "test",
 			energy: 10,
+			rarity: "common",
 		});
 		if (enemyID.error) throw enemyID.error;
 
@@ -98,6 +106,7 @@ describe("PATCH: /enemies/:id/:attribute/:operation/:value", async () => {
 			name: "test",
 			species: "dragon",
 			description: "test",
+			rarity: "common",
 		});
 		if (enemyID.error) throw enemyID.error;
 
@@ -120,6 +129,7 @@ describe("PATCH: /enemies/:id/:attribute/:operation/:value", async () => {
 			name: "test",
 			species: "dragon",
 			description: "test",
+			rarity: "common",
 		});
 		if (enemyID.error) throw enemyID.error;
 
@@ -145,6 +155,7 @@ describe("PATCH: /enemies/:id/:attribute/:operation/:value", async () => {
 			name: "test",
 			species: "dragon",
 			description: "test",
+			rarity: "common",
 		});
 		if (enemyID.error) throw enemyID.error;
 
@@ -160,6 +171,7 @@ describe("PATCH: /enemies/:id/:attribute/:operation/:value", async () => {
 			name: "test",
 			species: "dragon",
 			description: "test",
+			rarity: "common",
 		});
 		if (enemyID.error) throw enemyID.error;
 		const res = await request(app).patch(
@@ -178,6 +190,7 @@ describe("DELETE: /enemies/:id", async () => {
 			name: "test",
 			species: "dragon",
 			description: "test",
+			rarity: "common",
 		});
 		if (enemyID.error) throw enemyID.error;
 		const res = await request(app).delete(`/enemies/${enemyID}`);

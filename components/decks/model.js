@@ -26,7 +26,6 @@ export const cloneDeck = async (deck) => {
 
 export const drawHand = async (deckID, drawCount = HAND_DEFAULTS.drawCount) => {
 	const deck = await Deck.findOne({ _id: deckID }).exec();
-	console.log("deck :>> ", deck);
 	let drawn = [];
 	let drawPile = _.cloneDeep(deck.cards);
 	let hand = [];

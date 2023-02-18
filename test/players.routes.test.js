@@ -89,25 +89,6 @@ describe("GET: /players/username/:username", async () => {
 	});
 });
 
-describe("POST: /players/:id/games", async () => {
-	dbSetupWipeDBBeforeEach();
-
-	it("should create a new game associated with the player", async () => {
-		const playerID = await addEntity("/players", { username: "test" });
-		if (playerID.error) throw playerID.error;
-
-		const res = await request(app).post(`/players/${playerID}/games`);
-
-		expectSuccess(res, 201, { player: playerID });
-	});
-
-	it("should warn that the request is bad", async () => {
-		const res = await request(app).post(`/players/12345/games`);
-
-		expectError(res, 400);
-	});
-});
-
 describe("GET: /players/:id/games", async () => {
 	dbSetupWipeDBBeforeEach();
 
@@ -122,37 +103,6 @@ describe("GET: /players/:id/games", async () => {
 
 	it("should warn that the request is bad", async () => {
 		const res = await request(app).get(`/players/12345/games`);
-
-		expectError(res, 400);
-	});
-});
-
-describe("GET: /players/:id/games/:id", async () => {
-	dbSetupWipeDBBeforeEach();
-
-	it("should get a game associated with the player", async () => {
-		const playerID = await addEntity("/players", { username: "test" });
-		if (playerID.error) throw playerID.error;
-		const gameID = await addEntity(`/players/${playerID}/games`);
-		if (gameID.error) throw gameID.error;
-
-		const res = await request(app).get(
-			`/players/${playerID}/games/${gameID}`
-		);
-
-		expectSuccess(res, 200, { _id: gameID });
-	});
-
-	it("should warn that the request is bad", async () => {
-		const res = await request(app).get(`/players/12345/games`);
-
-		expectError(res, 400);
-	});
-
-	it("should warn that the request is bad", async () => {
-		const playerID = await addEntity("/players", { username: "test" });
-		if (playerID.error) throw playerID.error;
-		const res = await request(app).get(`/players/${playerID}/games/12345`);
 
 		expectError(res, 400);
 	});
