@@ -23,6 +23,14 @@ export const RARITIES = [
 	"uncommon",
 	"common",
 ];
+export const RARITY_WEIGHTS = {
+	mythic: 1,
+	legendary: 2,
+	epic: 5,
+	rare: 10,
+	uncommon: 50,
+	common: 100,
+};
 export const CARD_TYPES = ["attack", "heal", "shield", "buff", "debuff"];
 export const ABILITY_TYPES = ["buff", "debuff", "buff-debuff"];
 export const ARCHETYPES = [
@@ -42,3 +50,7 @@ export const SPECIES = [
 	"ghost",
 	"beast",
 ];
+export const HAND_DEFAULTS = {
+	drawCount: 6,
+	sizeLimit: 10,
+};
