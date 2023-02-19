@@ -43,11 +43,13 @@ const parseConfig = (config) => {
 
 const connectToDbIfNeeded = async () => {
 	if (mongoose.connection.readyState === 0) {
+		/* c8 ignore start */
 		if (process.env.NODE_ENV === "test") {
 			await dbConnectTest();
 		} else {
 			await dbConnect();
 		}
+		/* c8 ignore stop */
 	}
 
 	if (mongoose.connection.readyState !== 1)
@@ -72,6 +74,7 @@ const checkIfAllowedFile = (filePath) => {
 	// when running tests, only use the test folder
 	// otherwise, ignore the test folder
 	return (
+		/* c8 ignore next */
 		(process.env.NODE_ENV === "test" && filePath.includes("test")) ||
 		(process.env.NODE_ENV !== "test" && !filePath.includes("test"))
 	);
@@ -82,6 +85,7 @@ const checkIfAllowedFile = (filePath) => {
 export const getObjectId = (name) => {
 	if (!name) throw new Error("Name cannot be empty");
 
+	// deepcode ignore InsecureHash: not used for secrets
 	const hash = createHash("sha1").update(name, "utf8").digest("hex");
 
 	return new ObjectId(hash.substring(0, 24));

@@ -36,6 +36,7 @@ import enemies from "./components/enemies/routes.js";
 // PRIVATE 				///////////////////////////////////////////
 const debug = createDebugMessages("battler:backend:app");
 
+// file deepcode ignore UseCsurfForExpress: using csrfSynchronisedProtection
 const app = express();
 app.disable("x-powered-by");
 app.use(helmet());
@@ -47,6 +48,7 @@ const corsOptions = {
 const MemoryStore = createMemoryStore(session);
 
 // PUBLIC 				///////////////////////////////////////////
+/* c8 ignore start */
 if (process.env.NODE_ENV !== "test") {
 	// there's a few things that aren't applicable to the test environment
 	await dbConnect();
@@ -54,6 +56,7 @@ if (process.env.NODE_ENV !== "test") {
 	app.use(limiter);
 	app.use(csrfSynchronisedProtection);
 }
+/* c8 ignore stop */
 
 app.use(cors(corsOptions));
 app.use(logger("dev"));

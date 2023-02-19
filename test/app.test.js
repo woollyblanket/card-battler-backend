@@ -3,7 +3,11 @@ import request from "supertest";
 
 // INTERNAL IMPORTS		///////////////////////////////////////////
 import { app } from "../app.mjs";
-import { expectError } from "../helpers/tests.js";
+import {
+	dbSetupWipeDBBeforeEach,
+	expectError,
+	expectSuccess,
+} from "../helpers/tests.js";
 
 // PRIVATE 				///////////////////////////////////////////
 
@@ -29,5 +33,25 @@ describe("GET /some-unknown-path", () => {
 		const res = await request(app).get(`/some-unknown-path`);
 
 		expectError(res, 400, "Invalid entity");
+	});
+});
+
+describe("POST /cards XSS", () => {
+	dbSetupWipeDBBeforeEach();
+	it("should sanitise the input", async () => {
+		const res = await request(app)
+			.post("/cards")
+			.send({
+				name: "test",
+				description: "test",
+				type: "heal",
+				obj: { $ne: "" },
+			});
+
+		expectSuccess(res, 201, {
+			name: "test",
+			description: "test",
+			type: "heal",
+		});
 	});
 });

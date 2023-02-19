@@ -51,6 +51,7 @@ const onListening = () => {
 const port = normalizePort(process.env.PORT || "5050");
 
 app.set("port", port);
+// deepcode ignore HttpToHttps: deploying via railway.app which sets up certs and SSL for us
 const server = http.createServer(app);
 
 // PUBLIC 				///////////////////////////////////////////
