@@ -112,10 +112,8 @@ describe("PATCH: /players/:id/username/assign/test", async () => {
 	dbSetupWipeDBBeforeEach();
 
 	it("should warn that the player already exists", async () => {
-		const player = await addEntity("/players", { username: "test1" });
-		console.log("player :>> ", player);
+		await addEntity("/players", { username: "test1" });
 		const playerID = await addEntity("/players", { username: "test2" });
-		console.log("playerID :>> ", playerID);
 
 		const res = await request(app).patch(
 			`/players/${playerID}/username/assign/test1`
