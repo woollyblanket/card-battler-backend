@@ -124,7 +124,7 @@ describe("PATCH: /cards/:id/:attribute/:operation/:value", async () => {
 		if (cardID.error) throw cardID.error;
 		const res = await request(app).patch(`/cards/${cardID}/duration/add/3`);
 
-		expectPatchUpdate(res, 200, { duration: 3 });
+		expectPatchUpdate(res, { duration: 3 });
 	});
 
 	it("should change the card type", async () => {

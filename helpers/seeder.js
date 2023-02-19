@@ -82,6 +82,7 @@ const checkIfAllowedFile = (filePath) => {
 export const getObjectId = (name) => {
 	if (!name) throw new Error("Name cannot be empty");
 
+	// deepcode ignore InsecureHash: not used for secrets
 	const hash = createHash("sha1").update(name, "utf8").digest("hex");
 
 	return new ObjectId(hash.substring(0, 24));

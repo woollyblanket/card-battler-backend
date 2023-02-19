@@ -36,6 +36,7 @@ import enemies from "./components/enemies/routes.js";
 // PRIVATE 				///////////////////////////////////////////
 const debug = createDebugMessages("battler:backend:app");
 
+// file deepcode ignore UseCsurfForExpress: using csrfSynchronisedProtection
 const app = express();
 app.disable("x-powered-by");
 app.use(helmet());
