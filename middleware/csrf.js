@@ -17,14 +17,14 @@ export const {
 	csrfSynchronisedProtection,
 } = csrfSync();
 
-export const csrfErrorHandler = (error, req, res, next) => {
-	if (error === invalidCsrfTokenError) {
-		debug(error);
+export const csrfErrorHandler = (err, req, res, next) => {
+	if (err === invalidCsrfTokenError) {
+		debug(err);
 		res.formatter.forbidden({
-			message: `CSRF error: ${error.message}`,
+			message: `CSRF error: ${err.message}`,
 			success: false,
 		});
 	} else {
-		next();
+		next(err);
 	}
 };

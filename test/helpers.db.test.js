@@ -26,7 +26,7 @@ describe("helpers:db dbConnectTest dbCloseTest", async () => {
 describe("helpers:db dbConnect dbClose", async () => {
 	it("should create and close a new database connection", async () => {
 		const db = await dbConnect();
-		expect(db.getClient().s.url).to.equal(process.env.MONGODB_URI_TEST);
+		expect(db.getClient().s.url).to.equal(process.env.MONGODB_URI);
 		expect(db.getClient().s.hasBeenClosed).to.be.false;
 		await dbClose(db);
 		expect(db.getClient().s.hasBeenClosed).to.be.true;

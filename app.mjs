@@ -40,13 +40,6 @@ const app = express();
 app.disable("x-powered-by");
 app.use(helmet());
 
-const main = async () => {
-	if (process.env.NODE_ENV !== "test") {
-		await dbConnect();
-		await seed(process.env.DATA_SEED);
-	}
-};
-
 const corsOptions = {
 	origin: true,
 };
@@ -54,7 +47,13 @@ const corsOptions = {
 const MemoryStore = createMemoryStore(session);
 
 // PUBLIC 				///////////////////////////////////////////
-main().catch((err) => console.log(err));
+if (process.env.NODE_ENV !== "test") {
+	// there's a few things that aren't applicable to the test environment
+	await dbConnect();
+	await seed(process.env.DATA_SEED);
+	app.use(limiter);
+	app.use(csrfSynchronisedProtection);
+}
 
 app.use(cors(corsOptions));
 app.use(logger("dev"));
@@ -87,19 +86,17 @@ app.use(
 );
 
 app.use(responseEnhancer());
-app.use(limiter);
 
 // ROUTES 				///////////////////////////////////////////
 
 app.use("/token", csrf);
 
-if (process.env.NODE_ENV !== "test") app.use(csrfSynchronisedProtection);
-
-app.use("/500", () => {
+app.get("/500", () => {
 	// using in tests to make sure 500 errors are being handled
 	// having this at the start so my generic crud doesn't catch it
 	throw new Error("BROKEN");
 });
+
 app.use("/games", games);
 
 // default CRUD operations on all resources.
@@ -117,6 +114,7 @@ app.use("/enemies", enemies);
 app.use(csrfErrorHandler);
 
 app.use((err, req, res, next) => {
+	console.log("err :>> ", err);
 	const debug = createDebugMessages("battler:backend:error");
 	debug(err.stack);
 	next(err);
