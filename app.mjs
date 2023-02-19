@@ -8,15 +8,23 @@ import cookieParser from "cookie-parser";
 import createDebugMessages from "debug";
 import bodyParser from "body-parser";
 import cors from "cors";
-import { fileURLToPath } from "url";
-import { responseEnhancer } from "express-response-formatter";
 import ExpressMongoSanitize from "express-mongo-sanitize";
 import helmet from "helmet";
+import session from "express-session";
+import createMemoryStore from "memorystore";
+
+import { fileURLToPath } from "url";
+import { responseEnhancer } from "express-response-formatter";
 
 // INTERNAL IMPORTS		///////////////////////////////////////////
 import { dbConnect } from "./helpers/db.js";
 import { seed } from "./helpers/seeder.js";
-import crud from "./helpers/routes.js";
+import {
+	csrfErrorHandler,
+	csrfSynchronisedProtection,
+} from "./middleware/csrf.js";
+import { crud, csrf } from "./helpers/routes.js";
+import { limiter } from "./middleware/ratelimit.js";
 import games from "./components/games/routes.js";
 import players from "./components/players/routes.js";
 import decks from "./components/decks/routes.js";
@@ -43,6 +51,8 @@ const corsOptions = {
 	origin: true,
 };
 
+const MemoryStore = createMemoryStore(session);
+
 // PUBLIC 				///////////////////////////////////////////
 main().catch((err) => console.log(err));
 
@@ -57,16 +67,33 @@ app.use(
 		},
 	})
 );
-app.use(cookieParser());
+app.use(cookieParser(process.env.COOKIES_SECRET));
 app.use(
 	express.static(
 		path.join(path.dirname(fileURLToPath(import.meta.url)), "public")
 	)
 );
 
+app.use(
+	session({
+		cookie: { maxAge: 86400000 },
+		store: new MemoryStore({
+			checkPeriod: 86400000, // prune expired entries every 24h
+		}),
+		resave: false,
+		secret: process.env.SESSION_SECRET,
+		saveUninitialized: true,
+	})
+);
+
 app.use(responseEnhancer());
+app.use(limiter);
 
 // ROUTES 				///////////////////////////////////////////
+
+app.use("/token", csrf);
+
+if (process.env.NODE_ENV !== "test") app.use(csrfSynchronisedProtection);
 
 app.use("/500", () => {
 	// using in tests to make sure 500 errors are being handled
@@ -87,6 +114,8 @@ app.use("/characters", characters);
 app.use("/enemies", enemies);
 
 // ERRORS 				///////////////////////////////////////////
+app.use(csrfErrorHandler);
+
 app.use((err, req, res, next) => {
 	const debug = createDebugMessages("battler:backend:error");
 	debug(err.stack);

@@ -18,10 +18,12 @@ import {
 	isValidEntity,
 } from "./validation.custom.js";
 import { existsAndIsMongoID } from "./validation.standard.js";
+import { generateToken } from "../middleware/csrf.js";
 
 // PRIVATE 				///////////////////////////////////////////
 const debug = createDebugMessages("battler:backend:helpers:routes");
-const router = express.Router();
+const crud = express.Router();
+const csrf = express.Router();
 
 // PUBLIC 				///////////////////////////////////////////
 export const execute = async (action, params, req, res, next) => {
@@ -51,7 +53,7 @@ export const execute = async (action, params, req, res, next) => {
 
 // [post] /:entities - create a new entity
 // e.g. [post] /players - create a new player
-router.post(
+crud.post(
 	"/:entities",
 	validate([isValidEntity("entities"), checkModel("entities")]),
 	async (req, res, next) => {
@@ -62,7 +64,7 @@ router.post(
 
 // [get] /:entities/:id - get an entity
 // e.g. [get] /players/:id - get a player
-router.get(
+crud.get(
 	"/:entities/:id",
 	validate([isValidEntity("entities"), existsAndIsMongoID("id")]),
 	async (req, res, next) => {
@@ -73,7 +75,7 @@ router.get(
 
 // [get] /:entities - get all entities
 // e.g. [get] /players - get all player
-router.get(
+crud.get(
 	"/:entities",
 	validate([isValidEntity("entities")]),
 	async (req, res, next) => {
@@ -84,7 +86,7 @@ router.get(
 
 // [patch] /:entities/:id/:attribute/:operation/:value - update entity in place
 // e.g. [patch] /players/:id/:attribute/:operation/:value - update player in place
-router.patch(
+crud.patch(
 	"/:entities/:id/:attribute/:operation/:value",
 	validate([
 		isValidEntity("entities"),
@@ -111,7 +113,7 @@ router.patch(
 
 // [delete] /:entities/:id - delete an entity
 // e.g. [delete] /players/:id - delete a player
-router.delete(
+crud.delete(
 	"/:entities/:id",
 	validate([isValidEntity("entities"), existsAndIsMongoID("id")]),
 	async (req, res, next) => {
@@ -120,4 +122,17 @@ router.delete(
 	}
 );
 
-export default router;
+csrf.get("/", async (req, res, next) => {
+	try {
+		const csrfToken = generateToken(req);
+		res.formatter.ok({
+			message: `Generated token`,
+			success: true,
+			entity: csrfToken,
+		});
+	} catch (error) {
+		return { error };
+	}
+});
+
+export { crud, csrf };
