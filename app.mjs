@@ -48,6 +48,7 @@ const corsOptions = {
 const MemoryStore = createMemoryStore(session);
 
 // PUBLIC 				///////////////////////////////////////////
+/* c8 ignore start */
 if (process.env.NODE_ENV !== "test") {
 	// there's a few things that aren't applicable to the test environment
 	await dbConnect();
@@ -55,6 +56,7 @@ if (process.env.NODE_ENV !== "test") {
 	app.use(limiter);
 	app.use(csrfSynchronisedProtection);
 }
+/* c8 ignore stop */
 
 app.use(cors(corsOptions));
 app.use(logger("dev"));
