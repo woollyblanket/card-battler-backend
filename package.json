@@ -4,7 +4,7 @@
 	"private": true,
 	"type": "module",
 	"scripts": {
-		"test": "NODE_ENV=test doppler run --mount env.json -- c8 mocha --recursive --exit --timeout 60000",
+		"test": "NODE_ENV=test c8 mocha --recursive --exit --timeout 60000",
 		"test-debug": "NODE_ENV=test DEBUG=battler:* c8 mocha --recursive --exit --timeout 60000",
 		"start": "node ./bin/www.js",
 		"dev": "doppler run --mount .env -- nodemon ./bin/www.js"
