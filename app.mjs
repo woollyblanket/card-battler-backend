@@ -8,15 +8,23 @@ import cookieParser from "cookie-parser";
 import createDebugMessages from "debug";
 import bodyParser from "body-parser";
 import cors from "cors";
-import { fileURLToPath } from "url";
-import { responseEnhancer } from "express-response-formatter";
 import ExpressMongoSanitize from "express-mongo-sanitize";
 import helmet from "helmet";
+import session from "express-session";
+import createMemoryStore from "memorystore";
+
+import { fileURLToPath } from "url";
+import { responseEnhancer } from "express-response-formatter";
 
 // INTERNAL IMPORTS		///////////////////////////////////////////
 import { dbConnect } from "./helpers/db.js";
 import { seed } from "./helpers/seeder.js";
-import crud from "./helpers/routes.js";
+import {
+	csrfErrorHandler,
+	csrfSynchronisedProtection,
+} from "./middleware/csrf.js";
+import { crud, csrf } from "./helpers/routes.js";
+import { limiter } from "./middleware/ratelimit.js";
 import games from "./components/games/routes.js";
 import players from "./components/players/routes.js";
 import decks from "./components/decks/routes.js";
@@ -28,23 +36,27 @@ import enemies from "./components/enemies/routes.js";
 // PRIVATE 				///////////////////////////////////////////
 const debug = createDebugMessages("battler:backend:app");
 
+// file deepcode ignore UseCsurfForExpress: using csrfSynchronisedProtection
 const app = express();
 app.disable("x-powered-by");
 app.use(helmet());
-
-const main = async () => {
-	if (process.env.NODE_ENV !== "test") {
-		await dbConnect();
-		await seed(process.env.DATA_SEED);
-	}
-};
 
 const corsOptions = {
 	origin: true,
 };
 
+const MemoryStore = createMemoryStore(session);
+
 // PUBLIC 				///////////////////////////////////////////
-main().catch((err) => console.log(err));
+/* c8 ignore start */
+if (process.env.NODE_ENV !== "test") {
+	// there's a few things that aren't applicable to the test environment
+	await dbConnect();
+	await seed(process.env.DATA_SEED);
+	app.use(limiter);
+	app.use(csrfSynchronisedProtection);
+}
+/* c8 ignore stop */
 
 app.use(cors(corsOptions));
 app.use(logger("dev"));
@@ -57,24 +69,43 @@ app.use(
 		},
 	})
 );
-app.use(cookieParser());
+app.use(cookieParser(process.env.COOKIES_SECRET));
 app.use(
 	express.static(
 		path.join(path.dirname(fileURLToPath(import.meta.url)), "public")
 	)
 );
 
+app.use(
+	session({
+		cookie: { maxAge: 86400000, secure: "auto" },
+		store: new MemoryStore({
+			checkPeriod: 86400000, // prune expired entries every 24h
+		}),
+		resave: false,
+		secret: process.env.SESSION_SECRET,
+		saveUninitialized: true,
+	})
+);
+
 app.use(responseEnhancer());
 
 // ROUTES 				///////////////////////////////////////////
 
-app.use("/500", () => {
+app.use("/token", csrf);
+
+app.get("/500", () => {
 	// using in tests to make sure 500 errors are being handled
 	// having this at the start so my generic crud doesn't catch it
 	throw new Error("BROKEN");
 });
-app.use("/", crud);
+
 app.use("/games", games);
+
+// default CRUD operations on all resources.
+// put other routes above to override
+app.use("/", crud);
+
 app.use("/players", players);
 app.use("/decks", decks);
 app.use("/cards", cards);
@@ -83,7 +114,10 @@ app.use("/characters", characters);
 app.use("/enemies", enemies);
 
 // ERRORS 				///////////////////////////////////////////
+app.use(csrfErrorHandler);
+
 app.use((err, req, res, next) => {
+	console.log("err :>> ", err);
 	const debug = createDebugMessages("battler:backend:error");
 	debug(err.stack);
 	next(err);

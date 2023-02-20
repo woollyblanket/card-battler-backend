@@ -137,7 +137,7 @@ describe("PATCH: /characters/:id/:attribute/:operation/:value", async () => {
 			`/characters/${characterID}/abilities/remove/${abilityID}`
 		);
 
-		expectPatchUpdate(res, 200, { abilities: [] });
+		expectPatchUpdate(res, { abilities: [] });
 	});
 
 	it("should warn that the request is bad", async () => {

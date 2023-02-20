@@ -2,7 +2,7 @@
 import mongoose from "mongoose";
 
 // INTERNAL IMPORTS		///////////////////////////////////////////
-import { SPECIES } from "../../helpers/constants.js";
+import { RARITIES, SPECIES } from "../../helpers/constants.js";
 
 // PRIVATE 				///////////////////////////////////////////
 const { Schema } = mongoose;
@@ -14,5 +14,6 @@ export const enemySchema = new Schema({
 	description: { type: String, required: true },
 	health: { type: Number },
 	energy: { type: Number },
+	rarity: { type: String, required: true, enum: RARITIES },
 	abilities: [{ type: "ObjectId", ref: "Ability" }],
 });

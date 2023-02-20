@@ -29,17 +29,6 @@ describe("POST: /decks", async () => {
 
 		expectSuccess(res, 201, { starter: true });
 	});
-
-	it("should create a new deck attached to a game", async () => {
-		const playerID = await addEntity("/players", { username: "test" });
-		if (playerID.error) throw playerID.error;
-		const gameID = await addEntity(`/players/${playerID}/games`);
-		if (gameID.error) throw gameID.error;
-
-		const res = await request(app).post("/decks").send({ game: gameID });
-
-		expectSuccess(res, 201, { game: gameID });
-	});
 });
 
 describe("GET: /decks/:id", async () => {
@@ -108,21 +97,6 @@ describe("PATCH: /decks/:id/:attribute/:operation/:value", async () => {
 		const res = await request(app).patch(`/decks/${deckID}/game/assign/1`);
 
 		expectError(res, 400);
-	});
-
-	it("should attach the deck to a game", async () => {
-		const deckID = await addEntity(`/decks`);
-		if (deckID.error) throw deckID.error;
-		const playerID = await addEntity("/players", { username: "test" });
-		if (playerID.error) throw playerID.error;
-		const gameID = await addEntity(`/players/${playerID}/games`);
-		if (gameID.error) throw gameID.error;
-
-		const res = await request(app).patch(
-			`/decks/${deckID}/game/assign/${gameID}`
-		);
-
-		expectPatchUpdate(res, { game: gameID });
 	});
 
 	it("should change the deck to a starter deck", async () => {

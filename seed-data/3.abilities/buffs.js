@@ -37,5 +37,11 @@ export default {
 			actionValue: 3,
 			duration: 3,
 		}),
+		new AbilityBuilder({
+			...data,
+			name: "Intuition",
+			actionName: "see intent",
+			actionValue: true,
+		}),
 	],
 };

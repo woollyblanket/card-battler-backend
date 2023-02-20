@@ -4,3 +4,7 @@ checks:
     method-complexity:
         config:
             threshold: 10
+exclude_patterns:
+    - "**/node_modules/"
+    - "**/test/"
+    - "**/seed-data"

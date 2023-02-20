@@ -74,6 +74,17 @@ describe("helpers:seeder seed", async () => {
 		expect(abilities).to.have.lengthOf(0);
 	});
 
+	it("should skip seeding", async () => {
+		await seed("some-unknown-command");
+		const cards = await mongoose.model("Card").find({}).exec();
+		const characters = await mongoose.model("Character").find({}).exec();
+		const enemies = await mongoose.model("Enemy").find({}).exec();
+
+		expect(cards).to.have.lengthOf(0);
+		expect(characters).to.have.lengthOf(0);
+		expect(enemies).to.have.lengthOf(0);
+	});
+
 	it("should populate the database with the seed data", async () => {
 		await seed("drop:all");
 		const cards = await mongoose.model("Card").find({}).exec();

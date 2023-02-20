@@ -10,8 +10,8 @@ on:
         branches: ["main"]
 env:
     CI: true
-    NODE_ENV: test
-    MONGODB_URI_TEST: mongodb://localhost:27017/card-battler-test
+    SESSION_SECRET: ${{ secrets.SESSION_SECRET }}
+    MONGODB_URI: ${{ secrets.MONGODB_URI }}
 
 jobs:
     build:

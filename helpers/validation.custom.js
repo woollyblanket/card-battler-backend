@@ -2,7 +2,7 @@
 import createDebugMessages from "debug";
 import mongoose from "mongoose";
 import pluralize from "pluralize";
-import _ from "underscore";
+import _ from "lodash";
 import { check, param } from "express-validator";
 import { sentenceCase } from "change-case";
 

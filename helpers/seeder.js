@@ -43,11 +43,13 @@ const parseConfig = (config) => {
 
 const connectToDbIfNeeded = async () => {
 	if (mongoose.connection.readyState === 0) {
+		/* c8 ignore start */
 		if (process.env.NODE_ENV === "test") {
 			await dbConnectTest();
 		} else {
 			await dbConnect();
 		}
+		/* c8 ignore stop */
 	}
 
 	if (mongoose.connection.readyState !== 1)
@@ -62,7 +64,7 @@ const doDrop = async (droppedSet, modelName, config, model) => {
 		config.collections.includes(modelName)
 	) {
 		await model.deleteMany();
-		debug("Deleted everything from %O", model);
+		debug("Deleted everything from %O", pluralize(model.collection.name));
 	}
 
 	return modelName;
@@ -72,6 +74,7 @@ const checkIfAllowedFile = (filePath) => {
 	// when running tests, only use the test folder
 	// otherwise, ignore the test folder
 	return (
+		/* c8 ignore next */
 		(process.env.NODE_ENV === "test" && filePath.includes("test")) ||
 		(process.env.NODE_ENV !== "test" && !filePath.includes("test"))
 	);
@@ -82,6 +85,7 @@ const checkIfAllowedFile = (filePath) => {
 export const getObjectId = (name) => {
 	if (!name) throw new Error("Name cannot be empty");
 
+	// deepcode ignore InsecureHash: not used for secrets
 	const hash = createHash("sha1").update(name, "utf8").digest("hex");
 
 	return new ObjectId(hash.substring(0, 24));
@@ -126,7 +130,7 @@ export const seed = async (configuration) => {
 			const model = mongoose.connection.model(modelName);
 
 			// drop if appropriate
-			const dropped = doDrop(
+			const dropped = await doDrop(
 				alreadyDropped,
 				lowerCaseModelName,
 				config,
@@ -135,7 +139,11 @@ export const seed = async (configuration) => {
 			if (dropped) alreadyDropped.set(dropped, true);
 			// add
 			await model.create(data);
-			debug(`Added ${data.length} items to %O from %O`, model, file);
+			debug(
+				`Added ${data.length} items to %O from %O`,
+				pluralize(model.collection.name),
+				file
+			);
 		}
 
 		return;
@@ -205,4 +213,35 @@ export function AbilityBuilder(obj) {
 	this.description =
 		obj.description ||
 		`${descriptionStart}${descriptionMiddle}${descriptionEnd}${descriptionDuration}`;
+}
+
+export function CharacterBuilder(obj) {
+	this._id = getObjectId(`${obj.archetype}:${obj.name.toLowerCase()}`);
+	this.name = obj.name;
+	this.archetype = obj.archetype;
+	this.description = obj.description;
+	this.health = obj.health;
+	this.energy = obj.energy;
+	this.abilities = [];
+
+	for (const element of obj.abilities) {
+		this.abilities.push(getObjectId(element));
+	}
+}
+
+export function EnemyBuilder(obj) {
+	this._id = getObjectId(`${obj.species}:${obj.name.toLowerCase()}`);
+	this.name = obj.name;
+	this.species = obj.species;
+	this.description = `${sentenceCase(obj.name)} the ${sentenceCase(
+		obj.species
+	)}`;
+	this.health = obj.health;
+	this.energy = obj.energy;
+	this.rarity = obj.rarity;
+	this.abilities = [];
+
+	for (const element of obj.abilities) {
+		this.abilities.push(getObjectId(element));
+	}
 }
