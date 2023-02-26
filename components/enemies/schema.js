@@ -1,5 +1,9 @@
 // EXTERNAL IMPORTS		///////////////////////////////////////////
 import mongoose from "mongoose";
+import Joi from "joi";
+import objectId from "joi-objectid";
+
+Joi.objectId = objectId(Joi);
 
 // INTERNAL IMPORTS		///////////////////////////////////////////
 import { RARITIES, SPECIES } from "../../helpers/constants.js";
@@ -16,4 +20,18 @@ export const enemySchema = new Schema({
 	energy: { type: Number },
 	rarity: { type: String, required: true, enum: RARITIES },
 	abilities: [{ type: "ObjectId", ref: "Ability" }],
+});
+
+export const joi = Joi.object({
+	name: Joi.string().alphanum().trim().required(),
+	species: Joi.string()
+		.allow(...SPECIES)
+		.required(),
+	description: Joi.string().alphanum().trim().required(),
+	health: Joi.number().integer().sign("positive").max(10),
+	energy: Joi.number().integer().sign("positive").max(10),
+	rarity: Joi.string()
+		.allow(...RARITIES)
+		.required(),
+	abilities: Joi.array().items(Joi.objectId()),
 });

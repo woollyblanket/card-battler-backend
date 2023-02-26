@@ -1,5 +1,6 @@
 // EXTERNAL IMPORTS		///////////////////////////////////////////
 import mongoose from "mongoose";
+import Joi from "joi";
 
 // INTERNAL IMPORTS		///////////////////////////////////////////
 import { ABILITY_TYPES } from "../../helpers/constants.js";
@@ -17,4 +18,17 @@ export const abilitySchema = new Schema({
 	health: { type: Number },
 	energy: { type: Number },
 	shield: { type: Number },
+});
+
+export const joi = Joi.object({
+	name: Joi.string().alphanum().trim().required(),
+	type: Joi.string()
+		.allow(...ABILITY_TYPES)
+		.required(),
+	description: Joi.string().alphanum().trim().required(),
+	duration: Joi.number().integer().sign("positive").max(10),
+	damage: Joi.number().integer().sign("positive").max(10),
+	health: Joi.number().integer().sign("positive").max(10),
+	energy: Joi.number().integer().sign("positive").max(10),
+	shield: Joi.number().integer().sign("positive").max(10),
 });

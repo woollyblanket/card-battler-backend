@@ -7,7 +7,6 @@
 		"test": "NODE_ENV=test c8 mocha --recursive --exit --timeout 60000",
 		"test-debug": "NODE_ENV=test DEBUG=battler:* c8 mocha --recursive --exit --timeout 60000",
 		"start": "node ./bin/www.js",
-		"dev": "doppler run --mount .env -- nodemon ./bin/www.js"
 	},
 	"dependencies": {
 		"body-parser": "^1.20.1",
@@ -25,6 +24,8 @@
 		"express-validator": "^6.14.3",
 		"glob": "^8.1.0",
 		"helmet": "^6.0.1",
+		"joi": "^17.8.3",
+		"joi-objectid": "^4.0.2",
 		"lodash": "^4.17.21",
 		"memorystore": "^1.6.7",
 		"mongodb-memory-server": "^8.11.4",

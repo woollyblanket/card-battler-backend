@@ -1,5 +1,10 @@
 // EXTERNAL IMPORTS		///////////////////////////////////////////
 import mongoose from "mongoose";
+import Joi from "joi";
+import objectId from "joi-objectid";
+import { joi as enemyJoi } from "../enemies/schema.js";
+
+Joi.objectId = objectId(Joi);
 
 // INTERNAL IMPORTS		///////////////////////////////////////////
 import { STATUSES } from "../../helpers/constants.js";
@@ -23,4 +28,23 @@ export const gameSchema = new Schema({
 	burnPile: { type: [{ type: "ObjectId", ref: "Card" }], default: [] },
 	created: { type: Date, default: Date.now },
 	ended: { type: Date },
+});
+
+export const joi = Joi.object({
+	player: Joi.objectId().required(),
+	character: Joi.objectId().required(),
+	round: Joi.number().positive().integer(),
+	level: Joi.number().positive().integer(),
+	score: Joi.number().positive().integer(),
+	deck: Joi.objectId().required(),
+	status: Joi.string()
+		.allow(...STATUSES)
+		.required(),
+	goal: Joi.number().positive().integer(),
+	enemies: Joi.array().items(Joi.object({ enemyJoi })),
+	hand: Joi.array().items(Joi.objectId()),
+	drawPile: Joi.array().items(Joi.objectId()),
+	burnPile: Joi.array().items(Joi.objectId()),
+	created: Joi.date(),
+	ended: Joi.date(),
 });
