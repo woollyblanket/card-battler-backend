@@ -12,6 +12,8 @@ import { dbConnect } from "./helpers/db.js";
 import { seed } from "./helpers/seeder.js";
 import { cards } from "./components/cards/koa.routes.js";
 import { decks } from "./components/decks/koa.routes.js";
+import { games } from "./components/games/koa.routes.js";
+import { players } from "./components/players/koa.routes.js";
 
 import { Ability } from "./components/abilities/model.js";
 import { Card } from "./components/cards/model.js";
@@ -66,9 +68,13 @@ if (process.env.NODE_ENV !== "test") {
 }
 /* c8 ignore stop */
 
+router.use("/games", games.routes());
+
+// anything above this overwrites the default crud
 router.use(crud.routes());
 router.use("/cards", cards.routes());
 router.use("/decks", decks.routes());
+router.use("/players", players.routes());
 
 app.use(router.routes()).use(router.allowedMethods());
 

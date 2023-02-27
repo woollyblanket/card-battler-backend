@@ -69,41 +69,48 @@ crud.get("/:entities", async (ctx, next) => {
 });
 
 crud.patch("/:entities/:id/:attribute/:operation/:value", async (ctx, next) => {
-	const schema = await getPatchSchemaForEntityName(
-		ctx.params.entities,
-		ctx.params.attribute
-	);
-
-	console.log("schema.describe() :>> ", schema.describe());
-
-	const errorResponse = getErrorResponse(
-		{
-			attribute: ctx.params.attribute,
-			value: ctx.params.value,
-			operation: ctx.params.operation,
-		},
-		schema,
-		400,
-		ctx
-	);
-
-	if (errorResponse) {
-		// problems
-		return errorResponse;
-	} else {
-		// all good
-		return await doAction(
+	try {
+		// this could fail if the attribute doesn't exist in the entity
+		const schema = await getPatchSchemaForEntityName(
 			ctx.params.entities,
-			getByIDAndUpdate,
-			[
-				ctx.params.id,
-				ctx.params.attribute,
-				ctx.params.value,
-				ctx.params.operation,
-			],
-			200,
+			ctx.params.attribute
+		);
+
+		const errorResponse = getErrorResponse(
+			{
+				attribute: ctx.params.attribute,
+				value: ctx.params.value,
+				operation: ctx.params.operation,
+			},
+			schema,
+			400,
 			ctx
 		);
+
+		if (errorResponse) {
+			// problems
+			return errorResponse;
+		} else {
+			// all good
+			return await doAction(
+				ctx.params.entities,
+				getByIDAndUpdate,
+				[
+					ctx.params.id,
+					ctx.params.attribute,
+					ctx.params.value,
+					ctx.params.operation,
+				],
+				200,
+				ctx
+			);
+		}
+	} catch (error) {
+		ctx.body = {
+			message: `${error.name}: ${error.message}`,
+			success: false,
+		};
+		ctx.status = 400;
 	}
 });
 
