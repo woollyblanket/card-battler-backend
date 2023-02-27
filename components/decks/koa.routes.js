@@ -4,7 +4,6 @@ import createDebugMessages from "debug";
 import Router from "@koa/router";
 
 // INTERNAL IMPORTS		///////////////////////////////////////////
-import { Deck } from "./model.js";
 import { Card } from "../cards/model.js";
 import { getErrorResponse } from "../../helpers/joi.validator.js";
 import { objectIdSchema } from "../../helpers/joi.schemas.js";
@@ -14,8 +13,6 @@ import { resolveIDsToEntities } from "../../helpers/model.js";
 // PRIVATE 				///////////////////////////////////////////
 const debug = createDebugMessages("battler:backend:decks:routes");
 export const decks = new Router();
-
-debug(Deck);
 
 // PUBLIC 				///////////////////////////////////////////
 

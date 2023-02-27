@@ -13,6 +13,25 @@ import { seed } from "./helpers/seeder.js";
 import { cards } from "./components/cards/koa.routes.js";
 import { decks } from "./components/decks/koa.routes.js";
 
+import { Ability } from "./components/abilities/model.js";
+import { Card } from "./components/cards/model.js";
+import { Character } from "./components/characters/model.js";
+import { Deck } from "./components/decks/model.js";
+import { Enemy } from "./components/enemies/model.js";
+import { Game } from "./components/games/model.js";
+import { Player } from "./components/players/model.js";
+
+const debug = createDebugMessages("battler:backend:koa");
+
+// debugging here just to make sure that the schemas are loaded
+debug(Ability);
+debug(Card);
+debug(Character);
+debug(Deck);
+debug(Enemy);
+debug(Game);
+debug(Player);
+
 const app = new Koa();
 const router = new Router({
 	prefix: "/v1",
@@ -54,7 +73,6 @@ router.use("/decks", decks.routes());
 app.use(router.routes()).use(router.allowedMethods());
 
 app.on("error", (err) => {
-	const debug = createDebugMessages("battler:backend:koa");
 	debug(err);
 });
 
