@@ -13,7 +13,39 @@ export const objectIdSchema = Joi.objectId();
 
 export const getPatchSchemaForEntityName = async (name, attribute) => {
 	const { joi } = await import(`../components/${name}/schema.js`);
-	const relevantRule = joi.extract([attribute]);
+	let relevantRule = joi.extract([attribute]);
+	const allowedOperations = new Set();
+
+
+	if (relevantRule.type === "alternatives") {
+		// there can be many types, this can happen for object ids
+		// lets gather all the operations for each of those types
+
+		for (const match of relevantRule.describe().matches) {
+			for (const operation of OPERATIONS_PER_DATA_TYPE[
+				match.schema.type
+			]) {
+				allowedOperations.add(operation);
+			}
+		}
+	} else {
+		for (const operation of OPERATIONS_PER_DATA_TYPE[relevantRule.type]) {
+			allowedOperations.add(operation);
+		}
+	}
+
+	if (relevantRule.type === "array") {
+		// get the schema for the items in the array (to be used to validate the value)
+
+		// took me so long to figure this one out!
+		// Joi.build() isn't documented anywhere, but found out about it via
+		// https://stackoverflow.com/questions/62853354/how-to-generate-joi-validations-via-code-based-on-an-object-and-save-it-in-a-fi
+		// and the linked issue: https://github.com/hapijs/joi/issues/1410
+
+		relevantRule = Joi.alternatives().try(
+			Joi.build(...relevantRule.describe().items)
+		);
+	}
 
 	const schema = Joi.object({
 		// make sure the attribute exists in the entity's schema
@@ -21,9 +53,7 @@ export const getPatchSchemaForEntityName = async (name, attribute) => {
 		// make sure the value matches the attribute's criteria
 		value: relevantRule,
 		// make sure the operation is an allowed operation
-		operation: Joi.string().valid(
-			...OPERATIONS_PER_DATA_TYPE[relevantRule.type]
-		),
+		operation: Joi.string().valid(...Array.from(allowedOperations)),
 	});
 
 	return schema;
