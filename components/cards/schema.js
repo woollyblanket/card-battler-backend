@@ -3,7 +3,11 @@ import mongoose from "mongoose";
 import Joi from "joi";
 
 // INTERNAL IMPORTS		///////////////////////////////////////////
-import { CARD_TYPES, RARITIES } from "../../helpers/constants.js";
+import {
+	CARD_TYPES,
+	DESCRIPTION_REGEX,
+	RARITIES,
+} from "../../helpers/constants.js";
 
 // PRIVATE 				///////////////////////////////////////////
 const { Schema } = mongoose;
@@ -30,7 +34,7 @@ export const joi = Joi.object({
 	type: Joi.string()
 		.allow(...CARD_TYPES)
 		.required(),
-	description: Joi.string().alphanum().trim().required(),
+	description: Joi.string().pattern(DESCRIPTION_REGEX).trim().required(),
 	duration: Joi.number().integer().sign("positive").max(10),
 	damage: Joi.number().integer().sign("positive").max(10),
 	health: Joi.number().integer().sign("positive").max(10),

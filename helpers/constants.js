@@ -54,3 +54,5 @@ export const HAND_DEFAULTS = {
 	drawCount: 6,
 	sizeLimit: 10,
 };
+
+export const DESCRIPTION_REGEX = /^[ A-Za-z0-9_@./#&+-/!]*$/;

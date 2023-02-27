@@ -3,7 +3,11 @@ import mongoose from "mongoose";
 import Joi from "joi";
 
 // INTERNAL IMPORTS		///////////////////////////////////////////
-import { RARITIES, SPECIES } from "../../helpers/constants.js";
+import {
+	DESCRIPTION_REGEX,
+	RARITIES,
+	SPECIES,
+} from "../../helpers/constants.js";
 
 // PRIVATE 				///////////////////////////////////////////
 const { Schema } = mongoose;
@@ -24,7 +28,7 @@ export const joi = Joi.object({
 	species: Joi.string()
 		.allow(...SPECIES)
 		.required(),
-	description: Joi.string().alphanum().trim().required(),
+	description: Joi.string().pattern(DESCRIPTION_REGEX).trim().required(),
 	health: Joi.number().integer().sign("positive").max(10),
 	energy: Joi.number().integer().sign("positive").max(10),
 	rarity: Joi.string()

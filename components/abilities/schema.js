@@ -3,7 +3,7 @@ import mongoose from "mongoose";
 import Joi from "joi";
 
 // INTERNAL IMPORTS		///////////////////////////////////////////
-import { ABILITY_TYPES } from "../../helpers/constants.js";
+import { ABILITY_TYPES, DESCRIPTION_REGEX } from "../../helpers/constants.js";
 
 // PRIVATE 				///////////////////////////////////////////
 const { Schema } = mongoose;
@@ -25,7 +25,7 @@ export const joi = Joi.object({
 	type: Joi.string()
 		.allow(...ABILITY_TYPES)
 		.required(),
-	description: Joi.string().alphanum().trim().required(),
+	description: Joi.string().pattern(DESCRIPTION_REGEX).trim().required(),
 	duration: Joi.number().integer().sign("positive").max(10),
 	damage: Joi.number().integer().sign("positive").max(10),
 	health: Joi.number().integer().sign("positive").max(10),
