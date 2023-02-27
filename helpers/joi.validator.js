@@ -10,6 +10,7 @@ export const getErrorResponse = (
 	const result = schemaToCheckAgainst.validate(dataToCheck, {
 		abortEarly: false,
 	});
+
 	if (result.error) {
 		debug(result.error);
 		ctx.status = errorStatus;

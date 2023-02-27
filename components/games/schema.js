@@ -1,10 +1,7 @@
 // EXTERNAL IMPORTS		///////////////////////////////////////////
 import mongoose from "mongoose";
 import Joi from "joi";
-import objectId from "joi-objectid";
 import { joi as enemyJoi } from "../enemies/schema.js";
-
-Joi.objectId = objectId(Joi);
 
 // INTERNAL IMPORTS		///////////////////////////////////////////
 import { STATUSES } from "../../helpers/constants.js";
@@ -31,20 +28,20 @@ export const gameSchema = new Schema({
 });
 
 export const joi = Joi.object({
-	player: Joi.objectId().required(),
-	character: Joi.objectId().required(),
+	player: Joi.string().hex().length(24).required(),
+	character: Joi.string().hex().length(24).required(),
 	round: Joi.number().positive().integer(),
 	level: Joi.number().positive().integer(),
 	score: Joi.number().positive().integer(),
-	deck: Joi.objectId().required(),
+	deck: Joi.string().hex().length(24).required(),
 	status: Joi.string()
 		.allow(...STATUSES)
 		.required(),
 	goal: Joi.number().positive().integer(),
 	enemies: Joi.array().items(Joi.object({ enemyJoi })),
-	hand: Joi.array().items(Joi.objectId()),
-	drawPile: Joi.array().items(Joi.objectId()),
-	burnPile: Joi.array().items(Joi.objectId()),
+	hand: Joi.array().items(Joi.string().hex().length(24)),
+	drawPile: Joi.array().items(Joi.string().hex().length(24)),
+	burnPile: Joi.array().items(Joi.string().hex().length(24)),
 	created: Joi.date(),
 	ended: Joi.date(),
 });

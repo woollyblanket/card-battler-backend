@@ -1,9 +1,6 @@
 // EXTERNAL IMPORTS		///////////////////////////////////////////
 import mongoose from "mongoose";
 import Joi from "joi";
-import objectId from "joi-objectid";
-
-Joi.objectId = objectId(Joi);
 
 // INTERNAL IMPORTS		///////////////////////////////////////////
 import { RARITIES, SPECIES } from "../../helpers/constants.js";
@@ -33,5 +30,5 @@ export const joi = Joi.object({
 	rarity: Joi.string()
 		.allow(...RARITIES)
 		.required(),
-	abilities: Joi.array().items(Joi.objectId()),
+	abilities: Joi.array().items(Joi.string().hex().length(24)),
 });
