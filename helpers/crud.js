@@ -14,27 +14,11 @@ import {
 	getAll,
 	getByID,
 	getByIDAndUpdate,
-	getModelFromName,
 } from "./model.js";
+import { doAction } from "./koa.actions.js";
+
 const debug = createDebugMessages("battler:backend:helpers:crud");
 export const crud = new Router();
-
-const doAction = async (entity, action, params, status, ctx) => {
-	const model = getModelFromName(entity);
-	const result = await action([model, ...params]);
-	if (result.error) {
-		debug(result);
-		ctx.body = {
-			message: result.error.message,
-			success: false,
-		};
-		ctx.status = 400;
-	} else {
-		ctx.body = result;
-		ctx.status = status;
-	}
-	return ctx;
-};
 
 crud.param("entities", (entity, ctx, next) => {
 	return (
@@ -89,6 +73,8 @@ crud.patch("/:entities/:id/:attribute/:operation/:value", async (ctx, next) => {
 		ctx.params.entities,
 		ctx.params.attribute
 	);
+
+	console.log("schema.describe() :>> ", schema.describe());
 
 	const errorResponse = getErrorResponse(
 		{

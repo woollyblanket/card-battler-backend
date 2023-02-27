@@ -11,6 +11,7 @@ import { crud } from "./helpers/crud.js";
 import { dbConnect } from "./helpers/db.js";
 import { seed } from "./helpers/seeder.js";
 import { cards } from "./components/cards/koa.routes.js";
+import { decks } from "./components/decks/koa.routes.js";
 
 const app = new Koa();
 const router = new Router({
@@ -34,7 +35,7 @@ app.use(async (ctx, next) => {
 		"object",
 		typeof ctx.body,
 		500,
-		"some dev did something wrong"
+		"Dev Error: ctx.body needs to be an object"
 	);
 });
 
@@ -46,21 +47,15 @@ if (process.env.NODE_ENV !== "test") {
 }
 /* c8 ignore stop */
 
-router.use(crud.routes(), cards.routes());
+router.use(crud.routes());
+router.use("/cards", cards.routes());
+router.use("/decks", decks.routes());
 
 app.use(router.routes()).use(router.allowedMethods());
 
-app.on("error", (err, ctx) => {
-	// console.error("server error", err, ctx);
+app.on("error", (err) => {
 	const debug = createDebugMessages("battler:backend:koa");
 	debug(err);
 });
-
-// app.on("error", async (err) => {
-// 	if (process.env.NODE_ENV !== "test") {
-// 		console.log("sent error %s to the cloud", err.message);
-// 		console.log(err);
-// 	}
-// });
 
 app.listen(3000);
