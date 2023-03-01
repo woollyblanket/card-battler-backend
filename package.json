@@ -6,6 +6,8 @@
 	"scripts": {
 		"test": "NODE_ENV=test c8 mocha --recursive --exit --timeout 60000",
 		"test-debug": "NODE_ENV=test DEBUG=battler:* c8 mocha --recursive --exit --timeout 60000",
+		"test-doppler": "NODE_ENV=test doppler run -- c8 mocha --recursive --exit --timeout 60000",
+		"test-partial": "NODE_ENV=test DEBUG=battler:* doppler run -- npx wtfnode node_modules/.bin/_mocha --grep \"$npm_config_battler_flag\" test/**/*.test.js",
 		"start": "node ./bin/www.js",
 		"dev": "doppler run --mount .env -- nodemon ./bin/www.js",
 		"koa": "doppler run --mount .env -- nodemon koa.js"
@@ -56,7 +58,8 @@
 		"mocha": "^10.2.0",
 		"nodemon": "^2.0.20",
 		"nyc": "^15.1.0",
-		"supertest": "^6.3.3"
+		"supertest": "^6.3.3",
+		"wtfnode": "^0.9.1"
 	},
 	"config": {
 		"mongodbMemoryServer": {},

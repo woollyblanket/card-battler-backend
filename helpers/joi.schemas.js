@@ -16,7 +16,6 @@ export const getPatchSchemaForEntityName = async (name, attribute) => {
 	let relevantRule = joi.extract([attribute]);
 	const allowedOperations = new Set();
 
-
 	if (relevantRule.type === "alternatives") {
 		// there can be many types, this can happen for object ids
 		// lets gather all the operations for each of those types

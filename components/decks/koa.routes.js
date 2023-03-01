@@ -9,6 +9,7 @@ import { getErrorResponse } from "../../helpers/joi.validator.js";
 import { objectIdSchema } from "../../helpers/joi.schemas.js";
 import { doAction } from "../../helpers/koa.actions.js";
 import { resolveIDsToEntities } from "../../helpers/model.js";
+import { Deck } from "./model.js";
 
 // PRIVATE 				///////////////////////////////////////////
 const debug = createDebugMessages("battler:backend:decks:routes");
@@ -16,15 +17,12 @@ export const decks = new Router();
 
 // PUBLIC 				///////////////////////////////////////////
 
-decks.param("id", (id, ctx, next) => {
-	return getErrorResponse(id, objectIdSchema, 404, ctx) || next();
 });
 
 decks.get("/:id/cards", async (ctx, next) => {
 	return await doAction(
-		"cards",
 		resolveIDsToEntities,
-		[ctx.request.body.deckID, "cards", Card],
+		[Deck, ctx.params.id, "cards", Card],
 		200,
 		ctx
 	);

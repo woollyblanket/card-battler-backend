@@ -1,22 +1,36 @@
-import { getModelFromName } from "./model.js";
 import createDebugMessages from "debug";
 
-const debug = createDebugMessages("battler:backend:helpers:crud");
+const debug = createDebugMessages("battler:backend:helpers:actions");
 
-export const doAction = async (entity, action, params, status, ctx) => {
-	const model = getModelFromName(entity);
-	const result = await action([model, ...params]);
-	console.log("result :>> ", result);
+export const doAction = async (action, params, status, ctx) => {
+	const result = await action(params);
+
 	if (result.error) {
-		debug(result);
-		ctx.body = {
-			message: result.error.message,
-			success: false,
-		};
-		ctx.status = 400;
+		debug(result.error);
+
+		return createErrorResponse(ctx, 400, result.error);
 	} else {
 		ctx.body = result;
 		ctx.status = status;
+		return ctx;
 	}
-	return ctx;
+};
+
+export const createErrorResponse = (ctx, status, error = "") => {
+	if (status === 404 || error.code === "NOT_FOUND") {
+		ctx.body = {
+			message: "Not Found",
+			success: false,
+		};
+		ctx.status = 404;
+		return ctx;
+	} else {
+		ctx.body = {
+			message: error.name,
+			success: false,
+			error: error.message,
+		};
+		ctx.status = status;
+		return ctx;
+	}
 };

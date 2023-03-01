@@ -14,40 +14,34 @@ import {
 	getAll,
 	getByID,
 	getByIDAndUpdate,
+	getModelFromName,
 } from "./model.js";
-import { doAction } from "./koa.actions.js";
 
 const debug = createDebugMessages("battler:backend:helpers:crud");
 export const crud = new Router();
 
-crud.param("entities", (entity, ctx, next) => {
 	return (
-		getErrorResponse(
 			entity,
 			entitySchema.custom(isValidEntity),
 			404,
 			ctx
-		) || next()
 	);
 });
 
-crud.param("id", (id, ctx, next) => {
-	return getErrorResponse(id, objectIdSchema, 404, ctx) || next();
 });
 
 crud.post("/:entities", async (ctx) => {
 	const schema = await getValidationSchemaByName(ctx.params.entities);
-	const errorResponse = getErrorResponse(ctx.request.body, schema, 400, ctx);
 
 	if (errorResponse) {
 		// problems
 		return errorResponse;
 	} else {
 		// all good
+		const model = getModelFromName(ctx.params.entities);
 		return await doAction(
-			ctx.params.entities,
 			createWithData,
-			[ctx.request.body],
+			[model, ctx.request.body],
 			201,
 			ctx
 		);
@@ -55,17 +49,13 @@ crud.post("/:entities", async (ctx) => {
 });
 
 crud.get("/:entities/:id", async (ctx) => {
-	return await doAction(
-		ctx.params.entities,
-		getByID,
-		[ctx.params.id],
-		200,
-		ctx
-	);
+	const model = getModelFromName(ctx.params.entities);
+	return await doAction(getByID, [model, ctx.params.id], 200, ctx);
 });
 
 crud.get("/:entities", async (ctx, next) => {
-	return await doAction(ctx.params.entities, getAll, [], 200, ctx);
+	const model = getModelFromName(ctx.params.entities);
+	return await doAction(getAll, [model], 200, ctx);
 });
 
 crud.patch("/:entities/:id/:attribute/:operation/:value", async (ctx, next) => {
@@ -76,7 +66,6 @@ crud.patch("/:entities/:id/:attribute/:operation/:value", async (ctx, next) => {
 			ctx.params.attribute
 		);
 
-		const errorResponse = getErrorResponse(
 			{
 				attribute: ctx.params.attribute,
 				value: ctx.params.value,
@@ -92,10 +81,11 @@ crud.patch("/:entities/:id/:attribute/:operation/:value", async (ctx, next) => {
 			return errorResponse;
 		} else {
 			// all good
+			const model = getModelFromName(ctx.params.entities);
 			return await doAction(
-				ctx.params.entities,
 				getByIDAndUpdate,
 				[
+					model,
 					ctx.params.id,
 					ctx.params.attribute,
 					ctx.params.value,
@@ -106,20 +96,10 @@ crud.patch("/:entities/:id/:attribute/:operation/:value", async (ctx, next) => {
 			);
 		}
 	} catch (error) {
-		ctx.body = {
-			message: `${error.name}: ${error.message}`,
-			success: false,
-		};
-		ctx.status = 400;
 	}
 });
 
 crud.del("/:entities/:id", async (ctx, next) => {
-	return await doAction(
-		ctx.params.entities,
-		deleteByID,
-		[ctx.params.id],
-		200,
-		ctx
-	);
+	const model = getModelFromName(ctx.params.entities);
+	return await doAction(deleteByID, [model, ctx.params.id], 200, ctx);
 });
