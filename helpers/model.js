@@ -4,6 +4,7 @@ import mongoose from "mongoose";
 import pluralize from "pluralize";
 import _ from "lodash";
 import { sentenceCase } from "change-case";
+import { NotFoundError } from "./errors.js";
 
 // INTERNAL IMPORTS		///////////////////////////////////////////
 
@@ -157,10 +158,12 @@ export const getByID = async ([mongooseModel, id]) => {
 	try {
 		const item = await mongooseModel.findById(id).exec();
 
-		if (!item)
-			throw new Error(
+		if (!item) {
+			throw new NotFoundError(
 				`Couldn't find the ${mongooseModel.modelName.toLowerCase()}`
 			);
+		}
+
 		return {
 			message: `Fetched the ${mongooseModel.modelName.toLowerCase()}: ${
 				item._id
@@ -176,10 +179,12 @@ export const getByID = async ([mongooseModel, id]) => {
 export const getByField = async ([mongooseModel, field, value]) => {
 	try {
 		const item = await mongooseModel.findOne({ [field]: value }).exec();
-		if (!item)
-			throw new Error(
+		if (!item) {
+			throw new NotFoundError(
 				`Couldn't find the ${mongooseModel.modelName.toLowerCase()}`
 			);
+		}
+
 		return {
 			message: `Fetched the ${mongooseModel.modelName.toLowerCase()}: ${
 				item[field]
@@ -195,10 +200,12 @@ export const getByField = async ([mongooseModel, field, value]) => {
 export const getAll = async ([mongooseModel]) => {
 	try {
 		const items = await mongooseModel.find().exec();
-		if (!items)
-			throw new Error(
+		if (!items) {
+			throw new NotFoundError(
 				`Couldn't find any ${mongooseModel.modelName.toLowerCase()}s`
 			);
+		}
+
 		return {
 			message: `Fetched all the ${mongooseModel.modelName.toLowerCase()}s`,
 			success: true,
@@ -217,17 +224,21 @@ export const getAllEntitiesForID = async ([
 ]) => {
 	try {
 		const item1 = await parentModel.findById(parentID).exec();
-		if (!item1)
-			throw new Error(
+		if (!item1) {
+			throw new NotFoundError(
 				`Couldn't find the ${parentModel.modelName.toLowerCase()}`
 			);
+		}
+
 		const items = await childModel.find({
 			[childField]: parentID,
 		});
-		if (!items)
-			throw new Error(
+		if (!items) {
+			throw new NotFoundError(
 				`Couldn't find the ${childModel.modelName.toLowerCase()}`
 			);
+		}
+
 		return {
 			message: `Fetched all ${childModel.modelName.toLowerCase()}s associated with the ${parentModel.modelName.toLowerCase()} (${parentID})`,
 			success: true,
@@ -247,15 +258,16 @@ export const resolveIDsToEntities = async ([
 	try {
 		const item = await parentModel.findById(parentID).exec();
 		if (!item)
-			throw new Error(
+			throw new NotFoundError(
 				`Couldn't find the ${parentModel.modelName.toLowerCase()}`
 			);
 
 		const items = await childModel.find({ _id: item[parentField] });
 		if (!items)
-			throw new Error(
+			throw new NotFoundError(
 				`Couldn't find the ${childModel.modelName.toLowerCase()}`
 			);
+
 		return {
 			message: `Fetched all ${childModel.modelName.toLowerCase()}s associated with the ${parentModel.modelName.toLowerCase()} (${parentID})`,
 			success: true,
@@ -278,7 +290,7 @@ export const getEntityForID = async ([
 	try {
 		const item = await lookupModel.findById(lookupID).exec();
 		if (!item)
-			throw new Error(
+			throw new NotFoundError(
 				`Couldn't find the ${lookupModel.modelName.toLowerCase()}`
 			);
 
@@ -307,7 +319,7 @@ export const getByIDAndUpdate = async ([
 	try {
 		let item = await mongooseModel.findById(id).exec();
 		if (!item)
-			throw new Error(
+			throw new NotFoundError(
 				`Couldn't find the ${mongooseModel.modelName.toLowerCase()}`
 			);
 
@@ -367,7 +379,7 @@ export const deleteByID = async ([mongooseModel, id]) => {
 	try {
 		const item = await mongooseModel.findByIdAndDelete(id).exec();
 		if (!item)
-			throw new Error(
+			throw new NotFoundError(
 				`Couldn't find the ${mongooseModel.modelName.toLowerCase()}`
 			);
 		return {
@@ -431,7 +443,7 @@ export const createForID = async ([
 	try {
 		const item1 = await lookupModel.findById(lookupID).exec();
 		if (!item1)
-			throw new Error(
+			throw new NotFoundError(
 				`Couldn't find the ${lookupModel.modelName.toLowerCase()}`
 			);
 
