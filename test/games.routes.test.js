@@ -3,20 +3,22 @@ import request from "supertest";
 
 // INTERNAL IMPORTS		///////////////////////////////////////////
 import {
+	API_VERSION,
 	addEntity,
 	dbSetupWipeDBBeforeEach,
+	expect404,
 	expectError,
 	expectPatchUpdate,
 	expectSuccess,
-} from "../helpers/tests.js";
-import { app } from "../app.mjs";
+} from "../helpers/koa.tests.js";
+import { app } from "../koa.js";
 import { RARITIES } from "../helpers/constants.js";
 
 // PRIVATE 				///////////////////////////////////////////
 const createGame = async () => {
 	// splitting this out, because it's complicated to set up
 	for (const rarity of RARITIES) {
-		await addEntity("/enemies", {
+		await addEntity(`/${API_VERSION}/enemies`, {
 			name: `test - ${rarity}`,
 			species: "ooze",
 			description: "test",
@@ -24,19 +26,38 @@ const createGame = async () => {
 		});
 	}
 
-	const playerID = await addEntity("/players", { username: "test" });
-	if (playerID.error) throw playerID.error;
-	const characterID = await addEntity("/characters", {
+	const playerID = await addEntity(`/${API_VERSION}/players`, {
+		username: "test",
+	});
+
+	if (playerID.error) throw new Error(playerID.error);
+	const characterID = await addEntity(`/${API_VERSION}/characters`, {
 		name: "test",
 		description: "test",
 		archetype: "hero",
 	});
-	if (characterID.error) throw characterID.error;
-	await addEntity("/decks", {
+
+	if (characterID.error) throw new Error(characterID.error);
+	await addEntity(`/${API_VERSION}/decks`, {
 		starter: true,
 	});
-	const gameID = await addEntity(`/games`, { playerID, characterID });
-	if (gameID.error) throw gameID.error;
+
+	// add enemies of each rarity so that they can be spawned
+	for (const rarity of RARITIES) {
+		await addEntity(`/${API_VERSION}/enemies`, {
+			name: "test",
+			species: "ooze",
+			description: "test",
+			rarity,
+		});
+	}
+
+	const gameID = await addEntity(`/${API_VERSION}/games`, {
+		playerID,
+		characterID,
+	});
+
+	if (gameID.error) throw new Error(gameID.error);
 
 	return gameID;
 };
@@ -47,15 +68,19 @@ describe("GET: /games/:id", async () => {
 
 	it("should get a single game", async () => {
 		const gameID = await createGame();
-		const res = await request(app).get(`/games/${gameID}`);
+		const res = await request(app.callback()).get(
+			`/${API_VERSION}/games/${gameID}`
+		);
 
 		expectSuccess(res, 200, { _id: gameID });
 	});
 
 	it("should warn that the request is bad", async () => {
-		const res = await request(app).get(`/games/1`);
+		const res = await request(app.callback()).get(
+			`/${API_VERSION}/games/1`
+		);
 
-		expectError(res, 400);
+		expect404(res);
 	});
 });
 
@@ -64,15 +89,19 @@ describe("DELETE: /games/:id", async () => {
 
 	it("should delete a single game", async () => {
 		const gameID = await createGame();
-		const res = await request(app).delete(`/games/${gameID}`);
+		const res = await request(app.callback()).delete(
+			`/${API_VERSION}/games/${gameID}`
+		);
 
 		expectSuccess(res, 200, { _id: gameID });
 	});
 
 	it("should warn that the request is bad", async () => {
-		const res = await request(app).delete(`/games/1`);
+		const res = await request(app.callback()).delete(
+			`/${API_VERSION}/games/1`
+		);
 
-		expectError(res, 400);
+		expect404(res);
 	});
 });
 
@@ -83,8 +112,8 @@ describe("PATCH: /games/:id/:attribute/:operation/:value", async () => {
 
 	it("should update the status of the game", async () => {
 		const gameID = await createGame();
-		const res = await request(app).patch(
-			`/games/${gameID}/status/assign/paused`
+		const res = await request(app.callback()).patch(
+			`/${API_VERSION}/games/${gameID}/status/assign/paused`
 		);
 
 		expectPatchUpdate(res, { status: "paused" });
@@ -92,8 +121,8 @@ describe("PATCH: /games/:id/:attribute/:operation/:value", async () => {
 
 	it("should warn that the request is bad", async () => {
 		const gameID = await createGame();
-		const res = await request(app).patch(
-			`/games/${gameID}/status/add/paused`
+		const res = await request(app.callback()).patch(
+			`/${API_VERSION}/games/${gameID}/status/add/paused`
 		);
 
 		expectError(res, 400);
@@ -101,8 +130,8 @@ describe("PATCH: /games/:id/:attribute/:operation/:value", async () => {
 
 	it("should warn that the request is bad", async () => {
 		const gameID = await createGame();
-		const res = await request(app).patch(
-			`/games/${gameID}/status/assign/asdf`
+		const res = await request(app.callback()).patch(
+			`/${API_VERSION}/games/${gameID}/status/assign/asdf`
 		);
 
 		expectError(res, 400);
@@ -110,22 +139,26 @@ describe("PATCH: /games/:id/:attribute/:operation/:value", async () => {
 
 	it("should increment the level by 1", async () => {
 		const gameID = await createGame();
-		const res = await request(app).patch(`/games/${gameID}/level/add/1`);
+		const res = await request(app.callback()).patch(
+			`/${API_VERSION}/games/${gameID}/level/add/1`
+		);
 
 		expectPatchUpdate(res, { level: 2 });
 	});
 
 	it("should make the round equal 5", async () => {
 		const gameID = await createGame();
-		const res = await request(app).patch(`/games/${gameID}/round/assign/5`);
+		const res = await request(app.callback()).patch(
+			`/${API_VERSION}/games/${gameID}/round/assign/5`
+		);
 
 		expectPatchUpdate(res, { round: 5 });
 	});
 
 	it("should warn that the request is bad", async () => {
 		const gameID = await createGame();
-		const res = await request(app).patch(
-			`/games/${gameID}/round/assign/asdf`
+		const res = await request(app.callback()).patch(
+			`/${API_VERSION}/games/${gameID}/round/assign/asdf`
 		);
 
 		expectError(res, 400);
@@ -133,8 +166,8 @@ describe("PATCH: /games/:id/:attribute/:operation/:value", async () => {
 
 	it("should subtract 1 from the round", async () => {
 		const gameID = await createGame();
-		const res = await request(app).patch(
-			`/games/${gameID}/round/subtract/1`
+		const res = await request(app.callback()).patch(
+			`/${API_VERSION}/games/${gameID}/round/subtract/1`
 		);
 
 		expectPatchUpdate(res, { round: 0 });
@@ -142,8 +175,8 @@ describe("PATCH: /games/:id/:attribute/:operation/:value", async () => {
 
 	it("should warn that the request is bad", async () => {
 		const gameID = await createGame();
-		const res = await request(app).patch(
-			`/games/${gameID}/round/remove/asdf`
+		const res = await request(app.callback()).patch(
+			`/${API_VERSION}/games/${gameID}/round/remove/asdf`
 		);
 
 		expectError(res, 400);
@@ -151,7 +184,9 @@ describe("PATCH: /games/:id/:attribute/:operation/:value", async () => {
 
 	it("should warn that the request is bad", async () => {
 		const gameID = await createGame();
-		const res = await request(app).patch(`/games/${gameID}/round/remove/1`);
+		const res = await request(app.callback()).patch(
+			`/${API_VERSION}/games/${gameID}/round/remove/1`
+		);
 
 		expectError(res, 400);
 	});
