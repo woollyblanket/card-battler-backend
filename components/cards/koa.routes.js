@@ -15,9 +15,12 @@ export const cards = new Router();
 
 // PUBLIC 				///////////////////////////////////////////
 
+cards.param("id", async (id, ctx, next) => {
+	return (await getErrorResponse(id, objectIdSchema, 404, ctx)) || next();
 });
 
 cards.post("/:id/play", async (ctx, next) => {
+	const errorResponse = await getErrorResponse(
 		ctx.request.body.gameID,
 		objectIdSchema,
 		400,

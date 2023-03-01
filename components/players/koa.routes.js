@@ -22,10 +22,18 @@ export const players = new Router();
 
 // PUBLIC 				///////////////////////////////////////////
 
+players.param("id", async (id, ctx, next) => {
+	return (await getErrorResponse(id, objectIdSchema, 404, ctx)) || next();
 });
 
+players.param("username", async (username, ctx, next) => {
+	return (
+		(await getErrorResponse(username, usernameSchema, 404, ctx)) || next()
+	);
 });
 
+players.param("gameID", async (gameID, ctx, next) => {
+	return (await getErrorResponse(gameID, objectIdSchema, 404, ctx)) || next();
 });
 
 players.get("/username/:username", async (ctx, next) => {

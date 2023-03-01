@@ -16,22 +16,34 @@ import {
 	getByIDAndUpdate,
 	getModelFromName,
 } from "./model.js";
+import { createErrorResponse, doAction } from "./koa.actions.js";
 
 const debug = createDebugMessages("battler:backend:helpers:crud");
 export const crud = new Router();
 
+crud.param("entities", async (entity, ctx, next) => {
 	return (
+		(await getErrorResponse(
 			entity,
 			entitySchema.custom(isValidEntity),
 			404,
 			ctx
+		)) || next()
 	);
 });
 
+crud.param("id", async (id, ctx, next) => {
+	return (await getErrorResponse(id, objectIdSchema, 404, ctx)) || next();
 });
 
 crud.post("/:entities", async (ctx) => {
 	const schema = await getValidationSchemaByName(ctx.params.entities);
+	const errorResponse = await getErrorResponse(
+		ctx.request.body,
+		schema,
+		400,
+		ctx
+	);
 
 	if (errorResponse) {
 		// problems
@@ -66,6 +78,7 @@ crud.patch("/:entities/:id/:attribute/:operation/:value", async (ctx, next) => {
 			ctx.params.attribute
 		);
 
+		const errorResponse = await getErrorResponse(
 			{
 				attribute: ctx.params.attribute,
 				value: ctx.params.value,
@@ -96,6 +109,7 @@ crud.patch("/:entities/:id/:attribute/:operation/:value", async (ctx, next) => {
 			);
 		}
 	} catch (error) {
+		return createErrorResponse(ctx, 400, error);
 	}
 });
 

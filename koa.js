@@ -14,7 +14,6 @@ import { cards } from "./components/cards/koa.routes.js";
 import { decks } from "./components/decks/koa.routes.js";
 import { games } from "./components/games/koa.routes.js";
 import { players } from "./components/players/koa.routes.js";
-
 import { Ability } from "./components/abilities/model.js";
 import { Card } from "./components/cards/model.js";
 import { Character } from "./components/characters/model.js";
@@ -22,6 +21,7 @@ import { Deck } from "./components/decks/model.js";
 import { Enemy } from "./components/enemies/model.js";
 import { Game } from "./components/games/model.js";
 import { Player } from "./components/players/model.js";
+import { createErrorResponse } from "./helpers/koa.actions.js";
 
 const debug = createDebugMessages("battler:backend:koa");
 
@@ -34,9 +34,13 @@ debug(Enemy);
 debug(Game);
 debug(Player);
 
-const app = new Koa();
+const v1Prefix = "/v1";
+
+export const app = new Koa();
+const root = new Router();
+
 const router = new Router({
-	prefix: "/v1",
+	prefix: v1Prefix,
 });
 
 app.use(bodyParser());
@@ -52,12 +56,14 @@ app.use(
 app.use(async (ctx, next) => {
 	await next();
 
-	ctx.assert.equal(
-		"object",
-		typeof ctx.body,
-		500,
-		"Dev Error: ctx.body needs to be an object"
-	);
+	if (process.env.NODE_ENV === "development") {
+		ctx.assert.equal(
+			"object",
+			typeof ctx.body,
+			500,
+			"Dev Error: ctx.body needs to be an object"
+		);
+	}
 });
 
 /* c8 ignore start */
@@ -68,6 +74,21 @@ if (process.env.NODE_ENV !== "test") {
 }
 /* c8 ignore stop */
 
+// make sure anything that doesn't have the version prefix gives a not found response
+root.all(/^(?!\/?v1).+$/, (ctx) => {
+	return createErrorResponse(ctx, 404);
+});
+
+router.all("/", (ctx) => {
+	return createErrorResponse(ctx, 404);
+});
+
+router.get(`/500`, () => {
+	// using in tests to make sure 500 errors are being handled
+	// having this at the start so my generic crud doesn't catch it
+	throw new Error("BROKEN");
+});
+
 router.use("/games", games.routes());
 
 // anything above this overwrites the default crud
@@ -76,10 +97,13 @@ router.use("/cards", cards.routes());
 router.use("/decks", decks.routes());
 router.use("/players", players.routes());
 
+app.use(root.routes());
 app.use(router.routes()).use(router.allowedMethods());
 
-app.on("error", (err) => {
+app.on("error", (err, ctx) => {
 	debug(err);
+	return createErrorResponse(ctx, 500, err);
 });
 
-app.listen(3000);
+debug("listening on port:>> ", process.env.PORT || 3000);
+export const server = app.listen(process.env.PORT || 3000);

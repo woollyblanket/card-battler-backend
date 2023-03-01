@@ -15,13 +15,12 @@ export const games = new Router();
 
 // PUBLIC 				///////////////////////////////////////////
 
-games.param("id", (id, ctx, next) => {
-	return getErrorResponse(id, objectIdSchema, 404, ctx) || next();
+games.param("id", async (id, ctx, next) => {
+	return (await getErrorResponse(id, objectIdSchema, 404, ctx)) || next();
 });
 
 games.post("/", async (ctx, next) => {
 	return await doAction(
-		"games",
 		newGame,
 		[ctx.request.body.playerID, ctx.request.body.characterID],
 		201,

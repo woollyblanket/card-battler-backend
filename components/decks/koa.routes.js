@@ -17,6 +17,8 @@ export const decks = new Router();
 
 // PUBLIC 				///////////////////////////////////////////
 
+decks.param("id", async (id, ctx, next) => {
+	return (await getErrorResponse(id, objectIdSchema, 404, ctx)) || next();
 });
 
 decks.get("/:id/cards", async (ctx, next) => {

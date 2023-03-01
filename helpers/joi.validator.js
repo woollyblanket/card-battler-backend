@@ -1,24 +1,22 @@
 import createDebugMessages from "debug";
+
+import { createErrorResponse } from "./koa.actions.js";
 const debug = createDebugMessages("battler:backend:helpers:joi:validator");
 
-export const getErrorResponse = (
+export const getErrorResponse = async (
 	dataToCheck,
 	schemaToCheckAgainst,
 	errorStatus,
 	ctx
 ) => {
-	const result = schemaToCheckAgainst.validate(dataToCheck, {
-		abortEarly: false,
-	});
+	try {
+		const result = await schemaToCheckAgainst.validateAsync(dataToCheck, {
+			abortEarly: false,
+		});
+		if (result.error) throw result.error;
+	} catch (error) {
+		debug(error);
 
-	if (result.error) {
-		debug(result.error);
-		ctx.status = errorStatus;
-		ctx.body = {
-			message: `${result.error.name}: ${result.error.message}`,
-			success: false,
-			...result,
-		};
-		return ctx;
+		return createErrorResponse(ctx, errorStatus, error);
 	}
 };
