@@ -10,6 +10,7 @@ const debug = createDebugMessages("battler:backend:helpers:joi:schema");
 
 export const entitySchema = Joi.string().alphanum().case("lower").trim();
 export const objectIdSchema = Joi.objectId();
+export const usernameSchema = Joi.string().alphanum().trim().max(20);
 
 export const getPatchSchemaForEntityName = async (name, attribute) => {
 	const { joi } = await import(`../components/${name}/schema.js`);

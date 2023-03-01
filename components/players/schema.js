@@ -1,6 +1,8 @@
 // EXTERNAL IMPORTS		///////////////////////////////////////////
 import mongoose from "mongoose";
 import Joi from "joi";
+import { isUnique } from "../../helpers/joi.custom.js";
+import { Player } from "./model.js";
 
 // INTERNAL IMPORTS		///////////////////////////////////////////
 
@@ -15,5 +17,16 @@ export const playerSchema = new Schema({
 
 export const joi = Joi.object({
 	joined: Joi.date(),
-	username: Joi.string().alphanum().trim().required(),
+	username: Joi.string()
+		.alphanum()
+		.trim()
+		.required()
+		.external(async (value) => {
+			const unique = await isUnique(Player, { username: value });
+			if (!unique) {
+				const error = new Error(`${value} must be unique`);
+				error.name = "DuplicateError";
+				throw error;
+			}
+		}),
 });

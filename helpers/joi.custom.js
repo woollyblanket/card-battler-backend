@@ -21,3 +21,8 @@ export const isValidEntity = (value, helpers) => {
 	}
 	return true;
 };
+
+export const isUnique = async (model, lookup) => {
+	const item = await model.findOne(lookup).exec();
+	return item === undefined || item === null;
+};
