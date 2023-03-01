@@ -12,7 +12,7 @@ import ExpressMongoSanitize from "express-mongo-sanitize";
 import helmet from "helmet";
 import session from "express-session";
 import createMemoryStore from "memorystore";
-
+import compression from "compression";
 import { fileURLToPath } from "url";
 import { responseEnhancer } from "express-response-formatter";
 
@@ -89,6 +89,7 @@ app.use(
 );
 
 app.use(responseEnhancer());
+app.use(compression());
 
 // ROUTES 				///////////////////////////////////////////
 
@@ -117,7 +118,6 @@ app.use("/enemies", enemies);
 app.use(csrfErrorHandler);
 
 app.use((err, req, res, next) => {
-	console.log("err :>> ", err);
 	const debug = createDebugMessages("battler:backend:error");
 	debug(err.stack);
 	next(err);
