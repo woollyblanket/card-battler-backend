@@ -15,6 +15,7 @@ export const playerSchema = new Schema({
 	username: { type: String, required: true, unique: true },
 });
 
+// ignore unused exports joi
 export const joi = Joi.object({
 	joined: Joi.date(),
 	username: Joi.string()

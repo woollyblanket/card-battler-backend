@@ -15,6 +15,7 @@ export const deckSchema = new Schema({
 	starter: { type: Boolean, default: false },
 });
 
+// ignore unused exports joi
 export const joi = Joi.object({
 	game: Joi.string().hex().length(24),
 	character: Joi.string().hex().length(24),

@@ -27,6 +27,7 @@ export const gameSchema = new Schema({
 	ended: { type: Date },
 });
 
+// ignore unused exports joi
 export const joi = Joi.object({
 	player: Joi.string().hex().length(24).required(),
 	character: Joi.string().hex().length(24).required(),

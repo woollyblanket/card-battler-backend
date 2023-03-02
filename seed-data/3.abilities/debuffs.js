@@ -9,6 +9,7 @@ const data = {
 	actionValue: 0,
 };
 
+// ignore unused exports default
 export default {
 	modelName: "Ability",
 	data: [

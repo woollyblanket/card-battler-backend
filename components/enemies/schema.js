@@ -23,6 +23,7 @@ export const enemySchema = new Schema({
 	abilities: [{ type: "ObjectId", ref: "Ability" }],
 });
 
+// ignore unused exports joi
 export const joi = Joi.object({
 	name: Joi.string().alphanum().trim().required(),
 	species: Joi.string()

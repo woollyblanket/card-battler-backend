@@ -20,6 +20,7 @@ export const abilitySchema = new Schema({
 	shield: { type: Number },
 });
 
+// ignore unused exports joi
 export const joi = Joi.object({
 	name: Joi.string().alphanum().trim().required(),
 	type: Joi.string()

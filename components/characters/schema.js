@@ -18,6 +18,7 @@ export const characterSchema = new Schema({
 	abilities: [{ type: "ObjectId", ref: "Ability" }],
 });
 
+// ignore unused exports joi
 export const joi = Joi.object({
 	name: Joi.string().alphanum().trim().required(),
 	archetype: Joi.string()

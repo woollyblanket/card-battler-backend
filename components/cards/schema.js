@@ -29,6 +29,7 @@ export const cardSchema = new Schema({
 	cost: { type: Number }, // how much energy does it cost to play this card
 });
 
+// ignore unused exports joi
 export const joi = Joi.object({
 	name: Joi.string().alphanum().trim().required(),
 	type: Joi.string()
