@@ -1,8 +1,9 @@
 // EXTERNAL IMPORTS		///////////////////////////////////////////
 import mongoose from "mongoose";
+import Joi from "joi";
 
 // INTERNAL IMPORTS		///////////////////////////////////////////
-import { ARCHETYPES } from "../../helpers/constants.js";
+import { ARCHETYPES, DESCRIPTION_REGEX } from "../../helpers/constants.js";
 
 // PRIVATE 				///////////////////////////////////////////
 const { Schema } = mongoose;
@@ -15,4 +16,16 @@ export const characterSchema = new Schema({
 	health: { type: Number },
 	energy: { type: Number },
 	abilities: [{ type: "ObjectId", ref: "Ability" }],
+});
+
+// ignore unused exports joi
+export const joi = Joi.object({
+	name: Joi.string().alphanum().trim().required(),
+	archetype: Joi.string()
+		.allow(...ARCHETYPES)
+		.required(),
+	description: Joi.string().pattern(DESCRIPTION_REGEX).trim().required(),
+	health: Joi.number().integer().sign("positive").max(10),
+	energy: Joi.number().integer().sign("positive").max(10),
+	abilities: Joi.array().items(Joi.string().hex().length(24)),
 });

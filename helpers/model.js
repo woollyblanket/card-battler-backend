@@ -4,6 +4,7 @@ import mongoose from "mongoose";
 import pluralize from "pluralize";
 import _ from "lodash";
 import { sentenceCase } from "change-case";
+import { NotFoundError } from "./errors.js";
 
 // INTERNAL IMPORTS		///////////////////////////////////////////
 
@@ -152,22 +153,29 @@ const doOperation = (item, updateField, updateOperation, updateValue) => {
 	return { validOperation, error: result.error };
 };
 
+const buildResponse = (message, success, data) => {
+	if (_.isArray(data)) {
+		return { message, success, entities: data };
+	}
+	return { message, success, entity: data };
+};
+
 // PUBLIC 				///////////////////////////////////////////
 export const getByID = async ([mongooseModel, id]) => {
 	try {
 		const item = await mongooseModel.findById(id).exec();
 
-		if (!item)
-			throw new Error(
+		if (!item) {
+			throw new NotFoundError(
 				`Couldn't find the ${mongooseModel.modelName.toLowerCase()}`
 			);
-		return {
-			message: `Fetched the ${mongooseModel.modelName.toLowerCase()}: ${
-				item._id
-			}`,
-			success: true,
-			entity: item,
-		};
+		}
+
+		return buildResponse(
+			`Fetched the ${mongooseModel.modelName.toLowerCase()}: ${item._id}`,
+			true,
+			item
+		);
 	} catch (error) {
 		return { error };
 	}
@@ -176,17 +184,19 @@ export const getByID = async ([mongooseModel, id]) => {
 export const getByField = async ([mongooseModel, field, value]) => {
 	try {
 		const item = await mongooseModel.findOne({ [field]: value }).exec();
-		if (!item)
-			throw new Error(
+		if (!item) {
+			throw new NotFoundError(
 				`Couldn't find the ${mongooseModel.modelName.toLowerCase()}`
 			);
-		return {
-			message: `Fetched the ${mongooseModel.modelName.toLowerCase()}: ${
+		}
+
+		return buildResponse(
+			`Fetched the ${mongooseModel.modelName.toLowerCase()}: ${
 				item[field]
 			}`,
-			success: true,
-			entity: item,
-		};
+			true,
+			item
+		);
 	} catch (error) {
 		return { error };
 	}
@@ -195,15 +205,17 @@ export const getByField = async ([mongooseModel, field, value]) => {
 export const getAll = async ([mongooseModel]) => {
 	try {
 		const items = await mongooseModel.find().exec();
-		if (!items)
-			throw new Error(
+		if (!items) {
+			throw new NotFoundError(
 				`Couldn't find any ${mongooseModel.modelName.toLowerCase()}s`
 			);
-		return {
-			message: `Fetched all the ${mongooseModel.modelName.toLowerCase()}s`,
-			success: true,
-			entities: items,
-		};
+		}
+
+		return buildResponse(
+			`Fetched all the ${mongooseModel.modelName.toLowerCase()}s`,
+			true,
+			items
+		);
 	} catch (error) {
 		return { error };
 	}
@@ -217,22 +229,26 @@ export const getAllEntitiesForID = async ([
 ]) => {
 	try {
 		const item1 = await parentModel.findById(parentID).exec();
-		if (!item1)
-			throw new Error(
+		if (!item1) {
+			throw new NotFoundError(
 				`Couldn't find the ${parentModel.modelName.toLowerCase()}`
 			);
+		}
+
 		const items = await childModel.find({
 			[childField]: parentID,
 		});
-		if (!items)
-			throw new Error(
+		if (!items) {
+			throw new NotFoundError(
 				`Couldn't find the ${childModel.modelName.toLowerCase()}`
 			);
-		return {
-			message: `Fetched all ${childModel.modelName.toLowerCase()}s associated with the ${parentModel.modelName.toLowerCase()} (${parentID})`,
-			success: true,
-			entities: items,
-		};
+		}
+
+		return buildResponse(
+			`Fetched all ${childModel.modelName.toLowerCase()}s associated with the ${parentModel.modelName.toLowerCase()} (${parentID})`,
+			true,
+			items
+		);
 	} catch (error) {
 		return { error };
 	}
@@ -247,20 +263,21 @@ export const resolveIDsToEntities = async ([
 	try {
 		const item = await parentModel.findById(parentID).exec();
 		if (!item)
-			throw new Error(
+			throw new NotFoundError(
 				`Couldn't find the ${parentModel.modelName.toLowerCase()}`
 			);
 
 		const items = await childModel.find({ _id: item[parentField] });
 		if (!items)
-			throw new Error(
+			throw new NotFoundError(
 				`Couldn't find the ${childModel.modelName.toLowerCase()}`
 			);
-		return {
-			message: `Fetched all ${childModel.modelName.toLowerCase()}s associated with the ${parentModel.modelName.toLowerCase()} (${parentID})`,
-			success: true,
-			entities: items,
-		};
+
+		return buildResponse(
+			`Fetched all ${childModel.modelName.toLowerCase()}s associated with the ${parentModel.modelName.toLowerCase()} (${parentID})`,
+			true,
+			items
+		);
 	} catch (error) {
 		return { error };
 	}
@@ -278,7 +295,7 @@ export const getEntityForID = async ([
 	try {
 		const item = await lookupModel.findById(lookupID).exec();
 		if (!item)
-			throw new Error(
+			throw new NotFoundError(
 				`Couldn't find the ${lookupModel.modelName.toLowerCase()}`
 			);
 
@@ -287,11 +304,11 @@ export const getEntityForID = async ([
 				`That ${lookupModel.modelName.toLowerCase()} is not associated with that ${referenceModel.modelName.toLowerCase()}`
 			);
 
-		return {
-			message: `Fetched the ${lookupModel.modelName.toLowerCase()} (${lookupID}) associated with the ${referenceModel.modelName.toLowerCase()} (${referenceID})`,
-			success: true,
-			entity: item,
-		};
+		return buildResponse(
+			`Fetched the ${lookupModel.modelName.toLowerCase()} (${lookupID}) associated with the ${referenceModel.modelName.toLowerCase()} (${referenceID})`,
+			true,
+			item
+		);
 	} catch (error) {
 		return { error };
 	}
@@ -307,7 +324,7 @@ export const getByIDAndUpdate = async ([
 	try {
 		let item = await mongooseModel.findById(id).exec();
 		if (!item)
-			throw new Error(
+			throw new NotFoundError(
 				`Couldn't find the ${mongooseModel.modelName.toLowerCase()}`
 			);
 
@@ -353,11 +370,7 @@ export const getByIDAndUpdate = async ([
 
 		await item.save();
 
-		return {
-			message,
-			success: true,
-			entity: item,
-		};
+		return buildResponse(message, true, item);
 	} catch (error) {
 		return { error };
 	}
@@ -367,16 +380,14 @@ export const deleteByID = async ([mongooseModel, id]) => {
 	try {
 		const item = await mongooseModel.findByIdAndDelete(id).exec();
 		if (!item)
-			throw new Error(
+			throw new NotFoundError(
 				`Couldn't find the ${mongooseModel.modelName.toLowerCase()}`
 			);
-		return {
-			message: `Deleted the ${mongooseModel.modelName.toLowerCase()}: ${
-				item._id
-			}`,
-			success: true,
-			entity: item,
-		};
+		return buildResponse(
+			`Deleted the ${mongooseModel.modelName.toLowerCase()}: ${item._id}`,
+			true,
+			item
+		);
 	} catch (error) {
 		return { error };
 	}
@@ -391,11 +402,11 @@ export const createByField = async ([mongooseModel, field, value]) => {
 				`Couldn't create the ${mongooseModel.modelName.toLowerCase()}`
 			);
 
-		return {
-			message: `Created a ${mongooseModel.modelName.toLowerCase()} (${value})`,
-			success: true,
-			entity: item,
-		};
+		return buildResponse(
+			`Created a ${mongooseModel.modelName.toLowerCase()} (${value})`,
+			true,
+			item
+		);
 	} catch (error) {
 		return { error };
 	}
@@ -410,13 +421,13 @@ export const createWithData = async ([mongooseModel, data]) => {
 				`Couldn't create the ${mongooseModel.modelName.toLowerCase()}`
 			);
 
-		return {
-			message: `Created a ${mongooseModel.modelName.toLowerCase()} with data: ${JSON.stringify(
+		return buildResponse(
+			`Created a ${mongooseModel.modelName.toLowerCase()} with data: ${JSON.stringify(
 				data
 			)}`,
-			success: true,
-			entity: item,
-		};
+			true,
+			item
+		);
 	} catch (error) {
 		return { error };
 	}
@@ -431,7 +442,7 @@ export const createForID = async ([
 	try {
 		const item1 = await lookupModel.findById(lookupID).exec();
 		if (!item1)
-			throw new Error(
+			throw new NotFoundError(
 				`Couldn't find the ${lookupModel.modelName.toLowerCase()}`
 			);
 
@@ -443,13 +454,13 @@ export const createForID = async ([
 				`Couldn't create the ${ownerModel.modelName.toLowerCase()}`
 			);
 
-		return {
-			message: `Created a ${ownerModel.modelName.toLowerCase()} (${
+		return buildResponse(
+			`Created a ${ownerModel.modelName.toLowerCase()} (${
 				item2._id
 			}) for ${lookupModel.modelName.toLowerCase()}: ${lookupID}`,
-			success: true,
-			entity: item2,
-		};
+			true,
+			item2
+		);
 	} catch (error) {
 		return { error };
 	}

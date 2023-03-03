@@ -12,6 +12,9 @@ env:
     CI: true
     SESSION_SECRET: ${{ secrets.SESSION_SECRET }}
     MONGODB_URI: ${{ secrets.MONGODB_URI }}
+    NODE_ENV: ${{ secrets.NODE_ENV }}
+    COOKIES_SECRET: ${{ secrets.COOKIES_SECRET }}
+    PORT: ${{ secrets.PORT }}
 
 jobs:
     build:

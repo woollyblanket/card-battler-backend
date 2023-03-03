@@ -1,57 +1,52 @@
 // EXTERNAL IMPORTS		///////////////////////////////////////////
 import request from "supertest";
+import * as dotenv from "dotenv";
 
 // INTERNAL IMPORTS		///////////////////////////////////////////
-import { app } from "../app.mjs";
+import { app } from "../koa.js";
 import {
-	dbSetupWipeDBBeforeEach,
-	expectError,
-	expectSuccess,
-} from "../helpers/tests.js";
+	API_VERSION,
+	closeServer,
+	expect404,
+	expect500,
+} from "../helpers/koa.tests.js";
 
+dotenv.config();
 // PRIVATE 				///////////////////////////////////////////
 
 // PUBLIC 				///////////////////////////////////////////
-describe("GET /404/404/404", () => {
+describe("GET /404 no version prefix", () => {
+	closeServer();
 	it("should give a 404", async () => {
-		const res = await request(app).get(`/404/404/404`);
+		const res = await request(app.callback()).get(`/404`);
 
-		expectError(res, 404);
+		expect404(res);
+	});
+});
+
+describe("GET /404", () => {
+	closeServer();
+	it("should give a 404", async () => {
+		const res = await request(app.callback()).get(`/${API_VERSION}/404`);
+
+		expect404(res);
 	});
 });
 
 describe("GET /500", () => {
+	closeServer();
 	it("should give a 500 server error", async () => {
-		const res = await request(app).get(`/500`);
+		const res = await request(app.callback()).get(`/${API_VERSION}/500`);
 
-		expectError(res, 500);
+		expect500(res);
 	});
 });
 
-describe("GET /some-unknown-path", () => {
-	it("should give an invalid entity warning", async () => {
-		const res = await request(app).get(`/some-unknown-path`);
+describe("GET /", () => {
+	closeServer();
+	it("should give a 404", async () => {
+		const res = await request(app.callback()).get(`/${API_VERSION}`);
 
-		expectError(res, 400, "Invalid entity");
-	});
-});
-
-describe("POST /cards XSS", () => {
-	dbSetupWipeDBBeforeEach();
-	it("should sanitise the input", async () => {
-		const res = await request(app)
-			.post("/cards")
-			.send({
-				name: "test",
-				description: "test",
-				type: "heal",
-				obj: { $ne: "" },
-			});
-
-		expectSuccess(res, 201, {
-			name: "test",
-			description: "test",
-			type: "heal",
-		});
+		expect404(res);
 	});
 });
