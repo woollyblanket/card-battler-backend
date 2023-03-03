@@ -153,6 +153,13 @@ const doOperation = (item, updateField, updateOperation, updateValue) => {
 	return { validOperation, error: result.error };
 };
 
+const buildResponse = (message, success, data) => {
+	if (_.isArray(data)) {
+		return { message, success, entities: data };
+	}
+	return { message, success, entity: data };
+};
+
 // PUBLIC 				///////////////////////////////////////////
 export const getByID = async ([mongooseModel, id]) => {
 	try {
@@ -164,13 +171,11 @@ export const getByID = async ([mongooseModel, id]) => {
 			);
 		}
 
-		return {
-			message: `Fetched the ${mongooseModel.modelName.toLowerCase()}: ${
-				item._id
-			}`,
-			success: true,
-			entity: item,
-		};
+		return buildResponse(
+			`Fetched the ${mongooseModel.modelName.toLowerCase()}: ${item._id}`,
+			true,
+			item
+		);
 	} catch (error) {
 		return { error };
 	}
@@ -185,13 +190,13 @@ export const getByField = async ([mongooseModel, field, value]) => {
 			);
 		}
 
-		return {
-			message: `Fetched the ${mongooseModel.modelName.toLowerCase()}: ${
+		return buildResponse(
+			`Fetched the ${mongooseModel.modelName.toLowerCase()}: ${
 				item[field]
 			}`,
-			success: true,
-			entity: item,
-		};
+			true,
+			item
+		);
 	} catch (error) {
 		return { error };
 	}
@@ -206,11 +211,11 @@ export const getAll = async ([mongooseModel]) => {
 			);
 		}
 
-		return {
-			message: `Fetched all the ${mongooseModel.modelName.toLowerCase()}s`,
-			success: true,
-			entities: items,
-		};
+		return buildResponse(
+			`Fetched all the ${mongooseModel.modelName.toLowerCase()}s`,
+			true,
+			items
+		);
 	} catch (error) {
 		return { error };
 	}
@@ -239,11 +244,11 @@ export const getAllEntitiesForID = async ([
 			);
 		}
 
-		return {
-			message: `Fetched all ${childModel.modelName.toLowerCase()}s associated with the ${parentModel.modelName.toLowerCase()} (${parentID})`,
-			success: true,
-			entities: items,
-		};
+		return buildResponse(
+			`Fetched all ${childModel.modelName.toLowerCase()}s associated with the ${parentModel.modelName.toLowerCase()} (${parentID})`,
+			true,
+			items
+		);
 	} catch (error) {
 		return { error };
 	}
@@ -268,11 +273,11 @@ export const resolveIDsToEntities = async ([
 				`Couldn't find the ${childModel.modelName.toLowerCase()}`
 			);
 
-		return {
-			message: `Fetched all ${childModel.modelName.toLowerCase()}s associated with the ${parentModel.modelName.toLowerCase()} (${parentID})`,
-			success: true,
-			entities: items,
-		};
+		return buildResponse(
+			`Fetched all ${childModel.modelName.toLowerCase()}s associated with the ${parentModel.modelName.toLowerCase()} (${parentID})`,
+			true,
+			items
+		);
 	} catch (error) {
 		return { error };
 	}
@@ -299,11 +304,11 @@ export const getEntityForID = async ([
 				`That ${lookupModel.modelName.toLowerCase()} is not associated with that ${referenceModel.modelName.toLowerCase()}`
 			);
 
-		return {
-			message: `Fetched the ${lookupModel.modelName.toLowerCase()} (${lookupID}) associated with the ${referenceModel.modelName.toLowerCase()} (${referenceID})`,
-			success: true,
-			entity: item,
-		};
+		return buildResponse(
+			`Fetched the ${lookupModel.modelName.toLowerCase()} (${lookupID}) associated with the ${referenceModel.modelName.toLowerCase()} (${referenceID})`,
+			true,
+			item
+		);
 	} catch (error) {
 		return { error };
 	}
@@ -365,11 +370,7 @@ export const getByIDAndUpdate = async ([
 
 		await item.save();
 
-		return {
-			message,
-			success: true,
-			entity: item,
-		};
+		return buildResponse(message, true, item);
 	} catch (error) {
 		return { error };
 	}
@@ -382,13 +383,11 @@ export const deleteByID = async ([mongooseModel, id]) => {
 			throw new NotFoundError(
 				`Couldn't find the ${mongooseModel.modelName.toLowerCase()}`
 			);
-		return {
-			message: `Deleted the ${mongooseModel.modelName.toLowerCase()}: ${
-				item._id
-			}`,
-			success: true,
-			entity: item,
-		};
+		return buildResponse(
+			`Deleted the ${mongooseModel.modelName.toLowerCase()}: ${item._id}`,
+			true,
+			item
+		);
 	} catch (error) {
 		return { error };
 	}
@@ -403,11 +402,11 @@ export const createByField = async ([mongooseModel, field, value]) => {
 				`Couldn't create the ${mongooseModel.modelName.toLowerCase()}`
 			);
 
-		return {
-			message: `Created a ${mongooseModel.modelName.toLowerCase()} (${value})`,
-			success: true,
-			entity: item,
-		};
+		return buildResponse(
+			`Created a ${mongooseModel.modelName.toLowerCase()} (${value})`,
+			true,
+			item
+		);
 	} catch (error) {
 		return { error };
 	}
@@ -422,13 +421,13 @@ export const createWithData = async ([mongooseModel, data]) => {
 				`Couldn't create the ${mongooseModel.modelName.toLowerCase()}`
 			);
 
-		return {
-			message: `Created a ${mongooseModel.modelName.toLowerCase()} with data: ${JSON.stringify(
+		return buildResponse(
+			`Created a ${mongooseModel.modelName.toLowerCase()} with data: ${JSON.stringify(
 				data
 			)}`,
-			success: true,
-			entity: item,
-		};
+			true,
+			item
+		);
 	} catch (error) {
 		return { error };
 	}
@@ -455,13 +454,13 @@ export const createForID = async ([
 				`Couldn't create the ${ownerModel.modelName.toLowerCase()}`
 			);
 
-		return {
-			message: `Created a ${ownerModel.modelName.toLowerCase()} (${
+		return buildResponse(
+			`Created a ${ownerModel.modelName.toLowerCase()} (${
 				item2._id
 			}) for ${lookupModel.modelName.toLowerCase()}: ${lookupID}`,
-			success: true,
-			entity: item2,
-		};
+			true,
+			item2
+		);
 	} catch (error) {
 		return { error };
 	}
