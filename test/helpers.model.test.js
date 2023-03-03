@@ -4,7 +4,7 @@ import { expect } from "chai";
 
 // INTERNAL IMPORTS		///////////////////////////////////////////
 import * as model from "../helpers/model.js";
-import { dbSetupWipeDBBeforeEach } from "../helpers/tests.js";
+import { dbSetupWipeDBBeforeEach } from "../helpers/koa.tests.js";
 
 // PRIVATE 				///////////////////////////////////////////
 const schema = new mongoose.Schema({

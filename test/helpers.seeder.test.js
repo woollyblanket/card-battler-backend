@@ -3,7 +3,7 @@ import mongoose from "mongoose";
 import { expect } from "chai";
 
 // INTERNAL IMPORTS		///////////////////////////////////////////
-import { dbSetupWipeDBBeforeEach } from "../helpers/tests.js";
+import { dbSetupWipeDBBeforeEach } from "../helpers/koa.tests.js";
 import { getObjectId, getObjectIds, seed } from "../helpers/seeder.js";
 import { dbClose } from "../helpers/db.js";
 
