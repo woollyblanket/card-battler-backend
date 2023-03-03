@@ -6,8 +6,10 @@
 	"scripts": {
 		"test": "NODE_ENV=test c8 mocha --recursive --exit --timeout 60000",
 		"test-debug": "NODE_ENV=test DEBUG=battler:* c8 mocha --recursive --exit --timeout 60000",
-		"start": "node ./bin/www.js",
-		"dev": "doppler run --mount .env -- nodemon ./bin/www.js"
+		"test-doppler": "NODE_ENV=test doppler run --mount .env -- c8 mocha --recursive --exit --timeout 60000",
+		"test-partial": "NODE_ENV=test DEBUG=battler:* doppler run -- npx wtfnode node_modules/.bin/_mocha --grep \"$npm_config_battler_flag\" test/**/*.test.js",
+		"start": "node koa.js",
+		"koa": "doppler run --mount .env -- nodemon koa.js"
 	},
 	"dependencies": {
 		"body-parser": "^1.20.1",
