@@ -39,12 +39,6 @@ jobs:
                   mongodb-version: ${{ matrix.mongodb-version }}
                   mongodb-db: card-battler-test
 
-            - name: Doppler Secrets fetch
-              uses: dopplerhq/secrets-fetch-action@v1.1.0
-              id: doppler
-              with:
-                  doppler-token: ${{ secrets.DOPPLER_TOKEN }}
-
             - run: npm ci
             - run: npm run build --if-present
             - run: npm test
