@@ -33,6 +33,10 @@ import { Enemy } from "./components/enemies/model.js";
 import { Game } from "./components/games/model.js";
 import { Player } from "./components/players/model.js";
 
+// middleware
+import { devcheck } from "./middleware/devcheck.js";
+import { sessionViews } from "./middleware/session.js";
+
 dotenv.config();
 
 // PRIVATE 				///////////////////////////////////////////
@@ -83,29 +87,8 @@ app.use(
 );
 
 // middleware
-app.use(async (ctx, next) => {
-	await next();
-
-	if (process.env.NODE_ENV === "development") {
-		ctx.assert.equal(
-			"object",
-			typeof ctx.body,
-			500,
-			"Dev Error: ctx.body needs to be an object"
-		);
-	}
-});
-
-app.use(async (ctx, next) => {
-	await next();
-	// ignore favicon
-	if (ctx.path === "/favicon.ico") return;
-
-	let n = ctx.session.views || 0;
-	ctx.session.views = ++n;
-	console.log("n :>> ", n + " views");
-	console.log("ctx.session :>> ", ctx.session);
-});
+app.use(devcheck);
+app.use(sessionViews);
 
 /* c8 ignore start */
 if (process.env.NODE_ENV !== "test") {

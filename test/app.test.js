@@ -1,5 +1,6 @@
 // EXTERNAL IMPORTS		///////////////////////////////////////////
 import request from "supertest";
+import * as dotenv from "dotenv";
 
 // INTERNAL IMPORTS		///////////////////////////////////////////
 import { app } from "../koa.js";
@@ -10,6 +11,7 @@ import {
 	expect500,
 } from "../helpers/koa.tests.js";
 
+dotenv.config();
 // PRIVATE 				///////////////////////////////////////////
 
 // PUBLIC 				///////////////////////////////////////////
@@ -37,5 +39,14 @@ describe("GET /500", () => {
 		const res = await request(app.callback()).get(`/${API_VERSION}/500`);
 
 		expect500(res);
+	});
+});
+
+describe("GET /", () => {
+	closeServer();
+	it("should give a 404", async () => {
+		const res = await request(app.callback()).get(`/${API_VERSION}`);
+
+		expect404(res);
 	});
 });

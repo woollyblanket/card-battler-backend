@@ -1,5 +1,7 @@
 // EXTERNAL IMPORTS		///////////////////////////////////////////
 import request from "supertest";
+import Stream from "stream";
+import Koa from "koa";
 import { expect } from "chai";
 
 // INTERNAL IMPORTS		///////////////////////////////////////////
@@ -95,4 +97,28 @@ export const addEntity = async (path, data) => {
 	} catch (error) {
 		return { error };
 	}
+};
+
+// mock context
+// from here: https://gist.github.com/emmanuelnk/f1254eed8f947a81e8d715476d9cc92c
+export const context = (req = null, res = null, app = null) => {
+	const socket = new Stream.Duplex();
+
+	req = Object.assign(
+		{ headers: {}, socket },
+		Stream.Readable.prototype,
+		req || {}
+	);
+	res = Object.assign(
+		{ _headers: {}, socket },
+		Stream.Writable.prototype,
+		res || {}
+	);
+	req.socket.remoteAddress = req.socket.remoteAddress || "127.0.0.1";
+	app = app || new Koa();
+	res.getHeader = (k) => res._headers[k.toLowerCase()];
+	res.setHeader = (k, v) => (res._headers[k.toLowerCase()] = v);
+	res.removeHeader = (k, v) => delete res._headers[k.toLowerCase()];
+
+	return app.createContext(req, res);
 };
