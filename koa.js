@@ -93,6 +93,9 @@ app.use(passport.session());
 // middleware
 app.use(devcheck);
 app.use(sessionViews);
+// protect all endpoints by default
+// exceptions are handled in the middleware itself
+app.use(authenticated);
 
 /* c8 ignore start */
 if (process.env.NODE_ENV !== "test") {
@@ -119,21 +122,6 @@ v1Router.get(`/500`, () => {
 });
 
 v1Router.use("/auth", auth.routes());
-
-// protected endpoints
-v1Router.use(
-	[
-		"/abilities",
-		"/cards",
-		"/characters",
-		"/decks",
-		"/enemies",
-		"/games",
-		"/players",
-	],
-	authenticated
-);
-
 v1Router.use("/games", games.routes());
 
 // anything above this overwrites the default crud
