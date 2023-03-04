@@ -160,6 +160,20 @@ const buildResponse = (message, success, data) => {
 	return { message, success, entity: data };
 };
 
+const stripPassword = (data) => {
+	let returnData;
+	if (_.isArray(data)) {
+		returnData = [];
+		for (const item of data) {
+			returnData.push(_.omit(item.toObject(), ["password"]));
+		}
+	} else {
+		returnData = _.omit(data.toObject(), ["password"]);
+	}
+
+	return returnData;
+};
+
 // PUBLIC 				///////////////////////////////////////////
 export const getByID = async ([mongooseModel, id]) => {
 	try {
@@ -405,7 +419,7 @@ export const createByField = async ([mongooseModel, field, value]) => {
 		return buildResponse(
 			`Created a ${mongooseModel.modelName.toLowerCase()} (${value})`,
 			true,
-			item
+			stripPassword(item)
 		);
 	} catch (error) {
 		return { error };
@@ -423,10 +437,10 @@ export const createWithData = async ([mongooseModel, data]) => {
 
 		return buildResponse(
 			`Created a ${mongooseModel.modelName.toLowerCase()} with data: ${JSON.stringify(
-				data
+				_.omit(data, ["password"])
 			)}`,
 			true,
-			item
+			stripPassword(item)
 		);
 	} catch (error) {
 		return { error };
@@ -459,7 +473,7 @@ export const createForID = async ([
 				item2._id
 			}) for ${lookupModel.modelName.toLowerCase()}: ${lookupID}`,
 			true,
-			item2
+			stripPassword(item2)
 		);
 	} catch (error) {
 		return { error };

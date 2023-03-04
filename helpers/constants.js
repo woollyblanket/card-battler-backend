@@ -1,10 +1,3 @@
-// EXTERNAL IMPORTS		///////////////////////////////////////////
-
-// INTERNAL IMPORTS		///////////////////////////////////////////
-
-// PRIVATE 				///////////////////////////////////////////
-
-// PUBLIC 				///////////////////////////////////////////
 export const STATUSES = ["new", "active", "archived", "paused"];
 export const OPERATIONS_PER_DATA_TYPE = {
 	string: ["assign"],
@@ -56,3 +49,5 @@ export const HAND_DEFAULTS = {
 };
 
 export const DESCRIPTION_REGEX = /^[ A-Za-z0-9_@./#&+-/!]*$/;
+
+export const SALT_WORK_FACTOR = 10;
