@@ -1,22 +1,25 @@
-import passport from "koa-passport";
 import LocalStrategy from "passport-local";
-import { getByField } from "../../helpers/model";
-import { Player } from "../players/model";
+import { stripPassword } from "../../helpers/model.js";
+import { Player } from "../players/model.js";
 
-passport.use(
-	new LocalStrategy(async (username, password, done) => {
-		try {
-			const player = await getByField([Player, "username", username]);
-			if (!player) return done(null, false);
-			const match = await player.validatePassword(password);
+export const local = new LocalStrategy(async (username, password, done) => {
+	try {
+		// need to include the password here explicitly because it
+		// isn't included automatically in queries
+		let player = await Player.findOne(
+			{ username: username },
+			"+password"
+		).exec();
+		if (!player) return done(null, false);
+		const match = await player.validatePassword(password);
+		player = stripPassword(player);
 
-			if (match) {
-				done(null, player);
-			} else {
-				done(null, false);
-			}
-		} catch (error) {
-			return done(error);
+		if (match) {
+			done(null, player);
+		} else {
+			done(null, false);
 		}
-	})
-);
+	} catch (error) {
+		return done(error);
+	}
+});

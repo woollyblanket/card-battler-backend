@@ -160,7 +160,8 @@ const buildResponse = (message, success, data) => {
 	return { message, success, entity: data };
 };
 
-const stripPassword = (data) => {
+// PUBLIC 				///////////////////////////////////////////
+export const stripPassword = (data) => {
 	let returnData;
 	if (_.isArray(data)) {
 		returnData = [];
@@ -174,7 +175,6 @@ const stripPassword = (data) => {
 	return returnData;
 };
 
-// PUBLIC 				///////////////////////////////////////////
 export const getByID = async ([mongooseModel, id]) => {
 	try {
 		const item = await mongooseModel.findById(id).exec();

@@ -5,6 +5,6 @@ export const sessionViews = async (ctx, next) => {
 
 	let n = ctx.session.views || 0;
 	ctx.session.views = ++n;
-	console.log("n :>> ", n + " views");
 	console.log("ctx.session :>> ", ctx.session);
+	console.log("ctx.state :>> ", ctx.state);
 };

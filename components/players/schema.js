@@ -48,6 +48,7 @@ playerSchema.pre("save", async function (next) {
 	}
 });
 
-playerSchema.methods.validatePassword = async (data) => {
+// can't use arrow functions
+playerSchema.methods.validatePassword = async function (data) {
 	return bcrypt.compare(data, this.password);
 };

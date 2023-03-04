@@ -8,6 +8,7 @@ import createDebugMessages from "debug";
 import cors from "@koa/cors";
 import Router from "@koa/router";
 import session from "koa-session";
+import passport from "koa-passport";
 import { RateLimit } from "koa2-ratelimit";
 
 // INTERNAL IMPORTS		///////////////////////////////////////////
@@ -36,6 +37,8 @@ import { Player } from "./components/players/model.js";
 // middleware
 import { devcheck } from "./middleware/devcheck.js";
 import { sessionViews } from "./middleware/session.js";
+import { authenticated } from "./components/auth/middleware.js";
+import { auth } from "./components/auth/koa.routes.js";
 
 dotenv.config();
 
@@ -68,14 +71,12 @@ const sessionConfig = {
 };
 
 // stored as a stringified array
-const cookieSecret = JSON.parse(
-	process.env.COOKIES_SECRET.replaceAll("\\", "")
-);
+const secret = JSON.parse(process.env.SESSION_SECRET.replaceAll("\\", ""));
 
 // PUBLIC 				///////////////////////////////////////////
 export const app = new Koa();
 
-app.keys = cookieSecret;
+app.keys = secret;
 app.use(session(sessionConfig, app));
 app.use(bodyParser());
 app.use(logger());
@@ -85,6 +86,9 @@ app.use(
 		origin: true,
 	})
 );
+
+app.use(passport.initialize());
+app.use(passport.session());
 
 // middleware
 app.use(devcheck);
@@ -113,6 +117,22 @@ v1Router.get(`/500`, () => {
 	// having this at the start so my generic crud doesn't catch it
 	throw new Error("BROKEN");
 });
+
+v1Router.use("/auth", auth.routes());
+
+// protected endpoints
+v1Router.use(
+	[
+		"/abilities",
+		"/cards",
+		"/characters",
+		"/decks",
+		"/enemies",
+		"/games",
+		"/players",
+	],
+	authenticated
+);
 
 v1Router.use("/games", games.routes());
 
