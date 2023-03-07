@@ -1,17 +1,16 @@
 // EXTERNAL IMPORTS		///////////////////////////////////////////
-import request from "supertest";
 
 // INTERNAL IMPORTS		///////////////////////////////////////////
 import {
-	API_VERSION,
 	addEntity,
+	agent,
 	dbSetupWipeDBBeforeEach,
 	expect404,
 	expectError,
 	expectPatchUpdate,
 	expectSuccess,
 } from "../helpers/koa.tests.js";
-import { app } from "../koa.js";
+import { API_VERSION } from "../helpers/constants.js";
 
 // PRIVATE 				///////////////////////////////////////////
 
@@ -20,7 +19,7 @@ describe("POST: /cards", async () => {
 	dbSetupWipeDBBeforeEach();
 
 	it("should create a new card", async () => {
-		const res = await request(app.callback())
+		const res = await agent
 			.post(`/${API_VERSION}/cards`)
 			.send({ name: "test", description: "test", type: "heal" });
 
@@ -32,35 +31,29 @@ describe("POST: /cards", async () => {
 	});
 
 	it("should warn that the rarity is incorrect", async () => {
-		const res = await request(app.callback())
-			.post(`/${API_VERSION}/cards`)
-			.send({
-				name: "test",
-				description: "test",
-				type: "heal",
-				rarity: "test",
-			});
+		const res = await agent.post(`/${API_VERSION}/cards`).send({
+			name: "test",
+			description: "test",
+			type: "heal",
+			rarity: "test",
+		});
 
 		expectError(res, 400);
 	});
 
 	it("should warn that the data type is incorrect", async () => {
-		const res = await request(app.callback())
-			.post(`/${API_VERSION}/cards`)
-			.send({
-				name: "test",
-				description: "test",
-				type: "heal",
-				energy: "test",
-			});
+		const res = await agent.post(`/${API_VERSION}/cards`).send({
+			name: "test",
+			description: "test",
+			type: "heal",
+			energy: "test",
+		});
 
 		expectError(res, 400);
 	});
 
 	it("should warn that the request is bad", async () => {
-		const res = await request(app.callback())
-			.post(`/${API_VERSION}/cards`)
-			.send();
+		const res = await agent.post(`/${API_VERSION}/cards`).send();
 
 		expectError(res, 400);
 	});
@@ -78,17 +71,13 @@ describe("GET: /cards/:id", async () => {
 
 		if (cardID.error) throw cardID.error;
 
-		const res = await request(app.callback()).get(
-			`/${API_VERSION}/cards/${cardID}`
-		);
+		const res = await agent.get(`/${API_VERSION}/cards/${cardID}`);
 
 		expectSuccess(res, 200, { _id: cardID });
 	});
 
 	it("should warn that the request is bad", async () => {
-		const res = await request(app.callback()).get(
-			`/${API_VERSION}/cards/1`
-		);
+		const res = await agent.get(`/${API_VERSION}/cards/1`);
 
 		expect404(res);
 	});
@@ -105,7 +94,7 @@ describe("PATCH: /cards/:id/:attribute/:operation/:value", async () => {
 		});
 		if (cardID.error) throw cardID.error;
 
-		const res = await request(app.callback()).patch(
+		const res = await agent.patch(
 			`/${API_VERSION}/cards/${cardID}/duration/assign/paused`
 		);
 
@@ -120,7 +109,7 @@ describe("PATCH: /cards/:id/:attribute/:operation/:value", async () => {
 		});
 		if (cardID.error) throw cardID.error;
 
-		const res = await request(app.callback()).patch(
+		const res = await agent.patch(
 			`/${API_VERSION}/cards/${cardID}/damage/assign/4`
 		);
 
@@ -134,7 +123,7 @@ describe("PATCH: /cards/:id/:attribute/:operation/:value", async () => {
 			type: "heal",
 		});
 		if (cardID.error) throw cardID.error;
-		const res = await request(app.callback()).patch(
+		const res = await agent.patch(
 			`/${API_VERSION}/cards/${cardID}/duration/add/3`
 		);
 
@@ -149,7 +138,7 @@ describe("PATCH: /cards/:id/:attribute/:operation/:value", async () => {
 		});
 		if (cardID.error) throw cardID.error;
 
-		const res = await request(app.callback()).patch(
+		const res = await agent.patch(
 			`/${API_VERSION}/cards/${cardID}/type/assign/shield`
 		);
 
@@ -164,7 +153,7 @@ describe("PATCH: /cards/:id/:attribute/:operation/:value", async () => {
 		});
 		if (cardID.error) throw cardID.error;
 
-		const res = await request(app.callback()).patch(
+		const res = await agent.patch(
 			`/${API_VERSION}/cards/${cardID}/type/remove/shield`
 		);
 
@@ -179,7 +168,7 @@ describe("PATCH: /cards/:id/:attribute/:operation/:value", async () => {
 		});
 		if (cardID.error) throw cardID.error;
 
-		const res = await request(app.callback()).patch(
+		const res = await agent.patch(
 			`/${API_VERSION}/cards/${cardID}/type/assign/some-bad-type`
 		);
 
@@ -197,17 +186,13 @@ describe("DELETE: /cards/:id", async () => {
 			type: "heal",
 		});
 		if (cardID.error) throw cardID.error;
-		const res = await request(app.callback()).delete(
-			`/${API_VERSION}/cards/${cardID}`
-		);
+		const res = await agent.delete(`/${API_VERSION}/cards/${cardID}`);
 
 		expectSuccess(res, 200, { _id: cardID });
 	});
 
 	it("should warn that the request is bad", async () => {
-		const res = await request(app.callback()).delete(
-			`/${API_VERSION}/cards/1`
-		);
+		const res = await agent.delete(`/${API_VERSION}/cards/1`);
 
 		expect404(res);
 	});

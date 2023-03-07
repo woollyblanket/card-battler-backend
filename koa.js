@@ -8,7 +8,7 @@ import createDebugMessages from "debug";
 import cors from "@koa/cors";
 import Router from "@koa/router";
 import session from "koa-session";
-import passport from "koa-passport";
+import redisStore from "koa-redis";
 import { RateLimit } from "koa2-ratelimit";
 
 // INTERNAL IMPORTS		///////////////////////////////////////////
@@ -39,6 +39,7 @@ import { devcheck } from "./middleware/devcheck.js";
 import { sessionViews } from "./middleware/session.js";
 import { authenticated } from "./components/auth/middleware.js";
 import { auth } from "./components/auth/koa.routes.js";
+import { passportInit, passportSession } from "./components/auth/setup.js";
 
 dotenv.config();
 
@@ -68,6 +69,8 @@ const limiter = RateLimit.middleware({
 const sessionConfig = {
 	// setting same site to combat csrf
 	sameSite: "strict",
+	store: redisStore({ url: process.env.REDIS_URL }),
+	maxAge: 24 * 60 * 60 * 1000,
 };
 
 // stored as a stringified array
@@ -84,11 +87,12 @@ app.use(helmet());
 app.use(
 	cors({
 		origin: true,
+		credentials: true,
 	})
 );
 
-app.use(passport.initialize());
-app.use(passport.session());
+app.use(passportInit);
+app.use(passportSession);
 
 // middleware
 app.use(devcheck);

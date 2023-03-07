@@ -10,11 +10,14 @@ passport.serializeUser((player, done) => {
 
 passport.deserializeUser(async (username, done) => {
 	try {
-		const player = await Player.findOne({ username: username }).exec();
+		const player = await Player.find({ username: username }).exec();
 		done(null, player);
 	} catch (error) {
 		done(error);
 	}
 });
+
+export const passportInit = passport.initialize();
+export const passportSession = passport.session();
 
 export { passport };

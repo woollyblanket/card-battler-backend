@@ -52,6 +52,8 @@ export const DESCRIPTION_REGEX = /^[ A-Za-z0-9_@./#&+-/!]*$/;
 
 export const SALT_WORK_FACTOR = 10;
 
+export const API_VERSION = "v1";
+
 export const UNPROTECTED_ROUTES = [
 	{ path: "/v1/players", method: "POST" },
 	{ path: "/v1/auth/login", method: "POST" },

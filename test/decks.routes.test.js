@@ -1,10 +1,9 @@
 // EXTERNAL IMPORTS		///////////////////////////////////////////
-import request from "supertest";
 
 // INTERNAL IMPORTS		///////////////////////////////////////////
 import {
-	API_VERSION,
 	addEntity,
+	agent,
 	dbSetupWipeDBBeforeEach,
 	expect404,
 	expectError,
@@ -12,7 +11,7 @@ import {
 	expectSuccess,
 	expectSuccessMultiple,
 } from "../helpers/koa.tests.js";
-import { app } from "../koa.js";
+import { API_VERSION } from "../helpers/constants.js";
 
 // PRIVATE 				///////////////////////////////////////////
 
@@ -21,15 +20,13 @@ describe("POST: /decks", async () => {
 	dbSetupWipeDBBeforeEach();
 
 	it("should create a new deck", async () => {
-		const res = await request(app.callback())
-			.post(`/${API_VERSION}/decks`)
-			.send();
+		const res = await agent.post(`/${API_VERSION}/decks`).send();
 
 		expectSuccess(res, 201);
 	});
 
 	it("should create a new starter deck", async () => {
-		const res = await request(app.callback())
+		const res = await agent
 			.post(`/${API_VERSION}/decks`)
 			.send({ starter: true });
 
@@ -44,17 +41,13 @@ describe("GET: /decks/:id", async () => {
 		const deckID = await addEntity(`/${API_VERSION}/decks`);
 		if (deckID.error) throw deckID.error;
 
-		const res = await request(app.callback()).get(
-			`/${API_VERSION}/decks/${deckID}`
-		);
+		const res = await agent.get(`/${API_VERSION}/decks/${deckID}`);
 
 		expectSuccess(res, 200, { _id: deckID });
 	});
 
 	it("should warn that the request is bad", async () => {
-		const res = await request(app.callback()).get(
-			`/${API_VERSION}/decks/1`
-		);
+		const res = await agent.get(`/${API_VERSION}/decks/1`);
 
 		expect404(res);
 	});
@@ -74,21 +67,17 @@ describe("GET: /decks/:id/cards", async () => {
 		});
 		if (cardID.error) throw cardID.error;
 
-		await request(app.callback()).patch(
+		await agent.patch(
 			`/${API_VERSION}/decks/${deckID}/cards/add/${cardID}`
 		);
 
-		const res = await request(app.callback()).get(
-			`/${API_VERSION}/decks/${deckID}/cards`
-		);
+		const res = await agent.get(`/${API_VERSION}/decks/${deckID}/cards`);
 
 		expectSuccessMultiple(res, 200);
 	});
 
 	it("should warn that the request is bad", async () => {
-		const res = await request(app.callback()).get(
-			`/${API_VERSION}/decks/1/cards`
-		);
+		const res = await agent.get(`/${API_VERSION}/decks/1/cards`);
 
 		expect404(res);
 	});
@@ -101,7 +90,7 @@ describe("PATCH: /decks/:id/:attribute/:operation/:value", async () => {
 		const deckID = await addEntity(`/${API_VERSION}/decks`);
 		if (deckID.error) throw deckID.error;
 
-		const res = await request(app.callback()).patch(
+		const res = await agent.patch(
 			`/${API_VERSION}/decks/${deckID}/game/add/paused`
 		);
 		expectError(res, 400);
@@ -110,7 +99,7 @@ describe("PATCH: /decks/:id/:attribute/:operation/:value", async () => {
 	it("should warn that the request is bad", async () => {
 		const deckID = await addEntity(`/${API_VERSION}/decks`);
 		if (deckID.error) throw deckID.error;
-		const res = await request(app.callback()).patch(
+		const res = await agent.patch(
 			`/${API_VERSION}/decks/${deckID}/game/assign/1`
 		);
 
@@ -120,7 +109,7 @@ describe("PATCH: /decks/:id/:attribute/:operation/:value", async () => {
 	it("should change the deck to a starter deck", async () => {
 		const deckID = await addEntity(`/${API_VERSION}/decks`);
 		if (deckID.error) throw deckID.error;
-		const res = await request(app.callback()).patch(
+		const res = await agent.patch(
 			`/${API_VERSION}/decks/${deckID}/starter/assign/true`
 		);
 
@@ -136,7 +125,7 @@ describe("PATCH: /decks/:id/:attribute/:operation/:value", async () => {
 			description: "test",
 		});
 		if (cardID.error) throw cardID.error;
-		const res = await request(app.callback()).patch(
+		const res = await agent.patch(
 			`/${API_VERSION}/decks/${deckID}/cards/add/${cardID}`
 		);
 
@@ -152,10 +141,10 @@ describe("PATCH: /decks/:id/:attribute/:operation/:value", async () => {
 			description: "test",
 		});
 		if (cardID.error) throw cardID.error;
-		await request(app.callback()).patch(
+		await agent.patch(
 			`/${API_VERSION}/decks/${deckID}/cards/add/${cardID}`
 		);
-		const res = await request(app.callback()).patch(
+		const res = await agent.patch(
 			`/${API_VERSION}/decks/${deckID}/cards/remove/${cardID}`
 		);
 
@@ -169,17 +158,13 @@ describe("DELETE: /decks/:id", async () => {
 	it("should delete a single deck", async () => {
 		const deckID = await addEntity(`/${API_VERSION}/decks`);
 		if (deckID.error) throw deckID.error;
-		const res = await request(app.callback()).delete(
-			`/${API_VERSION}/decks/${deckID}`
-		);
+		const res = await agent.delete(`/${API_VERSION}/decks/${deckID}`);
 
 		expectSuccess(res, 200, { _id: deckID });
 	});
 
 	it("should warn that the request is bad", async () => {
-		const res = await request(app.callback()).delete(
-			`/${API_VERSION}/decks/1`
-		);
+		const res = await agent.delete(`/${API_VERSION}/decks/1`);
 
 		expect404(res);
 	});

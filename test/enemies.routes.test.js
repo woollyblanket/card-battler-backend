@@ -1,17 +1,16 @@
 // EXTERNAL IMPORTS		///////////////////////////////////////////
-import request from "supertest";
 
 // INTERNAL IMPORTS		///////////////////////////////////////////
 import {
-	API_VERSION,
 	addEntity,
+	agent,
 	dbSetupWipeDBBeforeEach,
 	expect404,
 	expectError,
 	expectPatchUpdate,
 	expectSuccess,
 } from "../helpers/koa.tests.js";
-import { app } from "../koa.js";
+import { API_VERSION } from "../helpers/constants.js";
 
 // PRIVATE 				///////////////////////////////////////////
 
@@ -20,14 +19,12 @@ describe("POST: /enemies", async () => {
 	dbSetupWipeDBBeforeEach();
 
 	it("should create a new enemy", async () => {
-		const res = await request(app.callback())
-			.post(`/${API_VERSION}/enemies`)
-			.send({
-				name: "test",
-				species: "dragon",
-				description: "test",
-				rarity: "common",
-			});
+		const res = await agent.post(`/${API_VERSION}/enemies`).send({
+			name: "test",
+			species: "dragon",
+			description: "test",
+			rarity: "common",
+		});
 
 		expectSuccess(res, 201, {
 			name: "test",
@@ -37,9 +34,7 @@ describe("POST: /enemies", async () => {
 	});
 
 	it("should warn that the request is bad", async () => {
-		const res = await request(app.callback()).post(
-			`/${API_VERSION}/enemies`
-		);
+		const res = await agent.post(`/${API_VERSION}/enemies`);
 
 		expectError(res, 400);
 	});
@@ -57,17 +52,13 @@ describe("GET: /enemies/:id", async () => {
 		});
 		if (enemyID.error) throw enemyID.error;
 
-		const res = await request(app.callback()).get(
-			`/${API_VERSION}/enemies/${enemyID}`
-		);
+		const res = await agent.get(`/${API_VERSION}/enemies/${enemyID}`);
 
 		expectSuccess(res, 200, { _id: enemyID });
 	});
 
 	it("should warn that the request is bad", async () => {
-		const res = await request(app.callback()).get(
-			`/${API_VERSION}/enemies/1`
-		);
+		const res = await agent.get(`/${API_VERSION}/enemies/1`);
 
 		expect404(res);
 	});
@@ -85,7 +76,7 @@ describe("PATCH: /enemies/:id/:attribute/:operation/:value", async () => {
 		});
 		if (enemyID.error) throw enemyID.error;
 
-		const res = await request(app.callback()).patch(
+		const res = await agent.patch(
 			`/${API_VERSION}/enemies/${enemyID}/health/add/4`
 		);
 
@@ -102,7 +93,7 @@ describe("PATCH: /enemies/:id/:attribute/:operation/:value", async () => {
 		});
 		if (enemyID.error) throw enemyID.error;
 
-		const res = await request(app.callback()).patch(
+		const res = await agent.patch(
 			`/${API_VERSION}/enemies/${enemyID}/energy/subtract/4`
 		);
 
@@ -125,7 +116,7 @@ describe("PATCH: /enemies/:id/:attribute/:operation/:value", async () => {
 		});
 		if (abilityID.error) throw abilityID.error;
 
-		const res = await request(app.callback()).patch(
+		const res = await agent.patch(
 			`/${API_VERSION}/enemies/${enemyID}/abilities/add/${abilityID}`
 		);
 
@@ -147,11 +138,11 @@ describe("PATCH: /enemies/:id/:attribute/:operation/:value", async () => {
 			description: "test",
 		});
 
-		await request(app.callback()).patch(
+		await agent.patch(
 			`/${API_VERSION}/enemies/${enemyID}/abilities/add/${abilityID}`
 		);
 
-		const res = await request(app.callback()).patch(
+		const res = await agent.patch(
 			`/${API_VERSION}/enemies/${enemyID}/abilities/remove/${abilityID}`
 		);
 
@@ -167,7 +158,7 @@ describe("PATCH: /enemies/:id/:attribute/:operation/:value", async () => {
 		});
 		if (enemyID.error) throw enemyID.error;
 
-		const res = await request(app.callback()).patch(
+		const res = await agent.patch(
 			`/${API_VERSION}/enemies/${enemyID}/name/add/paused`
 		);
 
@@ -182,7 +173,7 @@ describe("PATCH: /enemies/:id/:attribute/:operation/:value", async () => {
 			rarity: "common",
 		});
 		if (enemyID.error) throw enemyID.error;
-		const res = await request(app.callback()).patch(
+		const res = await agent.patch(
 			`/${API_VERSION}/enemies/${enemyID}/energy/assign/test`
 		);
 
@@ -201,17 +192,13 @@ describe("DELETE: /enemies/:id", async () => {
 			rarity: "common",
 		});
 		if (enemyID.error) throw enemyID.error;
-		const res = await request(app.callback()).delete(
-			`/${API_VERSION}/enemies/${enemyID}`
-		);
+		const res = await agent.delete(`/${API_VERSION}/enemies/${enemyID}`);
 
 		expectSuccess(res, 200, { _id: enemyID });
 	});
 
 	it("should warn that the request is bad", async () => {
-		const res = await request(app.callback()).delete(
-			`/${API_VERSION}/enemies/1`
-		);
+		const res = await agent.delete(`/${API_VERSION}/enemies/1`);
 
 		expect404(res);
 	});

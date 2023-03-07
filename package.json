@@ -9,7 +9,9 @@
 		"test-doppler": "NODE_ENV=test doppler run --mount .env -- c8 mocha --recursive --exit --timeout 60000",
 		"test-partial": "NODE_ENV=test DEBUG=battler:* doppler run -- npx wtfnode node_modules/.bin/_mocha --grep \"$npm_config_battler_flag\" test/**/*.test.js",
 		"start": "node koa.js",
-		"koa": "doppler run --mount .env -- nodemon koa.js"
+		"koa": "DEBUG=battler:* doppler run --mount .env -- nodemon koa.js",
+		"redis": "redis-server",
+		"koa-redis": "concurrently \"npm run redis\" \"npm run koa\""
 	},
 	"dependencies": {
 		"@koa/cors": "^4.0.0",
@@ -19,13 +21,16 @@
 		"debug": "^4.3.4",
 		"dotenv": "^16.0.3",
 		"glob": "^8.1.0",
+		"ioredis": "^5.3.1",
 		"joi": "^17.8.3",
 		"joi-objectid": "^4.0.2",
 		"koa": "^2.14.1",
 		"koa-bodyparser": "^4.3.0",
+		"koa-generic-session": "^2.3.1",
 		"koa-helmet": "^6.1.0",
 		"koa-logger": "^3.2.1",
 		"koa-passport": "^6.0.0",
+		"koa-redis": "^4.0.1",
 		"koa-session": "^6.4.0",
 		"koa2-ratelimit": "^1.1.2",
 		"lodash": "^4.17.21",

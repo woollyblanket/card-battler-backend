@@ -7,16 +7,34 @@ import { expect } from "chai";
 // INTERNAL IMPORTS		///////////////////////////////////////////
 import { dbCloseTest, dbConnectTest, dbWipe } from "./db.js";
 import { app, server } from "../koa.js";
+import { API_VERSION } from "./constants.js";
 
 // PRIVATE 				///////////////////////////////////////////
 
 // PUBLIC 				///////////////////////////////////////////
-export const API_VERSION = "v1";
 
-export const dbSetupWipeDBBeforeEach = () => {
+export const agent = request.agent(app.callback());
+
+export const dbSetupWipeDBBeforeEach = (login = true) => {
 	let mongoServer;
 	before(async () => {
 		mongoServer = await dbConnectTest();
+		if (login) {
+			// create a test user
+			const username = "testPlayerForAuthentication";
+			const password = "testtesttest";
+			const player = await addEntity(`/${API_VERSION}/players`, {
+				username,
+				password,
+			});
+			console.log("player :>> ", player);
+			// login
+			const login = await agent.post(`/${API_VERSION}/auth/login`).send({
+				username,
+				password,
+			});
+			console.log("login :>> ", login.body);
+		}
 	});
 
 	beforeEach(async () => {
@@ -24,6 +42,9 @@ export const dbSetupWipeDBBeforeEach = () => {
 	});
 
 	after(async () => {
+		if (login) {
+			const logout = await agent.post(`/${API_VERSION}/auth/logout`);
+		}
 		await dbCloseTest(mongoServer);
 		server.close();
 	});
@@ -89,7 +110,7 @@ export const expectPatchUpdate = (res, data) => {
 
 export const addEntity = async (path, data) => {
 	try {
-		const res = await request(app.callback()).post(path).send(data);
+		const res = await agent.post(path).send(data);
 
 		if (res.body.error) throw res.body.error;
 
