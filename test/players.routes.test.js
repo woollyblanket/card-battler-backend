@@ -122,11 +122,14 @@ describe("GET: /players/:id/games", async () => {
 	});
 });
 
-describe("PATCH: /players/:id/username/assign/test", async () => {
+describe("PATCH: /players/:id/username/assign/test1", async () => {
 	dbSetupWipeDBBeforeEach();
 
 	it("should warn that the player already exists", async () => {
-		await addEntity(`/${API_VERSION}/players`, { username: "test1" });
+		await addEntity(`/${API_VERSION}/players`, {
+			username: "test1",
+			password: "password12345",
+		});
 
 		const playerID = await addEntity(`/${API_VERSION}/players`, {
 			username: "test2",

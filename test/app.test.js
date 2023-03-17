@@ -4,7 +4,7 @@ import * as dotenv from "dotenv";
 // INTERNAL IMPORTS		///////////////////////////////////////////
 import {
 	agent,
-	closeServer,
+	dbSetupWipeDBBeforeEach,
 	expect404,
 	expect500,
 } from "../helpers/koa.tests.js";
@@ -15,7 +15,7 @@ dotenv.config();
 
 // PUBLIC 				///////////////////////////////////////////
 describe("GET /404 no version prefix", () => {
-	closeServer();
+	dbSetupWipeDBBeforeEach();
 	it("should give a 404", async () => {
 		const res = await agent.get(`/404`);
 
@@ -24,7 +24,7 @@ describe("GET /404 no version prefix", () => {
 });
 
 describe("GET /404", () => {
-	closeServer();
+	dbSetupWipeDBBeforeEach();
 	it("should give a 404", async () => {
 		const res = await agent.get(`/${API_VERSION}/404`);
 
@@ -33,7 +33,7 @@ describe("GET /404", () => {
 });
 
 describe("GET /500", () => {
-	closeServer();
+	dbSetupWipeDBBeforeEach();
 	it("should give a 500 server error", async () => {
 		const res = await agent.get(`/${API_VERSION}/500`);
 
@@ -42,7 +42,7 @@ describe("GET /500", () => {
 });
 
 describe("GET /", () => {
-	closeServer();
+	dbSetupWipeDBBeforeEach();
 	it("should give a 404", async () => {
 		const res = await agent.get(`/${API_VERSION}`);
 
