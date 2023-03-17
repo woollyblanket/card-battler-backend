@@ -15,9 +15,9 @@ export const local = new LocalStrategy(async (username, password, done) => {
 		player = stripPassword(player);
 
 		if (match) {
-			done(null, player);
+			return done(null, player);
 		} else {
-			done(null, false);
+			return done(null, false);
 		}
 	} catch (error) {
 		return done(error);

@@ -9,6 +9,7 @@ import cors from "@koa/cors";
 import Router from "@koa/router";
 import session from "koa-session";
 import redisStore from "koa-redis";
+import redisMock from "ioredis-mock";
 import { RateLimit } from "koa2-ratelimit";
 
 // INTERNAL IMPORTS		///////////////////////////////////////////
@@ -66,10 +67,21 @@ const limiter = RateLimit.middleware({
 	max: 100,
 });
 
+let redisClient;
+if (process.env.NODE_ENV === "test") {
+	redisClient = new redisMock();
+} else {
+	redisClient = redisStore({
+		url: process.env.REDIS_URL,
+	});
+}
+
+const store = redisStore({ client: redisClient });
+
 const sessionConfig = {
 	// setting same site to combat csrf
 	sameSite: "strict",
-	store: redisStore({ url: process.env.REDIS_URL }),
+	store,
 	maxAge: 24 * 60 * 60 * 1000,
 };
 

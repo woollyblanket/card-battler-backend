@@ -23,17 +23,15 @@ export const dbSetupWipeDBBeforeEach = (login = true) => {
 			// create a test user
 			const username = "testPlayerForAuthentication";
 			const password = "testtesttest";
-			const player = await addEntity(`/${API_VERSION}/players`, {
+			await addEntity(`/${API_VERSION}/players`, {
 				username,
 				password,
 			});
-			console.log("player :>> ", player);
 			// login
-			const login = await agent.post(`/${API_VERSION}/auth/login`).send({
+			await agent.post(`/${API_VERSION}/auth/login`).send({
 				username,
 				password,
 			});
-			console.log("login :>> ", login.body);
 		}
 	});
 

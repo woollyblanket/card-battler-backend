@@ -153,7 +153,7 @@ const doOperation = (item, updateField, updateOperation, updateValue) => {
 	return { validOperation, error: result.error };
 };
 
-const buildResponse = (message, success, data) => {
+export const buildResponse = (message, success, data) => {
 	if (_.isArray(data)) {
 		return { message, success, entities: data };
 	}

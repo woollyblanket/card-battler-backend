@@ -50,8 +50,6 @@ describe("GET: /players", async () => {
 	it("should get all players", async () => {
 		const res = await agent.get(`/${API_VERSION}/players`);
 
-		console.log("headers", res.headers);
-
 		expectSuccessMultiple(res, 200);
 	});
 });
