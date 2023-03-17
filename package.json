@@ -28,7 +28,7 @@
 		"koa2-ratelimit": "^1.1.2",
 		"lodash": "^4.17.21",
 		"mongodb": "^5.1.0",
-		"mongodb-memory-server": "^8.11.4",
+		"mongodb-memory-server": "^8.11.5",
 		"mongoose": "^6.9.2",
 		"pluralize": "^8.0.0"
 	},
