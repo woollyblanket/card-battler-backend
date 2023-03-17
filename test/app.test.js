@@ -14,6 +14,7 @@ dotenv.config();
 // PRIVATE 				///////////////////////////////////////////
 
 // PUBLIC 				///////////////////////////////////////////
+
 describe("GET /404 no version prefix", () => {
 	dbSetupWipeDBBeforeEach();
 	it("should give a 404", async () => {

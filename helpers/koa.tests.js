@@ -66,6 +66,12 @@ export const expect404 = (res) => {
 	expect(res.body.message).to.equal("Not Found");
 };
 
+export const expect401 = (res) => {
+	expect(res.statusCode).to.equal(401);
+	expect(res.body.success).to.equal(false);
+	expect(res.body.message).to.equal("UnauthorisedError");
+};
+
 export const expect500 = (res) => {
 	expect(res.statusCode).to.equal(500);
 };

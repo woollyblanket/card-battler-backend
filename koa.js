@@ -71,9 +71,11 @@ let redisClient;
 if (process.env.NODE_ENV === "test") {
 	redisClient = new redisMock();
 } else {
+	/* c8 ignore start */
 	redisClient = redisStore({
 		url: process.env.REDIS_URL,
 	});
+	/* c8 ignore stop */
 }
 
 const store = redisStore({ client: redisClient });

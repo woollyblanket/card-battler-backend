@@ -1,5 +1,7 @@
 import _ from "lodash";
 import { UNPROTECTED_ROUTES } from "../../helpers/constants.js";
+import { UnauthorisedError } from "../../helpers/errors.js";
+import { createErrorResponse } from "../../helpers/koa.actions.js";
 
 export const authenticated = async (ctx, next) => {
 	// there are certain paths and methods that we don't want to protect
@@ -10,7 +12,10 @@ export const authenticated = async (ctx, next) => {
 	if (ctx.isAuthenticated()) {
 		return next();
 	} else {
-		ctx.throw(401);
-		return next();
+		return createErrorResponse(
+			ctx,
+			401,
+			new UnauthorisedError(`Path: ${ctx.path}`)
+		);
 	}
 };
