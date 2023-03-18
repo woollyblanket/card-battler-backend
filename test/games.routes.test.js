@@ -1,18 +1,17 @@
 // EXTERNAL IMPORTS		///////////////////////////////////////////
-import request from "supertest";
+import randomatic from "randomatic";
 
 // INTERNAL IMPORTS		///////////////////////////////////////////
 import {
-	API_VERSION,
 	addEntity,
+	agent,
 	dbSetupWipeDBBeforeEach,
-	expect404,
+	expect4xx,
 	expectError,
 	expectPatchUpdate,
 	expectSuccess,
 } from "../helpers/koa.tests.js";
-import { app } from "../koa.js";
-import { RARITIES } from "../helpers/constants.js";
+import { API_VERSION, RARITIES } from "../helpers/constants.js";
 
 // PRIVATE 				///////////////////////////////////////////
 const createGame = async () => {
@@ -27,7 +26,8 @@ const createGame = async () => {
 	}
 
 	const playerID = await addEntity(`/${API_VERSION}/players`, {
-		username: "test",
+		username: randomatic("a", 20),
+		password: randomatic("*", 20),
 	});
 
 	if (playerID.error) throw new Error(playerID.error);
@@ -68,19 +68,15 @@ describe("GET: /games/:id", async () => {
 
 	it("should get a single game", async () => {
 		const gameID = await createGame();
-		const res = await request(app.callback()).get(
-			`/${API_VERSION}/games/${gameID}`
-		);
+		const res = await agent.get(`/${API_VERSION}/games/${gameID}`);
 
 		expectSuccess(res, 200, { _id: gameID });
 	});
 
 	it("should warn that the request is bad", async () => {
-		const res = await request(app.callback()).get(
-			`/${API_VERSION}/games/1`
-		);
+		const res = await agent.get(`/${API_VERSION}/games/1`);
 
-		expect404(res);
+		expect4xx(res, 404);
 	});
 });
 
@@ -89,19 +85,15 @@ describe("DELETE: /games/:id", async () => {
 
 	it("should delete a single game", async () => {
 		const gameID = await createGame();
-		const res = await request(app.callback()).delete(
-			`/${API_VERSION}/games/${gameID}`
-		);
+		const res = await agent.delete(`/${API_VERSION}/games/${gameID}`);
 
 		expectSuccess(res, 200, { _id: gameID });
 	});
 
 	it("should warn that the request is bad", async () => {
-		const res = await request(app.callback()).delete(
-			`/${API_VERSION}/games/1`
-		);
+		const res = await agent.delete(`/${API_VERSION}/games/1`);
 
-		expect404(res);
+		expect4xx(res, 404);
 	});
 });
 
@@ -112,7 +104,7 @@ describe("PATCH: /games/:id/:attribute/:operation/:value", async () => {
 
 	it("should update the status of the game", async () => {
 		const gameID = await createGame();
-		const res = await request(app.callback()).patch(
+		const res = await agent.patch(
 			`/${API_VERSION}/games/${gameID}/status/assign/paused`
 		);
 
@@ -121,7 +113,7 @@ describe("PATCH: /games/:id/:attribute/:operation/:value", async () => {
 
 	it("should warn that the request is bad", async () => {
 		const gameID = await createGame();
-		const res = await request(app.callback()).patch(
+		const res = await agent.patch(
 			`/${API_VERSION}/games/${gameID}/status/add/paused`
 		);
 
@@ -130,7 +122,7 @@ describe("PATCH: /games/:id/:attribute/:operation/:value", async () => {
 
 	it("should warn that the request is bad", async () => {
 		const gameID = await createGame();
-		const res = await request(app.callback()).patch(
+		const res = await agent.patch(
 			`/${API_VERSION}/games/${gameID}/status/assign/asdf`
 		);
 
@@ -139,7 +131,7 @@ describe("PATCH: /games/:id/:attribute/:operation/:value", async () => {
 
 	it("should increment the level by 1", async () => {
 		const gameID = await createGame();
-		const res = await request(app.callback()).patch(
+		const res = await agent.patch(
 			`/${API_VERSION}/games/${gameID}/level/add/1`
 		);
 
@@ -148,7 +140,7 @@ describe("PATCH: /games/:id/:attribute/:operation/:value", async () => {
 
 	it("should make the round equal 5", async () => {
 		const gameID = await createGame();
-		const res = await request(app.callback()).patch(
+		const res = await agent.patch(
 			`/${API_VERSION}/games/${gameID}/round/assign/5`
 		);
 
@@ -157,7 +149,7 @@ describe("PATCH: /games/:id/:attribute/:operation/:value", async () => {
 
 	it("should warn that the request is bad", async () => {
 		const gameID = await createGame();
-		const res = await request(app.callback()).patch(
+		const res = await agent.patch(
 			`/${API_VERSION}/games/${gameID}/round/assign/asdf`
 		);
 
@@ -166,7 +158,7 @@ describe("PATCH: /games/:id/:attribute/:operation/:value", async () => {
 
 	it("should subtract 1 from the round", async () => {
 		const gameID = await createGame();
-		const res = await request(app.callback()).patch(
+		const res = await agent.patch(
 			`/${API_VERSION}/games/${gameID}/round/subtract/1`
 		);
 
@@ -175,7 +167,7 @@ describe("PATCH: /games/:id/:attribute/:operation/:value", async () => {
 
 	it("should warn that the request is bad", async () => {
 		const gameID = await createGame();
-		const res = await request(app.callback()).patch(
+		const res = await agent.patch(
 			`/${API_VERSION}/games/${gameID}/round/remove/asdf`
 		);
 
@@ -184,7 +176,7 @@ describe("PATCH: /games/:id/:attribute/:operation/:value", async () => {
 
 	it("should warn that the request is bad", async () => {
 		const gameID = await createGame();
-		const res = await request(app.callback()).patch(
+		const res = await agent.patch(
 			`/${API_VERSION}/games/${gameID}/round/remove/1`
 		);
 

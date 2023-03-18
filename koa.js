@@ -8,6 +8,8 @@ import createDebugMessages from "debug";
 import cors from "@koa/cors";
 import Router from "@koa/router";
 import session from "koa-session";
+import redisStore from "koa-redis";
+import redisMock from "ioredis-mock";
 import { RateLimit } from "koa2-ratelimit";
 
 // INTERNAL IMPORTS		///////////////////////////////////////////
@@ -36,6 +38,9 @@ import { Player } from "./components/players/model.js";
 // middleware
 import { devcheck } from "./middleware/devcheck.js";
 import { sessionViews } from "./middleware/session.js";
+import { authenticated } from "./components/auth/middleware.js";
+import { auth } from "./components/auth/koa.routes.js";
+import { passportInit, passportSession } from "./components/auth/setup.js";
 
 dotenv.config();
 
@@ -62,20 +67,33 @@ const limiter = RateLimit.middleware({
 	max: 100,
 });
 
+let redisClient;
+if (process.env.NODE_ENV === "test") {
+	redisClient = new redisMock();
+} else {
+	/* c8 ignore start */
+	redisClient = redisStore({
+		url: process.env.REDIS_URL,
+	});
+	/* c8 ignore stop */
+}
+
+const store = redisStore({ client: redisClient });
+
 const sessionConfig = {
 	// setting same site to combat csrf
 	sameSite: "strict",
+	store,
+	maxAge: 24 * 60 * 60 * 1000,
 };
 
 // stored as a stringified array
-const cookieSecret = JSON.parse(
-	process.env.COOKIES_SECRET.replaceAll("\\", "")
-);
+const secret = JSON.parse(process.env.SESSION_SECRET.replaceAll("\\", ""));
 
 // PUBLIC 				///////////////////////////////////////////
 export const app = new Koa();
 
-app.keys = cookieSecret;
+app.keys = secret;
 app.use(session(sessionConfig, app));
 app.use(bodyParser());
 app.use(logger());
@@ -83,12 +101,19 @@ app.use(helmet());
 app.use(
 	cors({
 		origin: true,
+		credentials: true,
 	})
 );
+
+app.use(passportInit);
+app.use(passportSession);
 
 // middleware
 app.use(devcheck);
 app.use(sessionViews);
+// protect all endpoints by default
+// exceptions are handled in the middleware itself
+app.use(authenticated);
 
 /* c8 ignore start */
 if (process.env.NODE_ENV !== "test") {
@@ -114,6 +139,7 @@ v1Router.get(`/500`, () => {
 	throw new Error("BROKEN");
 });
 
+v1Router.use("/auth", auth.routes());
 v1Router.use("/games", games.routes());
 
 // anything above this overwrites the default crud

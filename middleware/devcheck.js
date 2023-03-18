@@ -1,6 +1,7 @@
 export const devcheck = async (ctx, next) => {
 	await next();
 
+	/* c8 ignore start */
 	if (process.env.NODE_ENV === "development") {
 		ctx.assert.equal(
 			"object",
@@ -9,4 +10,5 @@ export const devcheck = async (ctx, next) => {
 			"Dev Error: ctx.body needs to be an object"
 		);
 	}
+	/* c8 ignore stop */
 };

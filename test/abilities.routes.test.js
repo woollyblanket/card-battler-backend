@@ -1,17 +1,16 @@
 // EXTERNAL IMPORTS		///////////////////////////////////////////
-import request from "supertest";
 
 // INTERNAL IMPORTS		///////////////////////////////////////////
 import {
-	API_VERSION,
 	addEntity,
+	agent,
 	dbSetupWipeDBBeforeEach,
-	expect404,
+	expect4xx,
 	expectError,
 	expectPatchUpdate,
 	expectSuccess,
 } from "../helpers/koa.tests.js";
-import { app } from "../koa.js";
+import { API_VERSION } from "../helpers/constants.js";
 
 // PRIVATE 				///////////////////////////////////////////
 
@@ -20,7 +19,7 @@ describe("POST: /abilities", async () => {
 	dbSetupWipeDBBeforeEach();
 
 	it("should create a new ability", async () => {
-		const res = await request(app.callback())
+		const res = await agent
 			.post(`/${API_VERSION}/abilities`)
 			.send({ name: "test", description: "test", type: "buff" });
 
@@ -32,9 +31,7 @@ describe("POST: /abilities", async () => {
 	});
 
 	it("should warn that the request is bad", async () => {
-		const res = await request(app.callback())
-			.post(`/${API_VERSION}/abilities`)
-			.send();
+		const res = await agent.post(`/${API_VERSION}/abilities`).send();
 
 		expectError(res, 400);
 	});
@@ -52,19 +49,15 @@ describe("GET: /abilities/:id", async () => {
 
 		if (abilityID.error) throw abilityID.error;
 
-		const res = await request(app.callback()).get(
-			`/${API_VERSION}/abilities/${abilityID}`
-		);
+		const res = await agent.get(`/${API_VERSION}/abilities/${abilityID}`);
 
 		expectSuccess(res, 200, { _id: abilityID });
 	});
 
 	it("should warn that the request is bad", async () => {
-		const res = await request(app.callback()).get(
-			`/${API_VERSION}/abilities/1`
-		);
+		const res = await agent.get(`/${API_VERSION}/abilities/1`);
 
-		expect404(res);
+		expect4xx(res, 404);
 	});
 });
 
@@ -79,7 +72,7 @@ describe("PATCH: /abilities/:id/:attribute/:operation/:value", async () => {
 		});
 		if (abilityID.error) throw abilityID.error;
 
-		const res = await request(app.callback()).patch(
+		const res = await agent.patch(
 			`/${API_VERSION}/abilities/${abilityID}/duration/assign/paused`
 		);
 
@@ -94,7 +87,7 @@ describe("PATCH: /abilities/:id/:attribute/:operation/:value", async () => {
 		});
 		if (abilityID.error) throw abilityID.error;
 
-		const res = await request(app.callback()).patch(
+		const res = await agent.patch(
 			`/${API_VERSION}/abilities/${abilityID}/energy/assign/4`
 		);
 
@@ -108,7 +101,7 @@ describe("PATCH: /abilities/:id/:attribute/:operation/:value", async () => {
 			type: "buff",
 		});
 		if (abilityID.error) throw abilityID.error;
-		const res = await request(app.callback()).patch(
+		const res = await agent.patch(
 			`/${API_VERSION}/abilities/${abilityID}/duration/add/3`
 		);
 
@@ -123,7 +116,7 @@ describe("PATCH: /abilities/:id/:attribute/:operation/:value", async () => {
 		});
 		if (abilityID.error) throw abilityID.error;
 
-		const res = await request(app.callback()).patch(
+		const res = await agent.patch(
 			`/${API_VERSION}/abilities/${abilityID}/type/assign/buff-debuff`
 		);
 
@@ -138,7 +131,7 @@ describe("PATCH: /abilities/:id/:attribute/:operation/:value", async () => {
 		});
 		if (abilityID.error) throw abilityID.error;
 
-		const res = await request(app.callback()).patch(
+		const res = await agent.patch(
 			`/${API_VERSION}/abilities/${abilityID}/type/add/buff-debuff`
 		);
 
@@ -153,7 +146,7 @@ describe("PATCH: /abilities/:id/:attribute/:operation/:value", async () => {
 		});
 		if (abilityID.error) throw abilityID.error;
 
-		const res = await request(app.callback()).patch(
+		const res = await agent.patch(
 			`/${API_VERSION}/abilities/${abilityID}/type/assign/some-bad-type`
 		);
 
@@ -171,7 +164,7 @@ describe("DELETE: /abilities/:id", async () => {
 			type: "buff",
 		});
 		if (abilityID.error) throw abilityID.error;
-		const res = await request(app.callback()).delete(
+		const res = await agent.delete(
 			`/${API_VERSION}/abilities/${abilityID}`
 		);
 
@@ -179,10 +172,8 @@ describe("DELETE: /abilities/:id", async () => {
 	});
 
 	it("should warn that the request is bad", async () => {
-		const res = await request(app.callback()).delete(
-			`/${API_VERSION}/abilities/1`
-		);
+		const res = await agent.delete(`/${API_VERSION}/abilities/1`);
 
-		expect404(res);
+		expect4xx(res, 404);
 	});
 });

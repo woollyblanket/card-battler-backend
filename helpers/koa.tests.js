@@ -1,22 +1,37 @@
 // EXTERNAL IMPORTS		///////////////////////////////////////////
 import request from "supertest";
-import Stream from "stream";
-import Koa from "koa";
+import randomatic from "randomatic";
 import { expect } from "chai";
 
 // INTERNAL IMPORTS		///////////////////////////////////////////
 import { dbCloseTest, dbConnectTest, dbWipe } from "./db.js";
 import { app, server } from "../koa.js";
+import { API_VERSION } from "./constants.js";
 
 // PRIVATE 				///////////////////////////////////////////
+const createUserAndLogIn = async () => {
+	const username = randomatic("a", 20);
+	const password = randomatic("*", 20);
+	await addEntity(`/${API_VERSION}/players`, {
+		username,
+		password,
+	});
+	// login
+	await agent.post(`/${API_VERSION}/auth/login`).send({
+		username,
+		password,
+	});
+};
 
 // PUBLIC 				///////////////////////////////////////////
-export const API_VERSION = "v1";
 
-export const dbSetupWipeDBBeforeEach = () => {
+export const agent = request.agent(app.callback());
+
+export const dbSetupWipeDBBeforeEach = (login = true) => {
 	let mongoServer;
 	before(async () => {
 		mongoServer = await dbConnectTest();
+		if (login) await createUserAndLogIn();
 	});
 
 	beforeEach(async () => {
@@ -24,6 +39,8 @@ export const dbSetupWipeDBBeforeEach = () => {
 	});
 
 	after(async () => {
+		if (login) await agent.post(`/${API_VERSION}/auth/logout`);
+
 		await dbCloseTest(mongoServer);
 		server.close();
 	});
@@ -41,10 +58,11 @@ export const expectSuccess = (res, status, data) => {
 	if (data) expect(res.body.entity).to.include(data);
 };
 
-export const expect404 = (res) => {
-	expect(res.statusCode).to.equal(404);
+export const expect4xx = (res, status) => {
+	expect(res.statusCode).to.equal(status);
 	expect(res.body.success).to.equal(false);
-	expect(res.body.message).to.equal("Not Found");
+	if (status === 401) expect(res.body.message).to.equal("UnauthorisedError");
+	if (status === 404) expect(res.body.message).to.equal("Not Found");
 };
 
 export const expect500 = (res) => {
@@ -89,7 +107,7 @@ export const expectPatchUpdate = (res, data) => {
 
 export const addEntity = async (path, data) => {
 	try {
-		const res = await request(app.callback()).post(path).send(data);
+		const res = await agent.post(path).send(data);
 
 		if (res.body.error) throw res.body.error;
 
@@ -97,28 +115,4 @@ export const addEntity = async (path, data) => {
 	} catch (error) {
 		return { error };
 	}
-};
-
-// mock context
-// from here: https://gist.github.com/emmanuelnk/f1254eed8f947a81e8d715476d9cc92c
-export const context = (req = null, res = null, app = null) => {
-	const socket = new Stream.Duplex();
-
-	req = Object.assign(
-		{ headers: {}, socket },
-		Stream.Readable.prototype,
-		req || {}
-	);
-	res = Object.assign(
-		{ _headers: {}, socket },
-		Stream.Writable.prototype,
-		res || {}
-	);
-	req.socket.remoteAddress = req.socket.remoteAddress || "127.0.0.1";
-	app = app || new Koa();
-	res.getHeader = (k) => res._headers[k.toLowerCase()];
-	res.setHeader = (k, v) => (res._headers[k.toLowerCase()] = v);
-	res.removeHeader = (k, v) => delete res._headers[k.toLowerCase()];
-
-	return app.createContext(req, res);
 };

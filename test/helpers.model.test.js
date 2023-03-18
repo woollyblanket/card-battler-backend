@@ -321,8 +321,9 @@ describe("helpers:model createForID", async () => {
 			Test2,
 			"link",
 		]);
+
 		expect(result.success).to.be.true;
-		expect(result.entity.link).to.equal(test._id);
+		expect(result.entity.link.equals(test._id)).to.be.true;
 	});
 
 	it("should throw an error", async () => {
