@@ -9,6 +9,7 @@ const data = {
 	abilities: [],
 };
 
+// ignore unused exports default
 export default {
 	modelName: "Enemy",
 	data: [

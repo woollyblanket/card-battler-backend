@@ -4,7 +4,7 @@ import { expect } from "chai";
 
 // INTERNAL IMPORTS		///////////////////////////////////////////
 import * as model from "../helpers/model.js";
-import { dbSetupWipeDBBeforeEach } from "../helpers/tests.js";
+import { dbSetupWipeDBBeforeEach } from "../helpers/koa.tests.js";
 
 // PRIVATE 				///////////////////////////////////////////
 const schema = new mongoose.Schema({
@@ -321,8 +321,9 @@ describe("helpers:model createForID", async () => {
 			Test2,
 			"link",
 		]);
+
 		expect(result.success).to.be.true;
-		expect(result.entity.link).to.equal(test._id);
+		expect(result.entity.link.equals(test._id)).to.be.true;
 	});
 
 	it("should throw an error", async () => {

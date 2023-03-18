@@ -5,6 +5,7 @@ const data = {
 	cards: [],
 };
 
+// ignore unused exports default
 export default {
 	modelName: "Deck",
 	data: [
