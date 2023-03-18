@@ -6,7 +6,7 @@ import {
 	agent,
 	closeServer,
 	dbSetupWipeDBBeforeEach,
-	expect401,
+	expect4xx,
 	expectError,
 	expectSuccess,
 } from "../helpers/koa.tests.js";
@@ -16,7 +16,7 @@ describe("GET /cards no user setup", () => {
 	it("should give an unauthorised error", async () => {
 		const res = await agent.get(`/${API_VERSION}/cards`);
 
-		expect401(res);
+		expect4xx(res, 401);
 	});
 });
 

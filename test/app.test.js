@@ -5,7 +5,7 @@ import * as dotenv from "dotenv";
 import {
 	agent,
 	dbSetupWipeDBBeforeEach,
-	expect404,
+	expect4xx,
 	expect500,
 } from "../helpers/koa.tests.js";
 import { API_VERSION } from "../helpers/constants.js";
@@ -20,7 +20,7 @@ describe("GET /404 no version prefix", () => {
 	it("should give a 404", async () => {
 		const res = await agent.get(`/404`);
 
-		expect404(res);
+		expect4xx(res, 404);
 	});
 });
 
@@ -29,7 +29,7 @@ describe("GET /404", () => {
 	it("should give a 404", async () => {
 		const res = await agent.get(`/${API_VERSION}/404`);
 
-		expect404(res);
+		expect4xx(res, 404);
 	});
 });
 
@@ -47,6 +47,6 @@ describe("GET /", () => {
 	it("should give a 404", async () => {
 		const res = await agent.get(`/${API_VERSION}`);
 
-		expect404(res);
+		expect4xx(res, 404);
 	});
 });

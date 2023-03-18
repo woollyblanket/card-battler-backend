@@ -5,7 +5,7 @@ import {
 	addEntity,
 	agent,
 	dbSetupWipeDBBeforeEach,
-	expect404,
+	expect4xx,
 	expectError,
 	expectSuccess,
 	expectSuccessMultiple,
@@ -75,7 +75,7 @@ describe("GET: /players/:id", async () => {
 	it("should warn that the request is bad", async () => {
 		const res = await agent.get(`/${API_VERSION}/players/1`);
 
-		expect404(res);
+		expect4xx(res, 404);
 	});
 });
 
@@ -100,7 +100,7 @@ describe("GET: /players/username/:username", async () => {
 	it("should warn that it can't find the player", async () => {
 		const res = await agent.get(`/${API_VERSION}/players/username/1`);
 
-		expect404(res);
+		expect4xx(res, 404);
 	});
 });
 
@@ -124,7 +124,7 @@ describe("GET: /players/:id/games", async () => {
 	it("should warn that the request is bad", async () => {
 		const res = await agent.get(`/${API_VERSION}/players/12345/games`);
 
-		expect404(res);
+		expect4xx(res, 404);
 	});
 });
 

@@ -9,6 +9,19 @@ import { app, server } from "../koa.js";
 import { API_VERSION } from "./constants.js";
 
 // PRIVATE 				///////////////////////////////////////////
+const createUserAndLogIn = async () => {
+	const username = randomatic("a", 20);
+	const password = randomatic("*", 20);
+	await addEntity(`/${API_VERSION}/players`, {
+		username,
+		password,
+	});
+	// login
+	await agent.post(`/${API_VERSION}/auth/login`).send({
+		username,
+		password,
+	});
+};
 
 // PUBLIC 				///////////////////////////////////////////
 
@@ -18,20 +31,7 @@ export const dbSetupWipeDBBeforeEach = (login = true) => {
 	let mongoServer;
 	before(async () => {
 		mongoServer = await dbConnectTest();
-		if (login) {
-			// create a test user
-			const username = randomatic("a", 20);
-			const password = randomatic("*", 20);
-			await addEntity(`/${API_VERSION}/players`, {
-				username,
-				password,
-			});
-			// login
-			await agent.post(`/${API_VERSION}/auth/login`).send({
-				username,
-				password,
-			});
-		}
+		if (login) await createUserAndLogIn();
 	});
 
 	beforeEach(async () => {
@@ -39,9 +39,8 @@ export const dbSetupWipeDBBeforeEach = (login = true) => {
 	});
 
 	after(async () => {
-		if (login) {
-			await agent.post(`/${API_VERSION}/auth/logout`);
-		}
+		if (login) await agent.post(`/${API_VERSION}/auth/logout`);
+
 		await dbCloseTest(mongoServer);
 		server.close();
 	});
@@ -59,16 +58,11 @@ export const expectSuccess = (res, status, data) => {
 	if (data) expect(res.body.entity).to.include(data);
 };
 
-export const expect404 = (res) => {
-	expect(res.statusCode).to.equal(404);
+export const expect4xx = (res, status) => {
+	expect(res.statusCode).to.equal(status);
 	expect(res.body.success).to.equal(false);
-	expect(res.body.message).to.equal("Not Found");
-};
-
-export const expect401 = (res) => {
-	expect(res.statusCode).to.equal(401);
-	expect(res.body.success).to.equal(false);
-	expect(res.body.message).to.equal("UnauthorisedError");
+	if (status === 401) expect(res.body.message).to.equal("UnauthorisedError");
+	if (status === 404) expect(res.body.message).to.equal("Not Found");
 };
 
 export const expect500 = (res) => {

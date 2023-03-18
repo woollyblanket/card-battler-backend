@@ -6,7 +6,7 @@ import {
 	addEntity,
 	agent,
 	dbSetupWipeDBBeforeEach,
-	expect404,
+	expect4xx,
 	expectError,
 	expectPatchUpdate,
 	expectSuccess,
@@ -76,7 +76,7 @@ describe("GET: /games/:id", async () => {
 	it("should warn that the request is bad", async () => {
 		const res = await agent.get(`/${API_VERSION}/games/1`);
 
-		expect404(res);
+		expect4xx(res, 404);
 	});
 });
 
@@ -93,7 +93,7 @@ describe("DELETE: /games/:id", async () => {
 	it("should warn that the request is bad", async () => {
 		const res = await agent.delete(`/${API_VERSION}/games/1`);
 
-		expect404(res);
+		expect4xx(res, 404);
 	});
 });
 
