@@ -67,18 +67,14 @@ const limiter = RateLimit.middleware({
 	max: 100,
 });
 
-let redisClient;
+let store;
 if (process.env.NODE_ENV === "test") {
-	redisClient = new redisMock();
+	store = redisStore({ client: new redisMock() });
 } else {
 	/* c8 ignore start */
-	redisClient = redisStore({
-		url: process.env.REDIS_URL,
-	});
+	store = redisStore({ url: process.env.REDIS_URL });
 	/* c8 ignore stop */
 }
-
-const store = redisStore({ client: redisClient });
 
 const sessionConfig = {
 	// setting same site to combat csrf
