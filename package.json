@@ -39,7 +39,8 @@
 		"mongodb-memory-server": "^8.11.5",
 		"mongoose": "^6.9.2",
 		"passport-local": "^1.0.0",
-		"pluralize": "^8.0.0"
+		"pluralize": "^8.0.0",
+		"randomatic": "^3.1.1"
 	},
 	"devDependencies": {
 		"@babel/preset-env": "^7.20.2",

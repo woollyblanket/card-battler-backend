@@ -1,5 +1,5 @@
 // EXTERNAL IMPORTS		///////////////////////////////////////////
-
+import randomatic from "randomatic";
 // INTERNAL IMPORTS		///////////////////////////////////////////
 import {
 	addEntity,
@@ -19,20 +19,23 @@ describe("POST: /players/", async () => {
 	dbSetupWipeDBBeforeEach();
 
 	it("should create a new player", async () => {
+		const username = randomatic("a", 20);
 		const res = await agent
 			.post(`/${API_VERSION}/players`)
-			.send({ username: "test", password: "testtesttest" });
+			.send({ username, password: randomatic("*", 20) });
 
-		expectSuccess(res, 201, { username: "test" });
+		expectSuccess(res, 201, { username });
 	});
 
 	it("should warn that the player already exists", async () => {
+		const username = randomatic("a", 20);
+		const password = randomatic("*", 20);
 		await agent
 			.post(`/${API_VERSION}/players`)
-			.send({ username: "test", password: "testtesttest" });
+			.send({ username, password });
 		const res = await agent
 			.post(`/${API_VERSION}/players`)
-			.send({ username: "test", password: "testtesttest" });
+			.send({ username, password });
 
 		expectError(res, 400);
 	});
@@ -59,8 +62,8 @@ describe("GET: /players/:id", async () => {
 
 	it("should get a single player", async () => {
 		const playerID = await addEntity(`/${API_VERSION}/players`, {
-			username: "test",
-			password: "testtesttest",
+			username: randomatic("a", 20),
+			password: randomatic("*", 20),
 		});
 		if (playerID.error) throw playerID.error;
 
@@ -80,13 +83,16 @@ describe("GET: /players/username/:username", async () => {
 	dbSetupWipeDBBeforeEach();
 
 	it("should get a single player", async () => {
+		const username = randomatic("a", 20);
 		const playerID = await addEntity(`/${API_VERSION}/players`, {
-			username: "test",
-			password: "testtesttest",
+			username,
+			password: randomatic("*", 20),
 		});
 		if (playerID.error) throw playerID.error;
 
-		const res = await agent.get(`/${API_VERSION}/players/username/test`);
+		const res = await agent.get(
+			`/${API_VERSION}/players/username/${username}`
+		);
 
 		expectSuccess(res, 200, { _id: playerID });
 	});
@@ -103,8 +109,8 @@ describe("GET: /players/:id/games", async () => {
 
 	it("should list the games associated with the player", async () => {
 		const playerID = await addEntity(`/${API_VERSION}/players`, {
-			username: "test",
-			password: "testtesttest",
+			username: randomatic("a", 20),
+			password: randomatic("*", 20),
 		});
 		if (playerID.error) throw playerID.error;
 
@@ -126,18 +132,22 @@ describe("PATCH: /players/:id/username/assign/test1", async () => {
 	dbSetupWipeDBBeforeEach();
 
 	it("should warn that the player already exists", async () => {
+		const username1 = randomatic("a", 20);
+		const username2 = randomatic("a", 20);
+		const password1 = randomatic("*", 20);
+		const password2 = randomatic("*", 20);
 		await addEntity(`/${API_VERSION}/players`, {
-			username: "test1",
-			password: "password12345",
+			username: username1,
+			password: password1,
 		});
 
 		const playerID = await addEntity(`/${API_VERSION}/players`, {
-			username: "test2",
-			password: "testtesttest",
+			username: username2,
+			password: password2,
 		});
 
 		const res = await agent.patch(
-			`/${API_VERSION}/players/${playerID}/username/assign/test1`
+			`/${API_VERSION}/players/${playerID}/username/assign/${username1}`
 		);
 
 		expectError(res, 400, "DuplicateError");

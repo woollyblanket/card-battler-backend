@@ -1,4 +1,5 @@
 // EXTERNAL IMPORTS		///////////////////////////////////////////
+import randomatic from "randomatic";
 
 // INTERNAL IMPORTS		///////////////////////////////////////////
 import {
@@ -10,8 +11,7 @@ import {
 	expectPatchUpdate,
 	expectSuccess,
 } from "../helpers/koa.tests.js";
-import { RARITIES } from "../helpers/constants.js";
-import { API_VERSION } from "../helpers/constants.js";
+import { API_VERSION, RARITIES } from "../helpers/constants.js";
 
 // PRIVATE 				///////////////////////////////////////////
 const createGame = async () => {
@@ -26,8 +26,8 @@ const createGame = async () => {
 	}
 
 	const playerID = await addEntity(`/${API_VERSION}/players`, {
-		username: "test",
-		password: "testtesttest",
+		username: randomatic("a", 20),
+		password: randomatic("*", 20),
 	});
 
 	if (playerID.error) throw new Error(playerID.error);

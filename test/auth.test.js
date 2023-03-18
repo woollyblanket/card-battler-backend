@@ -1,3 +1,5 @@
+import randomatic from "randomatic";
+
 import { API_VERSION } from "../helpers/constants.js";
 import {
 	addEntity,
@@ -22,8 +24,8 @@ describe("GET: /login", async () => {
 	dbSetupWipeDBBeforeEach(false);
 
 	it("should log a player in", async () => {
-		const username = "testPlayerForAuthentication";
-		const password = "testtesttest";
+		const username = randomatic("a", 20);
+		const password = randomatic("*", 20);
 		await addEntity(`/${API_VERSION}/players`, {
 			username,
 			password,
@@ -37,8 +39,8 @@ describe("GET: /login", async () => {
 	});
 
 	it("should give an error as the user isn't set", async () => {
-		const username = "testPlayerForAuthentication";
-		const password = "testtesttest";
+		const username = randomatic("a", 20);
+		const password = randomatic("*", 20);
 
 		const res = await agent.post(`/${API_VERSION}/auth/login`).send({
 			username,
@@ -51,8 +53,8 @@ describe("GET: /login", async () => {
 	});
 
 	it("should give an error as the password isn't correct", async () => {
-		const username = "testPlayerForAuthentication";
-		const password = "testtesttest";
+		const username = randomatic("a", 20);
+		const password = randomatic("*", 20);
 		await addEntity(`/${API_VERSION}/players`, {
 			username,
 			password,
