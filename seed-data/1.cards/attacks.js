@@ -14,6 +14,7 @@ const data = {
 	singularSubject: "an enemy",
 };
 
+// ignore unused exports default
 export default {
 	modelName: "Card",
 	data: [

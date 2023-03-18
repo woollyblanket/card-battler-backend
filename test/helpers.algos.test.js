@@ -2,6 +2,7 @@
 
 import { expect } from "chai";
 import { weightedRandom } from "../helpers/algos.js";
+import { closeServer } from "../helpers/koa.tests.js";
 
 // INTERNAL IMPORTS		///////////////////////////////////////////
 
@@ -10,6 +11,7 @@ import { weightedRandom } from "../helpers/algos.js";
 // PUBLIC 				///////////////////////////////////////////
 
 describe("helpers:algos weightedRandom", async () => {
+	closeServer();
 	it("should throw an error because the lengths don't match", async () => {
 		const result = weightedRandom([1, 2, 3], [1, 1]);
 		expect(result).to.be.an("error");
