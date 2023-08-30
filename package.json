@@ -35,7 +35,7 @@
 		"koa-session": "^6.4.0",
 		"koa2-ratelimit": "^1.1.2",
 		"lodash": "^4.17.21",
-		"mongodb": "^5.1.0",
+		"mongodb": "^5.8.0",
 		"mongodb-memory-server": "^8.11.5",
 		"mongoose": "^6.10.1",
 		"passport-local": "^1.0.0",
